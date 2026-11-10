@@ -1,0 +1,4 @@
+{
+  "anthropic": {"legacy": "claude-sonnet-4-6", "current": "claude-opus-5-5", "cheap_frontier": "claude-haiku-5-5"},
+  "openai":    {"legacy": "gpt-4.1",           "current": "gpt-6.1-sol",     "cheap_frontier": "gpt-6-luna"}
+}
