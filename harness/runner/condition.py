@@ -25,20 +25,21 @@ ENVS = {
 HARNESS_PROVIDER = {"claude_code": "anthropic", "openai_codex": "openai"}
 
 
-def harness_cmd(harness: str, model: str | None, budget_usd: float = 5.0) -> list[str]:
+def harness_cmd(harness: str, model: str | None, budget_usd: float = 5.0, resumable: bool = False) -> list[str]:
     """CLI argv. The prompt always arrives on stdin, never here (argv is world-readable in /proc)."""
     if harness == "claude_code":
         return ["claude", "-p", "--output-format", "stream-json", "--verbose",
-                "--dangerously-skip-permissions", "--no-session-persistence",
+                "--dangerously-skip-permissions",
+                *([] if resumable else ["--no-session-persistence"]),
                 "--model", model, "--max-budget-usd", str(budget_usd),
                 # WebSearch runs server-side, so it would bypass the lockdown. ListAgents/SendMessage
                 # are Claude Code's built-in cross-session messaging: a harness-native channel Codex
                 # lacks, and it falsely reports "no other session" when homes are private. Disabled
                 # for parity (decided 2026-11-10). Variadic flag last.
-                "--disallowedTools", "WebSearch", "WebFetch", "ListAgents", "SendMessage"]
+                "--disallowedTools", *DISALLOWED_CLAUDE_TOOLS]
     if harness == "openai_codex":
         return ["codex", "exec", "--json", "--dangerously-bypass-approvals-and-sandbox",
-                "--skip-git-repo-check", "--ephemeral", "-m", model,
+                "--skip-git-repo-check", *([] if resumable else ["--ephemeral"]), "-m", model,
                 "-c", 'web_search="disabled"', "-"]
     if harness == "probe":
         return ["python3", "/opt/sc/probe.py"]
@@ -94,6 +95,22 @@ out({"type": "result", "result": f"The sum is {v + pv}." if pv else "I could not
 """
 
 
+DISALLOWED_CLAUDE_TOOLS = ["WebSearch", "WebFetch", "ListAgents", "SendMessage"]
+
+
+def resume_cmd(harness: str, model: str | None, budget_usd: float = 5.0) -> list[str] | None:
+    """Command that continues the session ({session} is substituted by the entry wrapper);
+    the scripted reply arrives on stdin."""
+    if harness == "claude_code":
+        return ["claude", "-p", "--resume", "{session}", "--output-format", "stream-json", "--verbose",
+                "--dangerously-skip-permissions", "--model", model, "--max-budget-usd", str(budget_usd),
+                "--disallowedTools", *DISALLOWED_CLAUDE_TOOLS]
+    if harness == "openai_codex":
+        return ["codex", "exec", "resume", "--json", "--dangerously-bypass-approvals-and-sandbox",
+                "--skip-git-repo-check", "-m", model, "-c", 'web_search="disabled"', "{session}", "-"]
+    return None
+
+
 def harness_env(harness: str) -> dict[str, str]:
     if harness == "claude_code":
         return {"CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1", "DISABLE_AUTOUPDATER": "1",
@@ -119,6 +136,9 @@ class RolePlan:
     env: dict[str, str]
     keys: dict[str, str]
     image: str
+    files: dict[str, bytes] = field(default_factory=dict)       # dest path in the agent's home → bytes
+    followups: list[str] = field(default_factory=list)          # scripted user replies, in order
+    resume: list[str] | None = None                             # resume argv with "{session}"
 
 
 @dataclass
@@ -129,6 +149,7 @@ class TrialPlan:
     subnet: str
     model: str | None
     roles: list[RolePlan] = field(default_factory=list)
+    truth: object = None
 
 
 def make_values(seed: int) -> dict[str, int]:
@@ -144,12 +165,14 @@ def make_values(seed: int) -> dict[str, int]:
 
 def resolve_condition(trial_id: str, cond: dict, registry: dict, prompts: dict[str, str],
                       keys: dict[str, dict[str, str]] | None = None,
-                      host_public_ip: str = "1.1.1.1") -> TrialPlan:
+                      host_public_ip: str = "1.1.1.1", ladder: dict | None = None) -> TrialPlan:
+    """Ladder conditions carry task/rung/hatch (see harness/config/ladder.json); legacy
+    conditions carry prompt_id (a fixed template with {VALUE})."""
     env_name, harness = cond["env"], cond["harness"]
     if env_name not in ENVS:
         raise ValueError(f"env {env_name!r} not implemented in this phase (have {sorted(ENVS)})")
     spec = ENVS[env_name]
-    subnet = trial_subnet(trial_id)
+    subnet = trial_subnet(trial_id + str(cond.get("subnet_salt", "")))
     seed = int(cond.get("seed", int(hashlib.sha256(trial_id.encode()).hexdigest(), 16) % 2**31))
 
     model = None
@@ -157,7 +180,22 @@ def resolve_condition(trial_id: str, cond: dict, registry: dict, prompts: dict[s
         model = registry[HARNESS_PROVIDER[harness]][cond.get("model_generation", "current")]
     image = f"sc-agent-{harness}" if harness in HARNESS_PROVIDER else "sc-base"
 
-    values = make_values(seed)
+    ladder_mode = "task" in cond
+    hatch = cond.get("hatch", "none")
+    if ladder_mode:
+        from .tasks import TASKS, build_prompt
+        if hatch not in ("none", "prompt", "scripted", "goal"):
+            raise ValueError(f"hatch must be none|prompt|scripted|goal, got {hatch!r}")
+        task_data = TASKS[cond["task"]](seed, ROLES)
+        values = task_data["values"]
+    else:
+        task_data = None
+        values = make_values(seed)
+    budget = float(cond.get("budget_usd", 5.0))
+    resumable = ladder_mode and hatch == "scripted" and harness in HARNESS_PROVIDER
+    # Goal mode keeps per-session state (Claude: session-scoped Stop hook; Codex: goals db), so
+    # don't run it ephemeral. No scripted replies in this arm.
+    persist = resumable or (ladder_mode and hatch == "goal")
     # Peers resolve each other by service name. NO_PROXY covers the trial subnet, so direct
     # peer traffic isn't silently pushed into the proxy, which would make the network look
     # blocked when it isn't.
@@ -167,7 +205,8 @@ def resolve_condition(trial_id: str, cond: dict, registry: dict, prompts: dict[s
                 "no_proxy": f"localhost,127.0.0.1,{subnet},{','.join(ROLES)}"}
     base_env.update(harness_env(harness))
 
-    plan = TrialPlan(trial_id, dict(cond), dict(spec), subnet, model)
+    plan = TrialPlan(trial_id, dict(cond), dict(spec), subnet, model,
+                     truth=task_data["truth"] if task_data else sum(values.values()))
     for role in ROLES:
         peer = ROLES[1 - ROLES.index(role)]
         salt = hashlib.sha256(f"{trial_id}:{role}:{seed}".encode()).hexdigest()[:10]
@@ -178,8 +217,12 @@ def resolve_condition(trial_id: str, cond: dict, registry: dict, prompts: dict[s
             prompt_bytes = (__import__("json").dumps(prompt)).encode()
             role_keys = {"SC_FAKE_KEY": f"KEYCANARY-{role}-{salt}"}
         else:
-            text = prompts[cond.get("prompt_id", "placeholder")]
-            prompt_bytes = text.replace("{VALUE}", str(values[role])).encode()
+            if ladder_mode:
+                text = build_prompt(ladder, cond["task"], int(cond["rung"]), env_name, hatch,
+                                    float(cond.get("minutes", 15)), value=values[role])
+            else:
+                text = prompts[cond.get("prompt_id", "placeholder")].replace("{VALUE}", str(values[role]))
+            prompt_bytes = text.encode()
             role_keys = {}                     # stubs get no keys at all
             if harness in HARNESS_PROVIDER:
                 role_keys = (keys or {}).get(role, {})
@@ -189,6 +232,9 @@ def resolve_condition(trial_id: str, cond: dict, registry: dict, prompts: dict[s
                 role_keys = {need: role_keys[need]}   # each agent gets only its own provider's key
         plan.roles.append(RolePlan(role=role, uid=UIDS[role], peer=peer, peer_uid=UIDS[peer],
                                    value=None if harness == "probe" else values[role],
-                                   prompt=prompt_bytes, cmd=harness_cmd(harness, model, float(cond.get("budget_usd", 5.0))),
-                                   env=dict(base_env), keys=role_keys, image=image))
+                                   prompt=prompt_bytes, cmd=harness_cmd(harness, model, budget, persist),
+                                   env=dict(base_env), keys=role_keys, image=image,
+                                   files=task_data["files"][role] if task_data else {},
+                                   followups=list(ladder["scripted_replies"]) if resumable else [],
+                                   resume=resume_cmd(harness, model, budget) if resumable else None))
     return plan

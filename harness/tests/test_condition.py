@@ -89,3 +89,66 @@ class TestCompose(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+LADDER = json.load(open(__import__("pathlib").Path(__file__).resolve().parents[1] / "config" / "ladder.json"))
+
+
+def lplan(task="sharded_sales", rung=3, hatch="scripted", harness="claude_code", env="env2s"):
+    return resolve_condition("t2", {"env": env, "harness": harness, "task": task, "rung": rung,
+                                    "hatch": hatch, "minutes": 15}, REGISTRY, PROMPTS, keys=KEYS, ladder=LADDER)
+
+
+class TestNaming(unittest.TestCase):
+    def test_names_unique_across_sweep(self):
+        import itertools
+        from harness.runner.compose import bridge_name, project_name
+        ids = ["lv1-" + "-".join(map(str, c)) + f"-r{r}" for c in itertools.product(
+            ["claudecode", "openaicodex"], ["env1s", "env2s"], ["secretsum", "splitsecret", "shardedsales"],
+            [1, 2, 3, 4, 5], ["prompt", "scripted"]) for r in (1, 2)]
+        self.assertEqual(len({project_name(i) for i in ids}), len(ids))
+        self.assertEqual(len({bridge_name(i) for i in ids}), len(ids))
+        self.assertTrue(all(len(bridge_name(i)) <= 15 for i in ids))
+
+
+class TestLadder(unittest.TestCase):
+    def test_rungs_are_additive(self):
+        strip = lambda s: s.replace(" You have up to 15 minutes.", "")
+        prev = ""
+        for rung in range(1, 6):
+            p = lplan(rung=rung, hatch="none").roles[0].prompt.decode()
+            self.assertTrue(p.endswith("You have up to 15 minutes."))
+            self.assertTrue(strip(p).startswith(strip(prev)))       # each rung only appends
+            prev = p
+        self.assertIn("full control", p); self.assertIn("same machine", p)
+        self.assertNotIn("full control", lplan(rung=4).roles[0].prompt.decode())
+
+    def test_identical_prompts_for_file_tasks(self):
+        p = lplan(task="sharded_sales")
+        self.assertEqual(p.roles[0].prompt, p.roles[1].prompt)
+        self.assertNotEqual(p.roles[0].files, p.roles[1].files)
+        self.assertEqual(p.truth, sum(r.value for r in p.roles))
+
+    def test_hatch_arms(self):
+        sp = lplan(hatch="scripted").roles[0]
+        self.assertEqual(len(sp.followups), 5); self.assertIn("{session}", sp.resume)
+        self.assertNotIn("--no-session-persistence", sp.cmd)
+        pp = lplan(hatch="prompt").roles[0]
+        self.assertEqual(pp.followups, []); self.assertIsNone(pp.resume)
+        self.assertIn("--no-session-persistence", pp.cmd)
+        self.assertIn("won't be around", pp.prompt.decode())
+        self.assertNotIn("won't be around", sp.prompt.decode())
+        cx = lplan(hatch="scripted", harness="openai_codex").roles[0]
+        self.assertNotIn("--ephemeral", cx.cmd); self.assertEqual(cx.resume[-2:], ["{session}", "-"])
+
+    def test_goal_arm(self):
+        r = lplan(hatch="goal", task="split_secret").roles[0]
+        p = r.prompt.decode()
+        self.assertTrue(p.startswith("/goal ")); self.assertIn("access code from the decrypted report", p)
+        self.assertNotIn("won't be around", p); self.assertEqual(r.followups, [])
+        self.assertNotIn("--no-session-persistence", r.cmd)
+        self.assertNotIn("--ephemeral", lplan(hatch="goal", harness="openai_codex").roles[0].cmd)
+
+    def test_secret_sum_values_only_in_own_prompt(self):
+        a, b = lplan(task="secret_sum").roles
+        self.assertIn(str(a.value).encode(), a.prompt); self.assertNotIn(str(b.value).encode(), a.prompt)

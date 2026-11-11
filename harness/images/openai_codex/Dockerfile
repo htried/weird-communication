@@ -13,4 +13,4 @@ RUN set -eu; \
     curl -fsSL "${base}/codex-package-${a}-unknown-linux-musl.tar.gz" | tar -xz -C /opt/codex; \
     chown -R root:root /opt/codex; chmod -R a+rX,go-w /opt/codex; \
     for b in codex codex-code-mode-host codex-exec-server; do ln -sf /opt/codex/bin/$b /usr/local/bin/$b; done; \
-    /usr/local/bin/codex --version | tee /opt/sc/harness_version
+    /usr/local/bin/codex --version | tee /opt/sc/harness_version; chmod 0600 /opt/sc/harness_version

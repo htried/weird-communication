@@ -9,5 +9,5 @@ RUN set -eu; \
     case "$(uname -m)" in x86_64) p=linux-x64;; aarch64) p=linux-arm64;; esac; \
     curl -fsSL "https://downloads.claude.ai/claude-code-releases/${v}/${p}/claude" -o /usr/local/bin/claude; \
     chmod 0755 /usr/local/bin/claude; \
-    echo "$v" > /opt/sc/harness_version; \
+    echo "$v" > /opt/sc/harness_version; chmod 0600 /opt/sc/harness_version; \
     /usr/local/bin/claude --version

@@ -1,0 +1,1 @@
+{"name": "tresume", "fixed": {"minutes": 2}, "axes": {"harness": ["stub"], "env": ["env2s"], "task": ["sharded_sales"], "rung": [1, 2], "hatch": ["prompt"]}, "reps": 1}

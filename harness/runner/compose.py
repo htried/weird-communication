@@ -11,12 +11,19 @@ AGENT_CAPS = ["SETUID", "SETGID", "KILL"]   # entry wrapper only: drop to UID, s
 LIMITS = {"cpus": 4.0, "mem_limit": "8g", "pids_limit": 1024}
 
 
+def _tag(trial_id: str) -> str:
+    # Hash-based, so parallel trials never share a compose project or bridge name.
+    # Truncated trial-id prefixes or suffixes collided across a sweep.
+    import hashlib
+    return hashlib.sha1(trial_id.encode()).hexdigest()[:11]
+
+
 def project_name(trial_id: str) -> str:
-    return "ws" + "".join(c for c in trial_id.lower() if c.isalnum())[-10:]
+    return "ws" + _tag(trial_id)
 
 
 def bridge_name(trial_id: str) -> str:
-    return ("sc" + "".join(c for c in trial_id.lower() if c.isalnum()))[:15]
+    return "sc" + _tag(trial_id)          # 13 chars (Linux limit is 15)
 
 
 def render(plan: TrialPlan) -> dict:

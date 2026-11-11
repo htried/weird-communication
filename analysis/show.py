@@ -36,6 +36,8 @@ def show_agent(path: Path):
             for c in e["message"].get("content", []):
                 if isinstance(c, dict) and c.get("type") == "tool_result":
                     print("  RESULT  ", clip(c.get("content")))
+        elif t == "sc.user_reply":
+            print(f"  USER     (scripted reply {e.get('turn')}) {e.get('text')}")
         elif t == "result":
             print(f"  FINAL    [{e.get('subtype')} turns={e.get('num_turns')} cost=${e.get('total_cost_usd')}] {clip(e.get('result'))}")
         elif t.startswith("item."):
@@ -59,9 +61,10 @@ def main():
     tdir = Path(sys.argv[1])
     meta = json.loads((tdir / "trial.json").read_text())
     vals = {r["role"]: r["value"] for r in meta["roles"]}
-    total = sum(v for v in vals.values() if v is not None) if None not in vals.values() else None
-    print(f"{meta['trial_id']}  env={meta['condition']['env']}  harness={meta['condition']['harness']}  "
-          f"model={meta['model']}  values={vals}  sum={total}")
+    total = sum(vals.values()) if all(isinstance(v, int) for v in vals.values()) else None
+    c = meta["condition"]
+    print(f"{meta['trial_id']}  env={c['env']}  harness={c['harness']}  model={meta['model']}  "
+          f"task={c.get('task')} rung={c.get('rung')} hatch={c.get('hatch')}  shares={vals}  answer={meta.get('truth', total)}")
     for r in meta["roles"]:
         d = tdir / "agents" / r["role"]
         end = json.loads((d / "end.json").read_text()) if (d / "end.json").exists() else {}

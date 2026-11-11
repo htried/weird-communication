@@ -160,13 +160,34 @@ def container_state(name: str) -> str:
     return r.stdout.strip() or "missing"
 
 
+def cleanup_project(project: str):
+    """Remove containers, networks and volumes left by an interrupted trial (found by the
+    compose project label)."""
+    lab = f"label=com.docker.compose.project={project}"
+    for kind, ls in (("container", ["docker", "ps", "-aq", "--filter", lab]),
+                     ("network", ["docker", "network", "ls", "-q", "--filter", lab]),
+                     ("volume", ["docker", "volume", "ls", "-q", "--filter", lab])):
+        ids = subprocess.run(ls, capture_output=True, text=True).stdout.split()
+        if ids:
+            rm = ["docker", "rm", "-f"] if kind == "container" else ["docker", kind, "rm", "-f"]
+            subprocess.run(rm + ids, capture_output=True)
+    subprocess.run(["docker", "rm", "-f", f"{project}-cap"], capture_output=True)
+
+
 def run_trial(cond: dict, trial_id: str | None = None, quiet: bool = False) -> Path:
     trial_id = trial_id or f"t{time.strftime('%m%d%H%M%S')}{uuid.uuid4().hex[:4]}"
+    tdir = ARTIFACTS / trial_id
+    if (tdir / "DONE").exists():
+        return tdir
+    cleanup_project(project_name(trial_id))
+    if tdir.exists():                       # half-finished from an interrupted run: start over
+        shutil.rmtree(tdir)
     registry = json.loads((HARNESS / "config" / "model_registry.json").read_text())
     prompts = {p.stem: p.read_text().strip() for p in (HARNESS / "config" / "prompts").glob("*.txt")}
-    plan = resolve_condition(trial_id, cond, registry, prompts, keys=load_keys(), host_public_ip=host_ip())
+    ladder = json.loads((HARNESS / "config" / "ladder.json").read_text())
+    plan = resolve_condition(trial_id, cond, registry, prompts, keys=load_keys(), host_public_ip=host_ip(),
+                             ladder=ladder)
 
-    tdir = ARTIFACTS / trial_id
     run_dir = tdir / ".run"
     run_dir.mkdir(parents=True, exist_ok=False)
     os.chmod(run_dir, 0o700)
@@ -179,8 +200,10 @@ def run_trial(cond: dict, trial_id: str | None = None, quiet: bool = False) -> P
 
     meta = {"trial_id": trial_id, "condition": cond, "env_spec": plan.env_spec, "subnet": plan.subnet,
             "model": plan.model, "host": socket.gethostname(), "project": project,
+            "truth": plan.truth, "ladder_version": ladder.get("version") if "task" in cond else None,
             "roles": [{"role": r.role, "uid": r.uid, "value": r.value, "image": r.image, "cmd": r.cmd,
-                       "env_keys": sorted(r.env), "key_names": sorted(r.keys)} for r in plan.roles]}
+                       "env_keys": sorted(r.env), "key_names": sorted(r.keys), "files": sorted(r.files),
+                       "followups": r.followups, "resume": r.resume} for r in plan.roles]}
     collectors = []
     try:
         say("creating", project)
@@ -188,12 +211,16 @@ def run_trial(cond: dict, trial_id: str | None = None, quiet: bool = False) -> P
         start_at = time.time() + START_DELAY
         meta["start_at"] = start_at
         for rp in plan.roles:
+            file_map = {dest: f"file{i}" for i, dest in enumerate(sorted(rp.files))}
             cfg = {"role": rp.role, "uid": rp.uid, "cmd": rp.cmd, "env": rp.env,
-                   "start_at": start_at, "minutes": cond.get("minutes", 15)}
+                   "start_at": start_at, "minutes": cond.get("minutes", 15),
+                   "files": file_map, "followups": rp.followups, "resume": rp.resume}
             keys = "".join(f"{k}={v}\n" for k, v in rp.keys.items())
             sh(["docker", "cp", "-", f"{project}-{rp.role}-1:/run/trial"],
                input=trial_tar({"config.json": json.dumps(cfg).encode(), "prompt": rp.prompt,
-                                "keys.env": keys.encode()}), capture_output=True)
+                                "keys.env": keys.encode(),
+                                **{name: rp.files[dest] for dest, name in file_map.items()}}),
+               capture_output=True)
 
         # Host-side collectors: the agents can't see or touch these.
         pcap = open(tdir / "lan.pcap", "wb")
@@ -262,6 +289,10 @@ def run_trial(cond: dict, trial_id: str | None = None, quiet: bool = False) -> P
         (tdir / "lan_flows.json").write_text(json.dumps(summarize_pcap(tdir), indent=1))
     except Exception as e:  # never lose a trial over the summary
         say("pcap summary failed:", e)
+    if all((tdir / "agents" / r.role / "end.json").exists() for r in plan.roles):
+        (tdir / "DONE").write_text(time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
+    else:
+        raise RuntimeError("agents did not all finish (no end.json); trial left incomplete for retry")
     say("artifacts:", tdir)
     return tdir
 
@@ -296,28 +327,85 @@ def lockdown(args) -> int:
     return 1 if failures else 0
 
 
+def sweep(args) -> int:
+    """Run every condition in a sweep spec (JSON), `parallel` trials at a time. Trials whose
+    directory already exists are skipped, so an interrupted sweep can just be re-run."""
+    import itertools
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    spec = json.loads(Path(args.spec).read_text())
+    axes = spec["axes"]
+    names = list(axes)
+    conds = []
+    for combo in itertools.product(*(axes[n] for n in names)):
+        base = dict(zip(names, combo))
+        for rep in range(1, spec.get("reps", 1) + 1):
+            c = {**spec.get("fixed", {}), **base}
+            tid = spec["name"] + "-" + "-".join(str(base[n]) for n in names).replace("_", "") + f"-r{rep}"
+            conds.append((tid, c))
+    todo = [(t, c) for t, c in conds if not (ARTIFACTS / t / "DONE").exists()]
+    print(f"sweep {spec['name']}: {len(conds)} trials, {len(todo)} to run, parallel={args.parallel}", flush=True)
+    if args.dry_run:
+        for t, c in todo[:10]:
+            print(" ", t, c)
+        return 0
+    def attempt(t, c):
+        last = None
+        for i in range(3):                  # retries get a different subnet (collision-safe)
+            try:
+                return run_trial({**c, **({"subnet_salt": f"retry{i}"} if i else {})}, t, True)
+            except Exception as e:
+                last = e
+                print(f"  attempt {i + 1} failed for {t}: {type(e).__name__}: {str(e)[:200]}", flush=True)
+                time.sleep(5)
+        raise last
+
+    ok = fail = 0
+    t0 = time.time()
+    with ThreadPoolExecutor(max_workers=args.parallel) as ex:
+        futs = {ex.submit(attempt, t, c): t for t, c in todo}
+        for f in as_completed(futs):
+            t = futs[f]
+            try:
+                f.result(); ok += 1
+                status = "done"
+            except Exception as e:
+                fail += 1
+                status = f"FAILED {type(e).__name__}: {str(e)[:200]}"
+            print(f"[{ok + fail}/{len(todo)} {time.strftime('%H:%M:%S')} +{(time.time() - t0) / 60:.0f}m] {status} {t}", flush=True)
+    print(f"sweep finished: {ok} ok, {fail} failed", flush=True)
+    return 1 if fail else 0
+
+
 def main():
     ap = argparse.ArgumentParser(prog="trial")
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("build"); b.add_argument("--only", nargs="*")
     b.add_argument("--claude-version"); b.add_argument("--codex-version")
     lk = sub.add_parser("lockdown"); lk.add_argument("--envs", nargs="+", default=["env1s", "env2s"])
+    sw = sub.add_parser("sweep"); sw.add_argument("spec"); sw.add_argument("--parallel", type=int, default=4)
+    sw.add_argument("--dry-run", action="store_true")
     r = sub.add_parser("run")
     r.add_argument("--env", required=True); r.add_argument("--harness", required=True)
     r.add_argument("--minutes", type=float, default=15); r.add_argument("--model-generation", default="current")
     r.add_argument("--prompt-id", default="placeholder"); r.add_argument("--seed", type=int)
     r.add_argument("--trial-id"); r.add_argument("--budget-usd", type=float, default=5.0)
+    r.add_argument("--task"); r.add_argument("--rung", type=int); r.add_argument("--hatch")
     a = ap.parse_args()
     if a.cmd == "build":
         build(a)
     elif a.cmd == "lockdown":
         sys.exit(lockdown(a))
+    elif a.cmd == "sweep":
+        sys.exit(sweep(a))
     else:
         cond = {"env": a.env, "harness": a.harness, "minutes": a.minutes,
                 "model_generation": a.model_generation, "prompt_id": a.prompt_id,
                 "budget_usd": a.budget_usd}
         if a.seed is not None:
             cond["seed"] = a.seed
+        if a.task:
+            cond.update({"task": a.task, "rung": a.rung or 1, "hatch": a.hatch or "none"})
+            cond.pop("prompt_id")
         run_trial(cond, a.trial_id)
 
 

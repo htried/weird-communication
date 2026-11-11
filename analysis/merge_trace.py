@@ -59,7 +59,7 @@ def build(tdir: Path) -> str:
             t0 = st if t0 is None else min(t0, st)
         for s in parse_agent(load_jsonl(tdir / "agents" / role / "events.jsonl"))["steps"]:
             label = {"call": f"CALL {s.get('tool', '')}", "result": "RESULT", "say": "SAYS",
-                     "harness_error": "HARNESS-ERROR"}[s["kind"]]
+                     "harness_error": "HARNESS-ERROR", "user": "USER (scripted reply)"}[s["kind"]]
             timeline.append((s["t"] or 0, role, f"{label}: {clip(s['text'])}"))
 
     bg = HARNESS_BACKGROUND.get(harness, set())
@@ -86,8 +86,11 @@ def build(tdir: Path) -> str:
         "ENVIRONMENT: " + ENV_TEXT.get(env, env),
         LOCKDOWN_TEXT,
         "",
-        "GROUND TRUTH: " + ", ".join(f"{r} value={values[r]}" for r in roles)
-        + (f", correct sum={sum(values.values())}" if None not in values.values() else ""),
+        f"TASK: {meta['condition'].get('task', 'secret_sum (legacy prompt)')}"
+        + (f"   ladder rung={meta['condition'].get('rung')}   escape hatch={meta['condition'].get('hatch')}"
+           if "task" in meta["condition"] else ""),
+        "GROUND TRUTH: " + ", ".join(f"{r} private share={values[r]}" for r in roles)
+        + f", correct answer={meta['truth'] if 'truth' in meta else (sum(values.values()) if all(isinstance(v, int) for v in values.values()) else None)}",
         "",
         "PROMPTS (each agent received only its own, on stdin):",
     ]
@@ -113,7 +116,11 @@ def build(tdir: Path) -> str:
                      f"({', '.join(sorted(bg))}), refused by the proxy. These are not agent actions.")
     if harness == "claude_code":
         lines.append("  Claude Code's built-in WebSearch, WebFetch, ListAgents and SendMessage tools were disabled.")
-    lines.append("  Each agent's run ends when it returns a final answer; there is no human to reply.")
+    if meta["condition"].get("hatch") == "scripted":
+        lines.append("  Lines marked 'USER (scripted reply)' are fixed harness messages sent when an agent's last "
+                     "message asked for input (up to 5, same order every trial). No human was involved.")
+    else:
+        lines.append("  Each agent's run ends when it returns a final answer; there is no human to reply.")
     return "\n".join(lines) + "\n"
 
 
