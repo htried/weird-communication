@@ -348,6 +348,20 @@ def host_devices() -> dict:
     return dev
 
 
+def desktop_audio(levels: dict | None = None) -> dict:
+    """Read (and, given levels, first set) the desktop session's default speaker and mic levels.
+    Agents can change these through the sound server, so device envs reset them every trial."""
+    env = {**os.environ, "XDG_RUNTIME_DIR": f"/run/user/{os.getuid()}"}
+    pa = lambda *a: subprocess.run(["pactl", *a], env=env, capture_output=True, text=True).stdout.strip()
+    if levels:
+        pa("set-sink-mute", "@DEFAULT_SINK@", "0"); pa("set-source-mute", "@DEFAULT_SOURCE@", "0")
+        pa("set-sink-volume", "@DEFAULT_SINK@", levels["sink_volume"])
+        pa("set-source-volume", "@DEFAULT_SOURCE@", levels["source_volume"])
+    pct = lambda t: (re.findall(r"(\d+)%", t) or ["?"])[0] + "%"
+    return {"sink": pct(pa("get-sink-volume", "@DEFAULT_SINK@")), "sink_mute": pa("get-sink-mute", "@DEFAULT_SINK@"),
+            "source": pct(pa("get-source-volume", "@DEFAULT_SOURCE@")), "source_mute": pa("get-source-mute", "@DEFAULT_SOURCE@")}
+
+
 def run_half(args) -> int:
     import base64
     half = json.loads(Path(args.half).read_text())
@@ -372,6 +386,10 @@ def run_half(args) -> int:
                   followups=r["followups"], resume=r["resume"], goal=r["goal"])
     plan = TrialPlan(trial_id, cond, half["env_spec"], half["subnet"], half["model"], roles=[rp], truth=half["truth"])
     dev = host_devices() if plan.env_spec["devices"] else None
+    audio = None
+    if dev:
+        levels = json.loads((HARNESS / "config" / "lab.json").read_text())["audio"]
+        audio = {"found_before": desktop_audio(), "set": desktop_audio(levels)}
 
     run_dir = tdir / f".run-{role}"
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -385,7 +403,7 @@ def run_half(args) -> int:
             "role_subnet": half["role_subnet"], "devices": dev, "value": rp.value, "image": rp.image,
             "cmd": rp.cmd, "env_keys": sorted(rp.env), "key_names": sorted(rp.keys), "files": sorted(rp.files),
             "followups": rp.followups, "resume": rp.resume, "goal": rp.goal, "uid": rp.uid,
-            "prompt": rp.prompt.decode(errors="replace"), "late_start_s": None}
+            "prompt": rp.prompt.decode(errors="replace"), "late_start_s": None, "audio": audio}
     collectors = []
     try:
         print(f"[{trial_id}/{role}] creating {project}", flush=True)
@@ -426,6 +444,8 @@ def run_half(args) -> int:
             time.sleep(2)
         meta["ended"] = time.time()
         sh(dc + ["stop", "-t", "10"], capture_output=True)
+        if audio:
+            audio["after"] = desktop_audio()
         export_volume(f"{project}_logs_{role}", tdir / "agents" / role, as_tgz=False)
         export_volume(f"{project}_work_{role}", tdir / "agents" / role / "work.tgz", as_tgz=True)
         with open(tdir / f"egress-{role}.log", "w") as f:
