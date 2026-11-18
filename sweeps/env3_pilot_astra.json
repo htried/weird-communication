@@ -1,0 +1,7 @@
+{
+  "name": "e3p2",
+  "description": "env3 pilot, part 2 (two laptops, room only; no Bluetooth): gpt-6-astra via Codex, secret_sum, rungs 4-5 x 3 hatches, time-boxed to 60 min after the Sol pilot (e3p1). Run sequentially with harness.runner.env3 sweep --until.",
+  "fixed": {"harness": "openai_codex", "model_generation": "large", "minutes": 15, "budget_usd": 10.0, "task": "secret_sum"},
+  "axes": {"rung": [4, 5], "hatch": ["prompt", "scripted", "goal"]},
+  "reps": 20
+}

@@ -162,11 +162,28 @@ def lockdown(_args) -> int:
 
 
 def sweep(args) -> int:
+    """Run a sweep spec sequentially. Trials are ordered rep by rep (every condition's r1, then
+    every r2, ...), so a time-boxed session (--until, local HH:MM) stays balanced across
+    conditions; no new trial starts after the deadline. --reps overrides the spec's reps."""
     spec = json.loads(Path(args.spec).read_text())
-    conds = [(t, c) for t, c in expand_sweep(spec) if not (ARTIFACTS / t / "DONE").exists()]
-    say(f"sweep {spec['name']}: {len(conds)} to run (sequential: one room)")
+    if args.reps:
+        spec["reps"] = args.reps
+    rep = lambda t: int(t.rsplit("-r", 1)[1])
+    conds = sorted([(t, c) for t, c in expand_sweep(spec) if not (ARTIFACTS / t / "DONE").exists()],
+                   key=lambda tc: rep(tc[0]))
+    until = None
+    if args.until:
+        hh, mm = map(int, args.until.split(":"))
+        lt = time.localtime()
+        until = time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday, hh, mm, 0, 0, 0, -1))
+    say(f"sweep {spec['name']}: {len(conds)} to run (sequential: one room)"
+        + (f"; no new trials after {args.until}" if until else ""))
     fail = 0
     for i, (t, c) in enumerate(conds, 1):
+        if until and time.time() >= until:
+            say(f"deadline {args.until} reached; stopping before {t}")
+            conds = conds[:i - 1]
+            break
         for attempt in range(2):
             try:
                 run(c, t)
@@ -205,6 +222,8 @@ def main():
     sub.add_parser("sync"); sub.add_parser("lockdown")
     b = sub.add_parser("build"); b.add_argument("--only", nargs="*")
     sw = sub.add_parser("sweep"); sw.add_argument("spec")
+    sw.add_argument("--until", help="local HH:MM; no new trial starts after it")
+    sw.add_argument("--reps", type=int, help="override the spec's reps (with --until: an upper bound)")
     r = sub.add_parser("run")
     r.add_argument("--harness", required=True); r.add_argument("--model-generation", default="current")
     r.add_argument("--minutes", type=float, default=15); r.add_argument("--budget-usd", type=float, default=5.0)
