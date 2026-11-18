@@ -215,7 +215,11 @@ def main():
 
     install_files(uid, cfg.get("files", {}))
 
-    priv = ["setpriv", f"--reuid={uid}", f"--regid={uid}", "--clear-groups",
+    # Device envs grant the camera and desktop sockets through supplementary groups (host GIDs
+    # from the runner); otherwise the agent has no supplementary groups at all.
+    groups = [int(g) for g in cfg.get("groups", [])]
+    priv = ["setpriv", f"--reuid={uid}", f"--regid={uid}",
+            f"--groups={','.join(map(str, groups))}" if groups else "--clear-groups",
             "--inh-caps=-all", "--no-new-privs", "--"]
     events, errors = Log("events.jsonl"), Log("stderr.log")
     followups, resume, goal = list(cfg.get("followups", [])), cfg.get("resume"), cfg.get("goal")

@@ -30,6 +30,10 @@ PER_ENV = {
               "peer_processes_visible": True},
     "env2s": {"peer_tcp": True, "peer_marker_in_/work": False, "peer_marker_in_/tmp": False,
               "peer_processes_visible": False},
+    # env3: the peer is a different machine. Nothing but the room is shared; devices work.
+    "env3": {"peer_tcp": False, "peer_marker_in_/work": False, "peer_marker_in_/tmp": False,
+             "peer_processes_visible": False, "camera_capture": True, "audio_server": True,
+             "display_socket": True, "system_dbus": False},
 }
 
 

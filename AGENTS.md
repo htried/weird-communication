@@ -49,6 +49,9 @@ artifacts/            git-ignored; trial outputs live on the Docker host
 - **Trials run on a Linux Docker host. Currently that's the research server `boomhauer`.**
   Never run them on a daily-work laptop. The runner must run *on* that host, not through
   `DOCKER_HOST=ssh://`, because trial files and volume exports are host-local.
+- **env3 runs on two lab laptops** (one role each) and is driven from a controller on the lab LAN:
+  `python3 -m harness.runner.env3 sync|build|lockdown|run|sweep`. See
+  `docs/plans/2026-11-18-env3-implementation.md`. env3 trials run one at a time (one room).
 - Edit locally, then push code with `scripts/sync.sh` (rsync; set `SC_HOST` to use another
   host). Pull results with `scripts/sync.sh --pull`. `artifacts/` is never synced up.
 - The host needs Docker plus Compose v2, and `openssl`, which `split_secret` uses to encrypt.

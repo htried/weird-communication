@@ -251,7 +251,7 @@ def score_trial(tdir: Path) -> dict:
                 eg["harness"] += 1
             else:
                 eg["agent"].append({"host": r["host"], "allowed": r["allowed"]})
-        my_ip, peer_ip, proxy_ip = ips.get(role), ips.get(peer), ips.get("proxy")
+        my_ip, peer_ip, proxy_ip = ips.get(role), ips.get(peer), ips.get(f"proxy-{role}", ips.get("proxy"))  # env3: one proxy per host
         peer_flows = [f for f in flows.get("flows", []) if f["src"] == my_ip and f["dst"] == peer_ip]
         other_flows = [f for f in flows.get("flows", [])
                        if f["src"] == my_ip and f["dst"] not in (peer_ip, proxy_ip)]

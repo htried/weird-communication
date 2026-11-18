@@ -29,7 +29,7 @@ import uuid
 from pathlib import Path
 
 from .compose import bridge_name, project_name, render
-from .condition import ROLES, resolve_condition
+from .condition import HARNESS_PROVIDER, ROLES, RolePlan, TrialPlan, resolve_condition, role_subnet
 from .probe_expectations import evaluate
 
 REPO = Path(__file__).resolve().parents[2]
@@ -132,10 +132,10 @@ PCAP_IP = re.compile(r"^\S+ IP (\d+\.\d+\.\d+\.\d+)(?:\.(\d+))? > (\d+\.\d+\.\d+
 PCAP_ARP = re.compile(r"ARP, Request who-has (\d+\.\d+\.\d+\.\d+).*? tell (\d+\.\d+\.\d+\.\d+)")
 
 
-def summarize_pcap(tdir: Path) -> dict:
+def summarize_pcap(tdir: Path, name: str = "lan.pcap") -> dict:
     """IP flows and ARP requests on the trial bridge, from tcpdump's text output."""
     text = subprocess.run(["docker", "run", "--rm", "-v", f"{tdir}:/t:ro", "sc-tools",
-                           "tcpdump", "-nn", "-tt", "-r", "/t/lan.pcap"],
+                           "tcpdump", "-nn", "-tt", "-r", f"/t/{name}"],
                           capture_output=True, text=True).stdout
     flows, arps = {}, {}
     for line in text.splitlines():
@@ -298,6 +298,164 @@ def run_trial(cond: dict, trial_id: str | None = None, quiet: bool = False) -> P
     return tdir
 
 
+# --- split-host envs (env3): one role per machine ----------------------------------------------
+# The controller (runner/env3.py) runs `plan-split` on one host, relays the other role's half
+# over SSH, then runs `run-half` on both hosts with the same start time. Each host writes
+# role-suffixed files into artifacts/trials/<id>/; the controller merges them.
+
+def plan_split(args) -> int:
+    """Resolve a split-host trial once and write one half-plan per role (no API keys; each
+    host adds its own at run time). Prompts and task files are base64 in the half files."""
+    import base64
+    cond = json.loads(sys.stdin.read())
+    registry = json.loads((HARNESS / "config" / "model_registry.json").read_text())
+    prompts = {p.stem: p.read_text().strip() for p in (HARNESS / "config" / "prompts").glob("*.txt")}
+    ladder = json.loads((HARNESS / "config" / "ladder.json").read_text())
+    plan = resolve_condition(args.trial_id, cond, registry, prompts, keys=load_keys(), host_public_ip=host_ip(),
+                             ladder=ladder)
+    if not plan.env_spec.get("split_hosts"):
+        raise SystemExit(f"{cond['env']} is not a split-host env")
+    out_dir = Path(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    os.chmod(out_dir, 0o700)
+    b64 = lambda b: base64.b64encode(b).decode()
+    for rp in plan.roles:
+        half = {"trial_id": plan.trial_id, "condition": plan.condition, "env_spec": plan.env_spec,
+                "subnet": plan.subnet, "role_subnet": role_subnet(plan, rp.role), "model": plan.model,
+                "truth": plan.truth, "ladder_version": ladder.get("version") if "task" in cond else None,
+                "role": {"role": rp.role, "uid": rp.uid, "peer": rp.peer, "peer_uid": rp.peer_uid,
+                         "value": rp.value, "prompt": b64(rp.prompt), "cmd": rp.cmd, "env": rp.env,
+                         "key_names": sorted(rp.keys), "image": rp.image,
+                         # probe canaries are not secrets: carry them; real API keys never leave a host
+                         "inline_keys": rp.keys if cond["harness"] not in HARNESS_PROVIDER else {},
+                         "files": {d: b64(v) for d, v in rp.files.items()}, "followups": rp.followups,
+                         "resume": rp.resume, "goal": rp.goal}}
+        f = out_dir / f"{rp.role}.json"
+        f.touch(mode=0o600)
+        f.write_text(json.dumps(half))
+    print(json.dumps({"trial_id": plan.trial_id, "model": plan.model, "roles": [r.role for r in plan.roles]}))
+    return 0
+
+
+def host_devices() -> dict:
+    """This machine's camera and desktop-session sockets, plus the host GIDs that grant access."""
+    run = Path(f"/run/user/{os.getuid()}")
+    dev = {"video": ["/dev/video0"], "wayland": str(run / "wayland-0"), "pulse": str(run / "pulse" / "native")}
+    for p in [*dev["video"], dev["wayland"], dev["pulse"]]:
+        if not os.path.exists(p):
+            raise RuntimeError(f"{p} missing: is the desktop session logged in (auto-login)?")
+    dev["groups"] = sorted({os.stat(dev["video"][0]).st_gid, os.stat(dev["wayland"]).st_gid})
+    return dev
+
+
+def run_half(args) -> int:
+    import base64
+    half = json.loads(Path(args.half).read_text())
+    r, trial_id = half["role"], half["trial_id"]
+    role = r["role"]
+    tdir = ARTIFACTS / trial_id
+    if (tdir / f"DONE-{role}").exists():
+        return 0
+    project = project_name(trial_id)
+    cleanup_project(project)
+    shutil.rmtree(tdir / "agents" / role, ignore_errors=True)
+    tdir.mkdir(parents=True, exist_ok=True)
+    cond = half["condition"]
+    own = {**load_keys().get(role, {}), **r.get("inline_keys", {})}
+    missing = [k for k in r["key_names"] if not own.get(k)]
+    if missing:
+        raise SystemExit(f"missing {missing} in {KEYS_DIR}/{role}.env")
+    rp = RolePlan(role=role, uid=r["uid"], peer=r["peer"], peer_uid=r["peer_uid"], value=r["value"],
+                  prompt=base64.b64decode(r["prompt"]), cmd=r["cmd"], env=r["env"],
+                  keys={k: own[k] for k in r["key_names"]}, image=r["image"],
+                  files={d: base64.b64decode(v) for d, v in r["files"].items()},
+                  followups=r["followups"], resume=r["resume"], goal=r["goal"])
+    plan = TrialPlan(trial_id, cond, half["env_spec"], half["subnet"], half["model"], roles=[rp], truth=half["truth"])
+    dev = host_devices() if plan.env_spec["devices"] else None
+
+    run_dir = tdir / f".run-{role}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    os.chmod(run_dir, 0o700)
+    compose_path = run_dir / "compose.json"
+    compose_path.write_text(json.dumps(render(plan, [role], dev), indent=1))
+    dc = ["docker", "compose", "-f", str(compose_path), "-p", project]
+    agent, proxy = f"{project}-{role}-1", f"{project}-proxy-1"
+    start_at = float(args.start_at)
+    meta = {"role": role, "host": socket.gethostname(), "project": project, "start_at": start_at,
+            "role_subnet": half["role_subnet"], "devices": dev, "value": rp.value, "image": rp.image,
+            "cmd": rp.cmd, "env_keys": sorted(rp.env), "key_names": sorted(rp.keys), "files": sorted(rp.files),
+            "followups": rp.followups, "resume": rp.resume, "goal": rp.goal, "uid": rp.uid,
+            "prompt": rp.prompt.decode(errors="replace"), "late_start_s": None}
+    collectors = []
+    try:
+        print(f"[{trial_id}/{role}] creating {project}", flush=True)
+        sh(dc + ["up", "--no-start", "--quiet-pull"], capture_output=True)
+        file_map = {dest: f"file{i}" for i, dest in enumerate(sorted(rp.files))}
+        cfg = {"role": role, "uid": rp.uid, "cmd": rp.cmd, "env": rp.env, "start_at": start_at,
+               "minutes": cond.get("minutes", 15), "files": file_map, "followups": rp.followups,
+               "resume": rp.resume, "goal": rp.goal, "groups": dev["groups"] if dev else []}
+        keys = "".join(f"{k}={v}\n" for k, v in rp.keys.items())
+        sh(["docker", "cp", "-", f"{agent}:/run/trial"],
+           input=trial_tar({"config.json": json.dumps(cfg).encode(), "prompt": rp.prompt, "keys.env": keys.encode(),
+                            **{name: rp.files[dest] for dest, name in file_map.items()}}), capture_output=True)
+        pcap = open(tdir / f"lan-{role}.pcap", "wb")
+        collectors.append(("pcap", subprocess.Popen(
+            ["docker", "run", "--rm", "--name", f"{project}-cap", "--net=host", "--cap-add", "NET_RAW",
+             "--cap-add", "NET_ADMIN", "sc-tools", "tcpdump", "-i", bridge_name(trial_id), "-U", "-n", "-w", "-"],
+            stdout=pcap, stderr=subprocess.DEVNULL), pcap))
+        stats_f = open(tdir / f"stats-{role}.jsonl", "w")
+        stats_p = subprocess.Popen(["docker", "stats", "--format", "{{json .}}", agent, proxy],
+                                   stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+        collectors.append(("stats", stats_p, stats_f))
+        import threading
+
+        def pump():
+            for line in stats_p.stdout:
+                line = re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", line).strip()
+                if line.startswith("{"):
+                    stats_f.write(json.dumps({"t": round(time.time(), 3), **json.loads(line)}) + "\n")
+                    stats_f.flush()
+        threading.Thread(target=pump, daemon=True).start()
+
+        sh(dc + ["start"], capture_output=True)
+        meta["late_start_s"] = round(time.time() - start_at, 2)     # > 0 means this host missed the start
+        meta["ips"] = {role: lan_ip(agent), f"proxy-{role}": lan_ip(proxy)}
+        print(f"[{trial_id}/{role}] started; agent begins in {start_at - time.time():.0f}s", flush=True)
+        deadline = start_at + float(cond.get("minutes", 15)) * 60 + 60
+        while time.time() < deadline and container_state(agent) not in ("exited", "dead", "missing"):
+            time.sleep(2)
+        meta["ended"] = time.time()
+        sh(dc + ["stop", "-t", "10"], capture_output=True)
+        export_volume(f"{project}_logs_{role}", tdir / "agents" / role, as_tgz=False)
+        export_volume(f"{project}_work_{role}", tdir / "agents" / role / "work.tgz", as_tgz=True)
+        with open(tdir / f"egress-{role}.log", "w") as f:
+            sh(["docker", "logs", "-t", proxy], stdout=f, stderr=subprocess.STDOUT)
+        meta["image_id"] = out(["docker", "image", "inspect", "-f", "{{.Id}}", rp.image])
+    finally:
+        subprocess.run(["docker", "stop", "-t", "2", f"{project}-cap"], capture_output=True)
+        for name, proc, fh in collectors:
+            proc.terminate()
+            try:
+                proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+            fh.close()
+        subprocess.run(dc + ["down", "-v", "--remove-orphans", "-t", "5"], capture_output=True)
+        if compose_path.exists():
+            shutil.copy(compose_path, tdir / f"compose-{role}.json")   # no secrets in it
+        shutil.rmtree(run_dir, ignore_errors=True)
+        (tdir / f"half-{role}.json").write_text(json.dumps(meta, indent=1))
+    try:
+        (tdir / f"lan_flows-{role}.json").write_text(json.dumps(summarize_pcap(tdir, f"lan-{role}.pcap"), indent=1))
+    except Exception as e:
+        print(f"[{trial_id}/{role}] pcap summary failed: {e}", flush=True)
+    if not (tdir / "agents" / role / "end.json").exists():
+        raise SystemExit(f"[{trial_id}/{role}] agent did not finish (no end.json)")
+    (tdir / f"DONE-{role}").write_text(time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
+    print(f"[{trial_id}/{role}] done", flush=True)
+    return 0
+
+
 def read_events(path: Path) -> list[dict]:
     rows = []
     if path.exists():
@@ -383,7 +541,15 @@ def main():
     r.add_argument("--prompt-id", default="placeholder"); r.add_argument("--seed", type=int)
     r.add_argument("--trial-id"); r.add_argument("--budget-usd", type=float, default=5.0)
     r.add_argument("--task"); r.add_argument("--rung", type=int); r.add_argument("--hatch")
+    ps = sub.add_parser("plan-split", help="(split-host envs) resolve a trial; condition JSON on stdin")
+    ps.add_argument("--trial-id", required=True); ps.add_argument("--out", required=True)
+    rh = sub.add_parser("run-half", help="(split-host envs) run this host's role")
+    rh.add_argument("--half", required=True); rh.add_argument("--start-at", required=True)
     a = ap.parse_args()
+    if a.cmd == "plan-split":
+        sys.exit(plan_split(a))
+    if a.cmd == "run-half":
+        sys.exit(run_half(a))
     if a.cmd == "build":
         build(a)
     elif a.cmd == "lockdown":

@@ -1,0 +1,7 @@
+{
+  "comment": "env3 lab: SSH aliases of the two laptops (one role each), the repo path on them, and LAN addresses the agents must NOT reach (checked by the env3 lockdown probe). See docs/plans/2026-11-18-env3-implementation.md.",
+  "hosts": {"node1": "lab1", "node2": "lab2"},
+  "repo": "sidechannel-exp",
+  "lan_targets": ["192.168.88.1:80", "192.168.88.1:22", "192.168.88.44:22", "192.168.88.45:22", "192.168.88.110:22"],
+  "start_delay_s": 45
+}

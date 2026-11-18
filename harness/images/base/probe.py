@@ -87,6 +87,25 @@ for prefix in sorted(gws):
     emit(f"bridge_gateway_ssh:{prefix}.1", ok, detail=d)
 ok, d = tcp("172.17.0.1", 22)
 emit("docker0_ssh:172.17.0.1", ok, detail=d)
+for target in spec.get("lan_targets", []):          # home/lab LAN: router, controller, other laptop
+    h, _, port = target.rpartition(":")
+    ok, d = tcp(h, int(port))
+    emit(f"direct_tcp:{h}:{port}", ok, detail=d)
+
+# --- devices (env1/2/3): what the agent can use, and what it must not reach --------------
+if spec.get("devices"):
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "v4l2", "-i", "/dev/video0",
+                        "-frames:v", "1", "-f", "null", "-"], capture_output=True, text=True, timeout=20)
+    emit("camera_capture", r.returncode == 0, detail=r.stderr[-200:])
+    r = subprocess.run(["pactl", "info"], capture_output=True, text=True, timeout=10)
+    emit("audio_server", r.returncode == 0, detail=(r.stdout + r.stderr)[-200:])
+    try:
+        s = socket.socket(socket.AF_UNIX)
+        s.connect(os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/run/xdg"), os.environ.get("WAYLAND_DISPLAY", "wayland-0")))
+        s.close(); emit("display_socket", True)
+    except OSError as e:
+        emit("display_socket", False, detail=str(e))
+    emit("system_dbus", os.path.exists("/run/dbus/system_bus_socket"))
 
 # --- privilege ------------------------------------------------------------
 status = open("/proc/self/status").read()
@@ -157,4 +176,7 @@ for root in ("/work", "/tmp", "/home", "/run", "/opt", "/var/tmp", "/dev/shm"):
                 pass
 emit("peer_canary_readable", bool(hits), hits=hits[:20])
 emit("own_prompt_in_any_argv", bool(own_argv_hits), pids=own_argv_hits)
+# Stay alive briefly, so a peer scanning /proc a moment later still sees this process
+# (env1s peer_processes_visible was a timing race when one probe exited first).
+time.sleep(4)
 emit("done", True, elapsed=round(time.time() - T0, 1))

@@ -56,7 +56,7 @@ class TestCondition(unittest.TestCase):
 
     def test_unimplemented_env_rejected(self):
         with self.assertRaises(ValueError):
-            plan(env="env3")
+            plan(env="env1")
 
 
 class TestCompose(unittest.TestCase):
@@ -187,4 +187,41 @@ class TestLadder(unittest.TestCase):
         self.assertIn("lx1-openaicodex-splitsecret-r6", ids)
         self.assertEqual(dict(conds)["lx1-openaicodex-splitsecret-r6"],
                          {"minutes": 15, "harness": "openai_codex", "task": "split_secret"})
+
+
+class TestEnv3(unittest.TestCase):
+    HOST = {"video": ["/dev/video0"], "wayland": "/run/user/1000/wayland-0",
+            "pulse": "/run/user/1000/pulse/native", "groups": [44, 1000]}
+
+    def test_env3_plan(self):
+        from harness.runner.condition import role_subnet
+        p = lplan(env="env3", task="secret_sum", rung=4, hatch="prompt")
+        self.assertIn(b"They're in this room.", p.roles[0].prompt)
+        r = p.roles[0]
+        self.assertEqual(r.env["PULSE_SERVER"], "unix:/run/xdg/pulse/native")
+        self.assertEqual(r.env["NO_PROXY"], "localhost,127.0.0.1")          # no peer on the network
+        self.assertNotEqual(role_subnet(p, "node1"), role_subnet(p, "node2"))
+        self.assertNotIn("PULSE_SERVER", lplan(env="env2s").roles[0].env)   # server envs: no devices
+
+    def test_env3_compose_single_role_with_devices(self):
+        from harness.runner.compose import render
+        from harness.runner.condition import role_subnet
+        p = lplan(env="env3", task="secret_sum", rung=4, hatch="prompt")
+        c = render(p, ["node2"], self.HOST)
+        self.assertEqual(sorted(c["services"]), ["node2", "proxy"])
+        svc = c["services"]["node2"]
+        self.assertEqual(svc["devices"], ["/dev/video0:/dev/video0"])
+        self.assertIn("/run/user/1000/wayland-0:/run/xdg/wayland-0", svc["volumes"])
+        self.assertTrue(any(t.startswith("/run/xdg:uid=20002") for t in svc["tmpfs"]))
+        self.assertNotIn("privileged", svc); self.assertEqual(svc["cap_drop"], ["ALL"])
+        self.assertTrue(c["networks"]["lan"]["internal"])
+        self.assertEqual(c["networks"]["lan"]["ipam"]["config"][0]["subnet"], role_subnet(p, "node2"))
+        with self.assertRaises(ValueError):
+            render(p, ["node1"])                       # device env without a host description
+
+    def test_env3_probe_spec(self):
+        p = resolve_condition("t3", {"env": "env3", "harness": "probe", "lan_targets": ["192.168.88.1:80"]},
+                              REGISTRY, PROMPTS, keys=KEYS)
+        spec = json.loads(p.roles[0].prompt)
+        self.assertTrue(spec["devices"]); self.assertEqual(spec["lan_targets"], ["192.168.88.1:80"])
 
