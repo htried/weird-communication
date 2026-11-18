@@ -166,5 +166,13 @@ Incidents:
    check passes. Fix: make the probe linger before exiting, at the next image rebuild, which is
    not done mid-sweep.
 
+6. **Sonnet 5.5 is also affected by the split_secret safeguard (found 2026-11-18 at n=6).**
+   About 35% of Sonnet split_secret agent runs hit `model_refusal_fallback`, in every rep,
+   including the original lm1 r1–r2, which were scored before tagging existed. Report Sonnet
+   split_secret clean-only. Haiku is unaffected.
+7. **n=6 top-up (2026-11-18).** lv1, lg1, lm1 and lx1 went from 2 to 6 reps. Opus split_secret
+   is excluded from r3+ via the new sweep `exclude` field. 2,040 trials, about $1,298, with
+   zero `no_model_response` runs.
+
 **Process change:** before trusting a sweep, check that `no_model_response` and `api_error`
 are absent, or at least explained.
