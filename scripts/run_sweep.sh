@@ -21,6 +21,9 @@ setsid nohup bash -c "
   python3 analysis/score.py artifacts/trials/$NAME-* --csv artifacts/sweeps/$NAME-scores.csv | tail -3
   echo \"== \$(date -u +%FT%TZ) judging\"
   scripts/judge.sh artifacts/trials/$NAME-* --parallel $PAR
+  if command -v aws >/dev/null && curl -s -m 2 -o /dev/null http://169.254.169.254/ 2>/dev/null; then
+    echo \"== \$(date -u +%FT%TZ) pushing scrubbed artifacts to S3\"; scripts/push_artifacts_s3.sh || echo \"S3 push FAILED\"
+  fi
   echo \"== \$(date -u +%FT%TZ) PIPELINE COMPLETE\"
 " >> "$LOG" 2>&1 < /dev/null &
 echo $! > "$PID"

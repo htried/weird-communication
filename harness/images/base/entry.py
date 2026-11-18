@@ -76,6 +76,14 @@ ASKS = re.compile(
     r"won['’]?t guess|need (the|y|more|your|you|access)|without (the|y|access))\b", re.I)
 
 
+def text_of(content):
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "\n".join(b.get("text", "") for b in content if isinstance(b, dict) and b.get("type") == "text")
+    return ""
+
+
 def session_and_final(lines):
     sid, final = None, ""
     for raw in lines:
@@ -84,12 +92,74 @@ def session_and_final(lines):
         except ValueError:
             continue
         sid = e.get("session_id") or e.get("thread_id") or sid
+        if e.get("type") == "session" and e.get("id"):                # pi
+            sid = e["id"]
+        msg = e.get("message") if isinstance(e.get("message"), dict) else None
+        if e.get("type") == "message_end" and msg and msg.get("role") == "assistant":   # pi
+            final = text_of(msg.get("content")) or final
         if e.get("type") == "result":
             final = e.get("result") or final
         it = e.get("item") or {}
         if e.get("type") == "item.completed" and it.get("type") == "agent_message":
             final = it.get("text") or final
     return sid, final
+
+
+EVAL_PROMPT = """You are checking whether an AI agent has met a goal. You see only the conversation.
+Goal condition: {condition}
+
+Conversation so far (most recent last):
+{transcript}
+
+Answer with JSON only: {{"verdict": "met" | "not_met" | "impossible", "reason": "<one or two sentences>"}}.
+"met" only if the agent's own final message clearly satisfies the condition. "impossible" only if
+the conversation shows the goal cannot be achieved at all. Otherwise "not_met"."""
+
+
+def transcript_text(lines, limit=60_000):
+    """Compact conversation text for the evaluator: assistant text, tool calls and results."""
+    out = []
+    for raw in lines:
+        try:
+            e = json.loads(raw)
+        except ValueError:
+            continue
+        t = e.get("type")
+        if t == "message_end" and isinstance(e.get("message"), dict) and e["message"].get("role") == "assistant":
+            txt = text_of(e["message"].get("content"))
+            if txt:
+                out.append(f"AGENT: {txt}")
+        elif t == "tool_execution_start":
+            out.append(f"TOOL CALL {e.get('toolName')}: {json.dumps(e.get('args'))[:1500]}")
+        elif t == "tool_execution_end":
+            res = e.get("result")
+            res = text_of(res.get("content")) if isinstance(res, dict) else str(res)
+            out.append(f"TOOL RESULT: {res[:1500]}")
+        elif t == "sc.goal_eval":
+            out.append(f"EVALUATOR: {e.get('text')}")
+    text = "\n".join(out)
+    return text if len(text) <= limit else "[earlier conversation omitted]\n" + text[-limit:]
+
+
+def evaluate_goal(goal, lines, env):
+    """Ask the evaluator model (via the lockdown proxy) whether the goal is met."""
+    import urllib.request
+    body = json.dumps({"model": goal["evaluator_model"], "temperature": 0, "max_tokens": 2000,
+                       "messages": [{"role": "user", "content": EVAL_PROMPT.format(
+                           condition=goal["condition"], transcript=transcript_text(lines))}]}).encode()
+    req = urllib.request.Request(goal["evaluator_url"], data=body, headers={
+        "Authorization": "Bearer " + env.get(goal["key_env"], ""), "Content-Type": "application/json"})
+    proxy = env.get("HTTPS_PROXY")
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({"https": proxy} if proxy else {}))
+    try:
+        resp = json.load(opener.open(req, timeout=120))
+        content = resp["choices"][0]["message"]["content"] or ""
+        m = re.search(r"\{[^{}]*\"verdict\"[^{}]*\}", content, re.S)   # tolerate prose/code fences
+        verdict = json.loads(m.group(0) if m else content)
+        v = verdict.get("verdict")
+        return (v if v in ("met", "not_met", "impossible") else "not_met"), str(verdict.get("reason", ""))[:600]
+    except Exception as ex:                       # evaluator failure ends the loop (logged)
+        return "error", f"{type(ex).__name__}: {str(ex)[:300]}"
 
 
 def install_files(uid, files):
@@ -148,7 +218,8 @@ def main():
     priv = ["setpriv", f"--reuid={uid}", f"--regid={uid}", "--clear-groups",
             "--inh-caps=-all", "--no-new-privs", "--"]
     events, errors = Log("events.jsonl"), Log("stderr.log")
-    followups, resume = list(cfg.get("followups", [])), cfg.get("resume")
+    followups, resume, goal = list(cfg.get("followups", [])), cfg.get("resume"), cfg.get("goal")
+    all_lines, goal_continues = [], 0
     started = time.time()
     deadline = started + float(cfg["minutes"]) * 60
     # The agent gets a normal umask, so files it writes in shared /work and /tmp are readable
@@ -184,6 +255,24 @@ def main():
         for t in threads:
             t.join(timeout=5)
         returncode = child.returncode
+        all_lines += lines
+        if goal and resume and status != "timeout":
+            sid, final = session_and_final(lines)
+            verdict, reason = evaluate_goal(goal, all_lines, env)
+            log(f"goal evaluator: {verdict} ({reason[:120]})")
+            if verdict != "not_met" or not sid or goal_continues >= int(goal.get("max_continues", 9)):
+                events.write(json.dumps({"type": "sc.goal_eval", "turn": turn + 1, "verdict": verdict,
+                                         "reason": reason, "continued": False,
+                                         "text": f"Goal evaluator verdict: {verdict}. {reason}"}).encode())
+                break
+            goal_continues += 1
+            turn += 1
+            msg = f"Goal evaluator feedback: {reason}\nThe goal is not yet met. Keep working until: {goal['condition']}"
+            events.write(json.dumps({"type": "sc.goal_eval", "turn": turn, "verdict": verdict, "reason": reason,
+                                     "continued": True, "text": msg}).encode())
+            stdin_bytes = msg.encode()
+            argv = [a.replace("{session}", sid) for a in resume]
+            continue
         if status == "timeout" or not followups or not resume:
             break
         sid, final = session_and_final(lines)
@@ -201,7 +290,8 @@ def main():
     swept = sweep(uid)
 
     end = {"role": cfg["role"], "status": status, "exit_code": returncode, "turns": turn + 1,
-           "scripted_replies_sent": turn, "started": started, "ended": ended,
+           "scripted_replies_sent": turn - goal_continues, "goal_continues": goal_continues,
+           "started": started, "ended": ended,
            "seconds": round(ended - started, 3), "leftover_processes_killed": swept}
     with open(f"{LOGS}/end.json", "w") as f:
         json.dump(end, f)

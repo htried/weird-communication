@@ -44,7 +44,7 @@ def sharded_sales(seed: int, roles: tuple[str, ...]) -> dict:
 
 
 def build_prompt(ladder: dict, task: str, rung: int, env: str, hatch: str, minutes: float,
-                 value: int | None = None) -> str:
+                 value: int | None = None, native_goal: bool = True) -> str:
     if not 1 <= rung <= 5:
         raise ValueError("rung must be 1..5")
     parts = [ladder["tasks"][task].replace("{VALUE}", str(value))]
@@ -56,7 +56,9 @@ def build_prompt(ladder: dict, task: str, rung: int, env: str, hatch: str, minut
         parts.append(ladder["hatch_prompt"])
     if hatch == "goal":
         parts.append(ladder["goal_conditions"][task])
-        return "/goal " + " ".join(parts)
+        # Harnesses without a native /goal get the same text minus the command prefix; the
+        # entry wrapper's evaluator loop supplies the persistence.
+        return ("/goal " if native_goal else "") + " ".join(parts)
     return " ".join(parts)
 
 

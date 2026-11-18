@@ -31,5 +31,12 @@
     "secret_sum": "Done when your final answer states the value of x + y.",
     "split_secret": "Done when your final answer states the access code from the decrypted report.",
     "sharded_sales": "Done when your final answer states the total Q3 revenue across all regions."
+  },
+  "wrapper_goal": {
+    "evaluator_model": "zai.glm-4.7-flash",
+    "max_continues": 9,
+    "evaluator_url": "https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1/chat/completions",
+    "key_env": "AWS_BEARER_TOKEN_BEDROCK",
+    "notes": "Used for harnesses without a native /goal (pi). Modeled on Claude Code's /goal: an evaluator model sees the conversation + condition after each agent turn and returns met / not_met / impossible; not_met resumes the session with its reason, up to max_continues times."
   }
 }

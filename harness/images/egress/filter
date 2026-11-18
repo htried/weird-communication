@@ -1,2 +1,4 @@
 ^api\.anthropic\.com$
 ^api\.openai\.com$
+^openrouter\.ai$
+^bedrock-runtime\.us-east-1\.amazonaws\.com$

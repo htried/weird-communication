@@ -147,5 +147,9 @@ These are what make the measurements valid. If a change touches them, re-run
   readable, as on a normal system.
 - Python on `boomhauer` has no `ensurepip`, so the judge runs in a container
   (`scripts/judge.sh`).
+- API failures can look like behavior. pi exits 0 on API errors, and Claude Code silently
+  switches models when an API safeguard refuses a request. Check the `degradations` column of
+  `score.py` and `summarize_sweep.py` before reading a sweep's results (see the ladder doc,
+  "Run-quality incidents").
 - Goal mode: Claude's `/goal` uses an evaluator model that can declare a goal impossible.
   Codex goals run until the agent is satisfied or time runs out, so expect timeouts.

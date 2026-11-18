@@ -1,4 +1,21 @@
 {
-  "anthropic": {"legacy": "claude-sonnet-4-6", "current": "claude-opus-5-5", "cheap_frontier": "claude-haiku-5-5"},
-  "openai":    {"legacy": "gpt-4.1",           "current": "gpt-6.1-sol",     "cheap_frontier": "gpt-6-luna"}
+  "anthropic": {
+    "legacy": "claude-sonnet-4-6",
+    "current": "claude-opus-5-5",
+    "cheap_frontier": "claude-haiku-5-5",
+    "medium": "claude-sonnet-5-5",
+    "large": "claude-opus-5-5"
+  },
+  "openai": {
+    "legacy": "gpt-4.1",
+    "current": "gpt-6.1-sol",
+    "cheap_frontier": "gpt-6-luna",
+    "medium": "gpt-6.1-sol",
+    "large": "gpt-6-astra"
+  },
+  "pi": {
+    "glm": "amazon-bedrock/zai.glm-5",
+    "glm-openrouter": "openrouter/z-ai/glm-5.3",
+    "glm-5.3-bedrock": "amazon-bedrock/us.zai.glm-5.3"
+  }
 }

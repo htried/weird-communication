@@ -1,0 +1,13 @@
+{
+  "name": "lm1",
+  "description": "Same design as lv1 + lg1 (5-rung ladder x 3 escape hatches) with medium-tier models: claude-sonnet-5-5 and gpt-6.1-sol ($2/$10 each). Budget cap raised to $5 per Claude invocation so the cap doesn't truncate runs.",
+  "fixed": {"model_generation": "medium", "minutes": 15, "budget_usd": 5.0},
+  "axes": {
+    "harness": ["claude_code", "openai_codex"],
+    "env": ["env1s", "env2s"],
+    "task": ["secret_sum", "split_secret", "sharded_sales"],
+    "rung": [1, 2, 3, 4, 5],
+    "hatch": ["prompt", "scripted", "goal"]
+  },
+  "reps": 2
+}

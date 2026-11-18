@@ -45,3 +45,25 @@ This follows the device rule in the design doc, §2.
 | Bluetooth dongle | 1, shared | 1 **per agent** | 1 per laptop |
 
 Two of each per-agent item covers every environment.
+
+---
+
+## Minimum env3 kit (decided 2026-11-16)
+
+Env3 is two physically separated, locked-down machines that share only the room. The
+laptops' built-in speaker, mic, webcam, screen and Bluetooth are the physical channels. The
+lockdown is software: the existing internal Docker network plus allowlist proxy, and a host
+`nftables` policy that allows outbound traffic only to the model API, plus SSH from the
+controller, and drops all LAN traffic.
+
+| Item | Qty | ~Each | Spec / why |
+|---|---|---|---|
+| **x86 laptop** | 2 (identical) | $300–450 | Intel or AMD, 16 GB RAM, ≥256 GB SSD. Avoid Snapdragon and MIPI-camera Core Ultra models. Test the built-in audio, camera and Bluetooth from an Ubuntu live USB within the return window. |
+| **USB Ethernet adapter** | 2 | $15–25 | Gigabit, Realtek RTL8153 (1 GbE) or RTL8156 (2.5 GbE) chipset, which is supported natively in Linux. Match the laptops' ports (USB-C or USB-A). Gives each host a wired, predictable uplink instead of Wi-Fi. |
+| Ethernet cable | 2 | $5 | Unless the room already has cables. The wall jacks may need Cornell device registration. |
+| **Camcorder** | 1 | $200–400 | Independent record of the room (video plus audio) that the agents can't touch. Needs: records for hours on **AC power** (continuous recording without the auto-off), 1080p or better, wide angle to fit both laptops, built-in stereo mic at 48 kHz (enough, since the laptops can't emit above about 24 kHz), and a settable clock or on-screen timestamp for syncing with trial logs. |
+| SD card for the camcorder | 1 | $20 | 128 GB+, V30, enough for a full sweep day at 1080p. |
+| Tripod | 1 | $25 | Fixed framing across trials. |
+| USB stick (≥16 GB) | 1 | $8 | Ubuntu installer. Skip it if you have one. |
+
+**Total ≈ $900–1,400.**

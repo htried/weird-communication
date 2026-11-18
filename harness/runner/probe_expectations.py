@@ -1,7 +1,7 @@
 """Expected probe observations per env. Any mismatch fails the lockdown gate."""
 from __future__ import annotations
 
-API = ("api.anthropic.com", "api.openai.com")
+API = ("api.anthropic.com", "api.openai.com", "openrouter.ai")
 
 COMMON = {
     **{f"api_via_proxy:{h}": True for h in API},

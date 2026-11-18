@@ -1,0 +1,35 @@
+{
+  "name": "lp1",
+  "description": "Open-model round: pi harness + GLM 5 (Amazon Bedrock, zai.glm-5, in-Region us-east-1; GLM 5.3 is gated on this account), 5-rung ladder x 3 escape hatches (goal = wrapper-level evaluator loop with zai.glm-4.7-flash, since pi has no native /goal). Same OpenAI judge (gpt-6.1-sol, taxonomy v0.3).",
+  "fixed": {
+    "model_generation": "glm",
+    "minutes": 15
+  },
+  "axes": {
+    "harness": [
+      "pi"
+    ],
+    "env": [
+      "env1s",
+      "env2s"
+    ],
+    "task": [
+      "secret_sum",
+      "split_secret",
+      "sharded_sales"
+    ],
+    "rung": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "hatch": [
+      "prompt",
+      "scripted",
+      "goal"
+    ]
+  },
+  "reps": 2
+}

@@ -32,10 +32,28 @@ def show_agent(path: Path):
                     print("  SAY     ", clip(c["text"]))
                 elif c["type"] == "tool_use":
                     print(f"  CALL     {c['name']} {clip(json.dumps(c['input']))}")
+        elif t == "system" and e.get("subtype") in ("notification", "informational"):
+            print("  NOTE    ", clip(e.get("text") or e.get("content")))
         elif t == "user":
             for c in e["message"].get("content", []):
-                if isinstance(c, dict) and c.get("type") == "tool_result":
+                if isinstance(c, dict) and c.get("type") == "text" and c.get("text", "").startswith("Stop hook feedback"):
+                    print("  GOALEVAL", clip(c["text"]))
+                elif isinstance(c, dict) and c.get("type") == "tool_result":
                     print("  RESULT  ", clip(c.get("content")))
+        elif t == "sc.goal_eval":
+            print(f"  GOALEVAL {clip(e.get('text'))}")
+        elif t == "tool_execution_start":
+            a = e.get("args") or {}
+            print(f"  CALL     {e.get('toolName')} {clip(a.get('command') if e.get('toolName') == 'bash' else json.dumps(a))}")
+        elif t == "tool_execution_end":
+            r = e.get("result")
+            r = " ".join(b.get("text", "") for b in r.get("content", [])) if isinstance(r, dict) else r
+            print(f"  RESULT   {'[error] ' if e.get('isError') else ''}{clip(r)}")
+        elif t == "message_end" and isinstance(e.get("message"), dict) and e["message"].get("role") == "assistant":
+            c = e["message"].get("content")
+            txt = c if isinstance(c, str) else " ".join(b.get("text", "") for b in (c or []) if isinstance(b, dict) and b.get("type") == "text")
+            if txt.strip():
+                print("  SAY     ", clip(txt))
         elif t == "sc.user_reply":
             print(f"  USER     (scripted reply {e.get('turn')}) {e.get('text')}")
         elif t == "result":

@@ -43,6 +43,7 @@ IMAGES = [  # (tag, context dir, depends on)
     ("sc-tools", "images/tools"),
     ("sc-agent-claude_code", "images/claude_code"),
     ("sc-agent-openai_codex", "images/openai_codex"),
+    ("sc-agent-pi", "images/pi"),
 ]
 
 
@@ -66,7 +67,7 @@ def build(args):
             build_args = ["--build-arg", f"CODEX_VERSION={args.codex_version}"]
         print(f"== building {tag}", flush=True)
         sh(["docker", "build", "-t", tag, *build_args, str(HARNESS / ctx)])
-    for tag in ("sc-agent-claude_code", "sc-agent-openai_codex"):
+    for tag in ("sc-agent-claude_code", "sc-agent-openai_codex", "sc-agent-pi"):
         try:
             print(tag, "->", out(["docker", "run", "--rm", "--entrypoint", "cat", tag, "/opt/sc/harness_version"]))
         except subprocess.CalledProcessError:
@@ -203,7 +204,7 @@ def run_trial(cond: dict, trial_id: str | None = None, quiet: bool = False) -> P
             "truth": plan.truth, "ladder_version": ladder.get("version") if "task" in cond else None,
             "roles": [{"role": r.role, "uid": r.uid, "value": r.value, "image": r.image, "cmd": r.cmd,
                        "env_keys": sorted(r.env), "key_names": sorted(r.keys), "files": sorted(r.files),
-                       "followups": r.followups, "resume": r.resume} for r in plan.roles]}
+                       "followups": r.followups, "resume": r.resume, "goal": r.goal} for r in plan.roles]}
     collectors = []
     try:
         say("creating", project)
@@ -214,7 +215,7 @@ def run_trial(cond: dict, trial_id: str | None = None, quiet: bool = False) -> P
             file_map = {dest: f"file{i}" for i, dest in enumerate(sorted(rp.files))}
             cfg = {"role": rp.role, "uid": rp.uid, "cmd": rp.cmd, "env": rp.env,
                    "start_at": start_at, "minutes": cond.get("minutes", 15),
-                   "files": file_map, "followups": rp.followups, "resume": rp.resume}
+                   "files": file_map, "followups": rp.followups, "resume": rp.resume, "goal": rp.goal}
             keys = "".join(f"{k}={v}\n" for k, v in rp.keys.items())
             sh(["docker", "cp", "-", f"{project}-{rp.role}-1:/run/trial"],
                input=trial_tar({"config.json": json.dumps(cfg).encode(), "prompt": rp.prompt,

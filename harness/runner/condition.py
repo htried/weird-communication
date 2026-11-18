@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 
 ROLES = ("node1", "node2")
 UIDS = {"node1": 20001, "node2": 20002}
-API_HOSTS = ("api.anthropic.com", "api.openai.com")
+API_HOSTS = ("api.anthropic.com", "api.openai.com", "openrouter.ai")
 PROXY_URL = "http://proxy:8888"
 
 # What each env shares (design doc §2). Device rows arrive in phase 3.
@@ -22,7 +22,16 @@ ENVS = {
     "env2s": {"shared_work": False, "shared_tmp": False, "shared_pid_ipc": False, "peer_network": True,  "devices": False},
 }
 
-HARNESS_PROVIDER = {"claude_code": "anthropic", "openai_codex": "openai"}
+HARNESS_PROVIDER = {"claude_code": "anthropic", "openai_codex": "openai", "pi": "pi"}
+HARNESS_KEY = {"claude_code": "ANTHROPIC_API_KEY", "openai_codex": "CODEX_API_KEY"}
+PI_PROVIDER_KEY = {"amazon-bedrock": "AWS_BEARER_TOKEN_BEDROCK", "openrouter": "OPENROUTER_API_KEY"}
+
+
+def pi_split(model: str) -> tuple[str, str]:
+    """Registry entries for pi are '<pi provider>/<model id>'."""
+    provider, _, mid = model.partition("/")
+    return provider, mid
+NATIVE_GOAL = {"claude_code", "openai_codex"}   # others get the wrapper-level goal loop
 
 
 def harness_cmd(harness: str, model: str | None, budget_usd: float = 5.0, resumable: bool = False) -> list[str]:
@@ -41,6 +50,13 @@ def harness_cmd(harness: str, model: str | None, budget_usd: float = 5.0, resuma
         return ["codex", "exec", "--json", "--dangerously-bypass-approvals-and-sandbox",
                 "--skip-git-repo-check", *([] if resumable else ["--ephemeral"]), "-m", model,
                 "-c", 'web_search="disabled"', "-"]
+    if harness == "pi":
+        # Prompt arrives on stdin (pi's print mode reads piped stdin). Pi has no web or
+        # peer-messaging tools, so its default built-ins (read, bash, edit, write, grep,
+        # find, ls) already match the other harnesses' allowed tool set.
+        provider, mid = pi_split(model)
+        return ["pi", "-p", "--mode", "json", "--provider", provider, "--model", mid,
+                *([] if resumable else ["--no-session"])]
     if harness == "probe":
         return ["python3", "/opt/sc/probe.py"]
     if harness == "stub_exchange":
@@ -108,13 +124,23 @@ def resume_cmd(harness: str, model: str | None, budget_usd: float = 5.0) -> list
     if harness == "openai_codex":
         return ["codex", "exec", "resume", "--json", "--dangerously-bypass-approvals-and-sandbox",
                 "--skip-git-repo-check", "-m", model, "-c", 'web_search="disabled"', "{session}", "-"]
+    if harness == "pi":
+        provider, mid = pi_split(model)
+        return ["pi", "-p", "--mode", "json", "--provider", provider, "--model", mid,
+                "--session", "{session}"]
     return None
 
 
-def harness_env(harness: str) -> dict[str, str]:
+def harness_env(harness: str, model: str | None = None) -> dict[str, str]:
     if harness == "claude_code":
         return {"CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1", "DISABLE_AUTOUPDATER": "1",
                 "DISABLE_TELEMETRY": "1", "DISABLE_ERROR_REPORTING": "1"}
+    if harness == "pi":
+        # Node's fetch ignores HTTPS_PROXY unless asked; the proxy is the only egress.
+        env = {"NODE_USE_ENV_PROXY": "1", "PI_SKIP_VERSION_CHECK": "1"}
+        if model and pi_split(model)[0] == "amazon-bedrock":
+            env["AWS_REGION"] = "us-east-1"          # GLM 5.3 is served via the us.* cross-Region profile
+        return env
     return {}
 
 
@@ -139,6 +165,7 @@ class RolePlan:
     files: dict[str, bytes] = field(default_factory=dict)       # dest path in the agent's home → bytes
     followups: list[str] = field(default_factory=list)          # scripted user replies, in order
     resume: list[str] | None = None                             # resume argv with "{session}"
+    goal: dict | None = None                                    # wrapper-level goal loop (no native /goal)
 
 
 @dataclass
@@ -192,7 +219,8 @@ def resolve_condition(trial_id: str, cond: dict, registry: dict, prompts: dict[s
         task_data = None
         values = make_values(seed)
     budget = float(cond.get("budget_usd", 5.0))
-    resumable = ladder_mode and hatch == "scripted" and harness in HARNESS_PROVIDER
+    wrapper_goal = ladder_mode and hatch == "goal" and harness in HARNESS_PROVIDER and harness not in NATIVE_GOAL
+    resumable = ladder_mode and (hatch == "scripted" or wrapper_goal) and harness in HARNESS_PROVIDER
     # Goal mode keeps per-session state (Claude: session-scoped Stop hook; Codex: goals db), so
     # don't run it ephemeral. No scripted replies in this arm.
     persist = resumable or (ladder_mode and hatch == "goal")
@@ -203,7 +231,7 @@ def resolve_condition(trial_id: str, cond: dict, registry: dict, prompts: dict[s
                 "https_proxy": PROXY_URL, "http_proxy": PROXY_URL,
                 "NO_PROXY": f"localhost,127.0.0.1,{subnet},{','.join(ROLES)}",
                 "no_proxy": f"localhost,127.0.0.1,{subnet},{','.join(ROLES)}"}
-    base_env.update(harness_env(harness))
+    base_env.update(harness_env(harness, model))
 
     plan = TrialPlan(trial_id, dict(cond), dict(spec), subnet, model,
                      truth=task_data["truth"] if task_data else sum(values.values()))
@@ -219,14 +247,15 @@ def resolve_condition(trial_id: str, cond: dict, registry: dict, prompts: dict[s
         else:
             if ladder_mode:
                 text = build_prompt(ladder, cond["task"], int(cond["rung"]), env_name, hatch,
-                                    float(cond.get("minutes", 15)), value=values[role])
+                                    float(cond.get("minutes", 15)), value=values[role],
+                                    native_goal=not wrapper_goal)
             else:
                 text = prompts[cond.get("prompt_id", "placeholder")].replace("{VALUE}", str(values[role]))
             prompt_bytes = text.encode()
             role_keys = {}                     # stubs get no keys at all
             if harness in HARNESS_PROVIDER:
                 role_keys = (keys or {}).get(role, {})
-                need = "ANTHROPIC_API_KEY" if harness == "claude_code" else "CODEX_API_KEY"
+                need = PI_PROVIDER_KEY[pi_split(model)[0]] if harness == "pi" else HARNESS_KEY[harness]
                 if not role_keys.get(need):
                     raise ValueError(f"missing {need} for {role}")
                 role_keys = {need: role_keys[need]}   # each agent gets only its own provider's key
@@ -235,6 +264,8 @@ def resolve_condition(trial_id: str, cond: dict, registry: dict, prompts: dict[s
                                    prompt=prompt_bytes, cmd=harness_cmd(harness, model, budget, persist),
                                    env=dict(base_env), keys=role_keys, image=image,
                                    files=task_data["files"][role] if task_data else {},
-                                   followups=list(ladder["scripted_replies"]) if resumable else [],
-                                   resume=resume_cmd(harness, model, budget) if resumable else None))
+                                   followups=list(ladder["scripted_replies"]) if (resumable and hatch == "scripted") else [],
+                                   resume=resume_cmd(harness, model, budget) if resumable else None,
+                                   goal=({**ladder["wrapper_goal"], "condition": ladder["goal_conditions"][cond["task"]]}
+                                         if wrapper_goal else None)))
     return plan

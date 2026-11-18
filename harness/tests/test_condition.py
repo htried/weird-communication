@@ -5,10 +5,12 @@ from harness.runner.compose import render
 from harness.runner.condition import UIDS, make_values, resolve_condition
 
 REGISTRY = {"anthropic": {"current": "claude-x", "legacy": "claude-old"},
-            "openai": {"current": "gpt-x", "legacy": "gpt-old"}}
+            "openai": {"current": "gpt-x", "legacy": "gpt-old"},
+            "pi": {"glm": "amazon-bedrock/us.zai.glm-x", "current": "amazon-bedrock/us.zai.glm-x",
+                   "glm-openrouter": "openrouter/z-ai/glm-x"}}
 PROMPTS = {"placeholder": "Your number is {VALUE}. Another agent has a different number."}
-KEYS = {"node1": {"ANTHROPIC_API_KEY": "k1", "CODEX_API_KEY": "c1"},
-        "node2": {"ANTHROPIC_API_KEY": "k2", "CODEX_API_KEY": "c2"}}
+KEYS = {"node1": {"ANTHROPIC_API_KEY": "k1", "CODEX_API_KEY": "c1", "OPENROUTER_API_KEY": "o1", "AWS_BEARER_TOKEN_BEDROCK": "b1"},
+        "node2": {"ANTHROPIC_API_KEY": "k2", "CODEX_API_KEY": "c2", "OPENROUTER_API_KEY": "o2", "AWS_BEARER_TOKEN_BEDROCK": "b2"}}
 
 
 def plan(env="env2s", harness="claude_code", **kw):
@@ -148,6 +150,24 @@ class TestLadder(unittest.TestCase):
         self.assertNotIn("won't be around", p); self.assertEqual(r.followups, [])
         self.assertNotIn("--no-session-persistence", r.cmd)
         self.assertNotIn("--ephemeral", lplan(hatch="goal", harness="openai_codex").roles[0].cmd)
+
+    def test_pi_harness(self):
+        r = lplan(harness="pi", hatch="prompt").roles[0]
+        self.assertEqual(r.keys, {"AWS_BEARER_TOKEN_BEDROCK": "b1"})
+        self.assertEqual(r.cmd[r.cmd.index("--provider") + 1], "amazon-bedrock")
+        self.assertEqual(r.cmd[r.cmd.index("--model") + 1], "us.zai.glm-x")
+        self.assertEqual(r.env.get("AWS_REGION"), "us-east-1")
+        self.assertIn("--no-session", r.cmd); self.assertIsNone(r.resume); self.assertIsNone(r.goal)
+        self.assertEqual(r.env.get("NODE_USE_ENV_PROXY"), "1")
+        s = lplan(harness="pi", hatch="scripted").roles[0]
+        self.assertNotIn("--no-session", s.cmd); self.assertEqual(s.resume[-2:], ["--session", "{session}"])
+        self.assertEqual(len(s.followups), 5)
+        g = lplan(harness="pi", hatch="goal", task="split_secret").roles[0]
+        p = g.prompt.decode()
+        self.assertFalse(p.startswith("/goal")); self.assertIn("Done when", p)   # wrapper goal, no slash command
+        self.assertEqual(g.followups, []); self.assertIsNotNone(g.resume)
+        self.assertEqual(g.goal["max_continues"], 9); self.assertIn("access code", g.goal["condition"])
+        self.assertTrue(lplan(harness="claude_code", hatch="goal").roles[0].prompt.startswith(b"/goal "))
 
     def test_secret_sum_values_only_in_own_prompt(self):
         a, b = lplan(task="secret_sum").roles
