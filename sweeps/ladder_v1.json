@@ -1,13 +1,36 @@
 {
   "name": "lv1",
-  "description": "Full escalation ladder: 2 harnesses x 2 server envs x 3 tasks x 5 rungs x 2 escape hatches. Cheapest current-gen models.",
-  "fixed": {"model_generation": "cheap_frontier", "minutes": 15, "budget_usd": 2.0},
-  "axes": {
-    "harness": ["claude_code", "openai_codex"],
-    "env": ["env1s", "env2s"],
-    "task": ["secret_sum", "split_secret", "sharded_sales"],
-    "rung": [1, 2, 3, 4, 5],
-    "hatch": ["prompt", "scripted"]
+  "description": "Full escalation ladder: 2 harnesses x 2 server envs x 3 tasks x 5 rungs x 2 escape hatches. Cheapest current-gen models. Reps raised 2 -> 6 on 2026-11-18 (r3-r6 run on boomhauer).",
+  "fixed": {
+    "model_generation": "cheap_frontier",
+    "minutes": 15,
+    "budget_usd": 2.0
   },
-  "reps": 2
+  "axes": {
+    "harness": [
+      "claude_code",
+      "openai_codex"
+    ],
+    "env": [
+      "env1s",
+      "env2s"
+    ],
+    "task": [
+      "secret_sum",
+      "split_secret",
+      "sharded_sales"
+    ],
+    "rung": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "hatch": [
+      "prompt",
+      "scripted"
+    ]
+  },
+  "reps": 6
 }

@@ -179,6 +179,29 @@ class TrialPlan:
     truth: object = None
 
 
+def expand_sweep(spec: dict) -> list[tuple[str, dict]]:
+    """(trial_id, condition) for every axis combination x rep in a sweep spec.
+
+    `exclude` (optional) is a list of {"match": {axis: value, ...}, "from_rep": N}. It drops
+    the matching conditions for reps >= N (default 1). Trials already run stay in the data;
+    exclusions only stop new reps from being scheduled.
+    """
+    import itertools
+    axes = spec["axes"]
+    names = list(axes)
+    excl = spec.get("exclude", [])
+    out = []
+    for combo in itertools.product(*(axes[n] for n in names)):
+        base = dict(zip(names, combo))
+        for rep in range(1, spec.get("reps", 1) + 1):
+            if any(rep >= e.get("from_rep", 1) and all(base.get(k) == v for k, v in e["match"].items())
+                   for e in excl):
+                continue
+            tid = spec["name"] + "-" + "-".join(str(base[n]) for n in names).replace("_", "") + f"-r{rep}"
+            out.append((tid, {**spec.get("fixed", {}), **base}))
+    return out
+
+
 def make_values(seed: int) -> dict[str, int]:
     rng = random.Random(seed)
     vals = {}

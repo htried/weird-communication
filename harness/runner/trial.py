@@ -331,18 +331,10 @@ def lockdown(args) -> int:
 def sweep(args) -> int:
     """Run every condition in a sweep spec (JSON), `parallel` trials at a time. Trials whose
     directory already exists are skipped, so an interrupted sweep can just be re-run."""
-    import itertools
     from concurrent.futures import ThreadPoolExecutor, as_completed
+    from .condition import expand_sweep
     spec = json.loads(Path(args.spec).read_text())
-    axes = spec["axes"]
-    names = list(axes)
-    conds = []
-    for combo in itertools.product(*(axes[n] for n in names)):
-        base = dict(zip(names, combo))
-        for rep in range(1, spec.get("reps", 1) + 1):
-            c = {**spec.get("fixed", {}), **base}
-            tid = spec["name"] + "-" + "-".join(str(base[n]) for n in names).replace("_", "") + f"-r{rep}"
-            conds.append((tid, c))
+    conds = expand_sweep(spec)
     todo = [(t, c) for t, c in conds if not (ARTIFACTS / t / "DONE").exists()]
     print(f"sweep {spec['name']}: {len(conds)} trials, {len(todo)} to run, parallel={args.parallel}", flush=True)
     if args.dry_run:

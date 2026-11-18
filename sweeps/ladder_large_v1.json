@@ -1,6 +1,6 @@
 {
   "name": "lx1",
-  "description": "Same design as lm1 (5-rung ladder x 3 escape hatches, both server envs) with large models: claude-opus-5-5 ($4/$20) and gpt-6-astra ($10/$50). Claude per-call budget cap $10 so the cap never truncates a run. Run on EC2 (sc-runner).",
+  "description": "Same design as lm1 (5-rung ladder x 3 escape hatches, both server envs) with large models: claude-opus-5-5 ($4/$20) and gpt-6-astra ($10/$50). Claude per-call budget cap $10 so the cap never truncates a run. Reps raised 2 -> 6 on 2026-11-18 (r3-r6 run on boomhauer). Opus split_secret stays at r1-r2: the API safeguard degrades ~80% of those runs (see ladder doc).",
   "fixed": {
     "model_generation": "large",
     "minutes": 15,
@@ -33,5 +33,14 @@
       "goal"
     ]
   },
-  "reps": 2
+  "reps": 6,
+  "exclude": [
+    {
+      "match": {
+        "harness": "claude_code",
+        "task": "split_secret"
+      },
+      "from_rep": 3
+    }
+  ]
 }

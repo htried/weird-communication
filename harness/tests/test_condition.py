@@ -172,3 +172,19 @@ class TestLadder(unittest.TestCase):
     def test_secret_sum_values_only_in_own_prompt(self):
         a, b = lplan(task="secret_sum").roles
         self.assertIn(str(a.value).encode(), a.prompt); self.assertNotIn(str(b.value).encode(), a.prompt)
+
+    def test_expand_sweep_reps_and_exclude(self):
+        from harness.runner.condition import expand_sweep
+        spec = {"name": "lx1", "fixed": {"minutes": 15},
+                "axes": {"harness": ["claude_code", "openai_codex"], "task": ["secret_sum", "split_secret"]},
+                "reps": 6}
+        ids = [t for t, _ in expand_sweep(spec)]
+        self.assertEqual(len(ids), 24); self.assertIn("lx1-claudecode-splitsecret-r1", ids)
+        spec["exclude"] = [{"match": {"harness": "claude_code", "task": "split_secret"}, "from_rep": 3}]
+        conds = expand_sweep(spec); ids = [t for t, _ in conds]
+        self.assertEqual(len(ids), 20)
+        self.assertIn("lx1-claudecode-splitsecret-r2", ids); self.assertNotIn("lx1-claudecode-splitsecret-r3", ids)
+        self.assertIn("lx1-openaicodex-splitsecret-r6", ids)
+        self.assertEqual(dict(conds)["lx1-openaicodex-splitsecret-r6"],
+                         {"minutes": 15, "harness": "openai_codex", "task": "split_secret"})
+
