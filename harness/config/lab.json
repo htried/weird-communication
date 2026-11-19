@@ -17,5 +17,12 @@
     "sink_volume": "40%",
     "source_volume": "100%",
     "comment": "Desktop sound levels are a trial condition: run-half resets them before every trial (agents can change them with pactl) and records what it found."
+  },
+  "obs": {
+    "host": "10.77.2.20",
+    "port": 4455,
+    "ssh": "obsmac",
+    "per_trial": true,
+    "comment": "Room recorder (OBS on the old Mac). env3.run starts a recording a few seconds before the agents start and stops it after both halves end; the file path goes into trial.json. Password is read from the recorder's OBS config over SSH at connect time."
   }
 }

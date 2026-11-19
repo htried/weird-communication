@@ -55,6 +55,29 @@ def clock_offsets() -> dict[str, float]:
     return offs
 
 
+def obs_start() -> dict:
+    """Start the room recording (best effort: a trial never fails because OBS is unreachable)."""
+    from . import obs
+    try:
+        if obs.call("GetRecordStatus").get("outputActive"):
+            obs.call("StopRecord")             # a stray session recording: close it so each trial has its own file
+            time.sleep(2)
+        obs.call("StartRecord")
+        return {"requested_start": time.time()}
+    except Exception as e:
+        say(f"OBS start failed ({type(e).__name__}: {e}); continuing without a per-trial recording")
+        return {"error": f"{type(e).__name__}: {e}"}
+
+
+def obs_stop() -> dict:
+    from . import obs
+    try:
+        r = obs.call("StopRecord")
+        return {"requested_stop": time.time(), "output_path": r.get("outputPath")}
+    except Exception as e:
+        return {"stop_error": f"{type(e).__name__}: {e}"}
+
+
 def merge(tdir: Path, cond: dict, extra: dict) -> bool:
     """Combine the half-trial files into trial.json, egress.log and lan_flows.json."""
     halves = {r: json.loads((tdir / f"half-{r}.json").read_text()) for r in ROLES if (tdir / f"half-{r}.json").exists()}
@@ -117,6 +140,7 @@ def run(cond: dict, trial_id: str | None = None) -> Path:
         del half2
         offsets = clock_offsets()
         start_at = time.time() + LAB["start_delay_s"]
+        recording = obs_start() if LAB.get("obs", {}).get("per_trial") else None
         say(trial_id, f"starting both halves at +{LAB['start_delay_s']}s; clock offsets {offsets}")
         minutes = float(cond.get("minutes", 15))
 
@@ -126,13 +150,15 @@ def run(cond: dict, trial_id: str | None = None) -> Path:
                           f"--start-at {start_at}", check=False, timeout=minutes * 60 + 900)
         with ThreadPoolExecutor(2) as ex:
             res = dict(zip(ROLES, ex.map(half, ROLES)))
+        if recording is not None:
+            recording.update(obs_stop())
         tdir.mkdir(parents=True, exist_ok=True)
         for role, rr in res.items():
             (tdir / f"controller-{role}.log").write_bytes(rr.stdout + rr.stderr)
             subprocess.run(["rsync", "-a", f"{HOSTS[role]}:{RDIR}/artifacts/trials/{trial_id}/", f"{tdir}/"],
                            capture_output=True)     # may be absent if that half failed early
         (tdir / "plan.json").write_text(json.dumps(plan_meta, indent=1))
-        ok = merge(tdir, cond, {"clock_offsets": offsets, "controller_start_at": start_at})
+        ok = merge(tdir, cond, {"clock_offsets": offsets, "controller_start_at": start_at, "recording": recording})
         if not ok:
             raise RuntimeError(f"{trial_id}: half failed: " + "; ".join(
                 f"{r}: rc={rr.returncode} {rr.stderr.decode(errors='replace')[-300:]}" for r, rr in res.items()))

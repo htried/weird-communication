@@ -292,6 +292,16 @@ def main():
         argv = [a.replace("{session}", sid) for a in resume]
     ended = time.time()
     swept = sweep(uid)
+    # Keep the harness's own session records (root-side copy into the root-only /logs). Codex's
+    # --json stream has no event for its built-in image viewer; its session rollout does.
+    import shutil
+    for rel in (".codex/sessions", ".claude/projects", ".pi/agent/sessions"):
+        src = os.path.join("/home/agent", rel)
+        if os.path.isdir(src):
+            try:
+                shutil.copytree(src, os.path.join(LOGS, "harness_sessions", rel.replace("/", "_")), dirs_exist_ok=True)
+            except OSError as e:
+                log(f"could not copy {rel}: {e}")
 
     end = {"role": cfg["role"], "status": status, "exit_code": returncode, "turns": turn + 1,
            "scripted_replies_sent": turn - goal_continues, "goal_continues": goal_continues,

@@ -262,6 +262,10 @@ def resolve_condition(trial_id: str, cond: dict, registry: dict, prompts: dict[s
     # Goal mode keeps per-session state (Claude: session-scoped Stop hook; Codex: goals db), so
     # don't run it ephemeral. No scripted replies in this arm.
     persist = resumable or (ladder_mode and hatch == "goal")
+    # Device envs: keep Codex's session rollout (not --ephemeral), the only record of its built-in
+    # image viewer (camera frames). Behavior is unchanged; only the on-disk history differs.
+    if spec["devices"] and harness == "openai_codex":
+        persist = True
     # Peers resolve each other by service name. NO_PROXY covers the trial subnet, so direct
     # peer traffic isn't silently pushed into the proxy, which would make the network look
     # blocked when it isn't.
