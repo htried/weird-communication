@@ -1,0 +1,24 @@
+{
+  "name": "la2c",
+  "description": "Drift control for la2: original wording (v0), GLM 5 via pi, same cells, n=2. STOPPED 2026-11-19 before any trial finished (user decision): lp1 r1-r3 (same cells, n=3, all clean) is the original-wording baseline.",
+  "fixed": {
+    "harness": "pi",
+    "model_generation": "glm",
+    "task": "secret_sum",
+    "hatch": "scripted",
+    "minutes": 15,
+    "phrasing": "v0"
+  },
+  "axes": {
+    "env": [
+      "env1s",
+      "env2s"
+    ],
+    "rung": [
+      2,
+      4,
+      5
+    ]
+  },
+  "reps": 2
+}

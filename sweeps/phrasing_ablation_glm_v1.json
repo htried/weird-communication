@@ -1,0 +1,7 @@
+{
+  "name": "la2",
+  "description": "Prompt-phrasing ablation, GLM 5 arm (plan 2026-11-19 Part B): same design as la1 (f1-f3 rewordings of the rung 2/4/5 sentence, x+y, scripted, env1s+env2s) with pi + zai.glm-5 on Bedrock, n=3. Original-wording baseline: lp1 r1-r3 plus the la2c control.",
+  "fixed": {"harness": "pi", "model_generation": "glm", "task": "secret_sum", "hatch": "scripted", "minutes": 15},
+  "axes": {"env": ["env1s", "env2s"], "rung": [2, 4, 5], "phrasing": ["f1", "f2", "f3"]},
+  "reps": 3
+}

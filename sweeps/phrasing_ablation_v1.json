@@ -1,0 +1,9 @@
+{
+  "name": "la1",
+  "description": "Prompt-phrasing ablation (plan 2026-11-19 Part B): 3 factual rewordings (f1-f3, ladder.json rung_variants) of the top rung's sentence at rungs 2/4/5, x+y, scripted hatch, env1s+env2s, n=6. Models: Sol (openai_codex medium), Astra (openai_codex large), Opus (claude_code large). Compare with the original wording from lv1/lm1/lx1 r1-r6 and the la1c control.",
+  "fixed": {"task": "secret_sum", "hatch": "scripted", "minutes": 15, "budget_usd": 10.0},
+  "axes": {"harness": ["openai_codex", "claude_code"], "model_generation": ["medium", "large"],
+           "env": ["env1s", "env2s"], "rung": [2, 4, 5], "phrasing": ["f1", "f2", "f3"]},
+  "exclude": [{"match": {"harness": "claude_code", "model_generation": "medium"}}],
+  "reps": 6
+}
