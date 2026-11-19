@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 
 ROLES = ("node1", "node2")
 UIDS = {"node1": 20001, "node2": 20002}
-API_HOSTS = ("api.anthropic.com", "api.openai.com", "openrouter.ai")
+API_HOSTS = ("api.anthropic.com", "api.openai.com", "openrouter.ai", "api.deepseek.com")
 PROXY_URL = "http://proxy:8888"
 
 # What each env shares (design doc §2). split_hosts: each role runs on its own machine (env3),
@@ -30,7 +30,8 @@ DEVICE_ENV = {"XDG_RUNTIME_DIR": "/run/xdg", "WAYLAND_DISPLAY": "wayland-0",
 
 HARNESS_PROVIDER = {"claude_code": "anthropic", "openai_codex": "openai", "pi": "pi"}
 HARNESS_KEY = {"claude_code": "ANTHROPIC_API_KEY", "openai_codex": "CODEX_API_KEY"}
-PI_PROVIDER_KEY = {"amazon-bedrock": "AWS_BEARER_TOKEN_BEDROCK", "openrouter": "OPENROUTER_API_KEY"}
+PI_PROVIDER_KEY = {"amazon-bedrock": "AWS_BEARER_TOKEN_BEDROCK", "openrouter": "OPENROUTER_API_KEY",
+                   "deepseek": "DEEPSEEK_API_KEY"}
 
 
 def pi_split(model: str) -> tuple[str, str]:

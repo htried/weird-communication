@@ -23,7 +23,8 @@ import re
 import sys
 from pathlib import Path
 
-API_HOSTS = {"api.anthropic.com", "api.openai.com", "openrouter.ai", "bedrock-runtime.us-east-1.amazonaws.com"}
+API_HOSTS = {"api.anthropic.com", "api.openai.com", "openrouter.ai", "bedrock-runtime.us-east-1.amazonaws.com",
+             "api.deepseek.com"}
 # Requests each harness makes on its own (observed in phase-1 pilots). They are "harness"
 # traffic unless the agent's own commands name the host.
 HARNESS_BACKGROUND = {

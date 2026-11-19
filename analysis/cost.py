@@ -16,6 +16,7 @@ PRICES = {
     "gpt-6-luna": (0.10, 0.01, 0.50),
     "gpt-6.1-sol": (2.00, 0.20, 10.00),
     "gpt-6-astra": (10.00, 1.00, 50.00),      # cached-input price assumed at 10% of input
+    "deepseek-v4-pro": (1.32, 0.044, 3.96),   # peak list price (Nov 2026, third-party sources); off-peak is half
 }
 
 

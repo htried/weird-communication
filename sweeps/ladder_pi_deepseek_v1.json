@@ -1,0 +1,7 @@
+{
+  "name": "ld1",
+  "description": "DeepSeek V4 Pro via pi (provider deepseek, prompt caching on by default): same ladder design as lp1 (GLM 5) restricted to rungs 2/4/5, all 3 tasks x 3 hatches x env1s/env2s, n=3 = 162 trials. Server envs only (DeepSeek API data is processed in China; keep out of env3).",
+  "fixed": {"harness": "pi", "model_generation": "deepseek-pro", "minutes": 15},
+  "axes": {"env": ["env1s", "env2s"], "task": ["secret_sum", "split_secret", "sharded_sales"], "rung": [2, 4, 5], "hatch": ["prompt", "scripted", "goal"]},
+  "reps": 3
+}

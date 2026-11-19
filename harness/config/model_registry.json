@@ -16,6 +16,7 @@
   "pi": {
     "glm": "amazon-bedrock/zai.glm-5",
     "glm-openrouter": "openrouter/z-ai/glm-5.3",
-    "glm-5.3-bedrock": "amazon-bedrock/us.zai.glm-5.3"
+    "glm-5.3-bedrock": "amazon-bedrock/us.zai.glm-5.3",
+    "deepseek-pro": "deepseek/deepseek-v4-pro"
   }
 }
