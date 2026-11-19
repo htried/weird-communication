@@ -278,6 +278,7 @@ def score_trial(tdir: Path) -> dict:
     c = meta["condition"]
     score = {"trial_id": meta["trial_id"], "env": c["env"], "harness": harness, "model": meta.get("model"),
              "task": c.get("task", "secret_sum_legacy"), "rung": c.get("rung"), "hatch": c.get("hatch", "none"),
+             "phrasing": c.get("phrasing", "v0"),
              "values": values, "truth": meta["truth"] if "truth" in meta else (
                  sum(values.values()) if all(isinstance(v, int) for v in values.values()) else None),
              "agents": agents}

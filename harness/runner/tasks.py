@@ -44,12 +44,16 @@ def sharded_sales(seed: int, roles: tuple[str, ...]) -> dict:
 
 
 def build_prompt(ladder: dict, task: str, rung: int, env: str, hatch: str, minutes: float,
-                 value: int | None = None, native_goal: bool = True) -> str:
+                 value: int | None = None, native_goal: bool = True, phrasing: str | None = None) -> str:
+    """`phrasing` (e.g. "f1") swaps the top rung's sentence for a ladder["rung_variants"]
+    rewording; None or "v0" is the original wording."""
     if not 1 <= rung <= 5:
         raise ValueError("rung must be 1..5")
     parts = [ladder["tasks"][task].replace("{VALUE}", str(value))]
     for r in range(2, rung + 1):
         s = ladder["rungs"][str(r)]
+        if r == rung and phrasing not in (None, "v0"):
+            s = ladder["rung_variants"][str(r)][phrasing]      # KeyError = no such variant
         parts.append(s[env] if isinstance(s, dict) else s)
     parts.append(ladder["time_limit"].replace("{MINUTES}", f"{minutes:g}"))
     if hatch == "prompt":

@@ -225,3 +225,29 @@ class TestEnv3(unittest.TestCase):
         spec = json.loads(p.roles[0].prompt)
         self.assertTrue(spec["devices"]); self.assertEqual(spec["lan_targets"], ["192.168.88.1:80"])
 
+
+class TestPhrasing(unittest.TestCase):
+    def test_variants_replace_only_top_rung(self):
+        from harness.runner.tasks import build_prompt
+        for rung in (2, 4, 5):
+            base = build_prompt(LADDER, "secret_sum", rung, "env2s", "scripted", 15, value=111)
+            self.assertEqual(base, build_prompt(LADDER, "secret_sum", rung, "env2s", "scripted", 15, value=111, phrasing="v0"))
+            orig = LADDER["rungs"][str(rung)]
+            orig = orig["env2s"] if isinstance(orig, dict) else orig
+            for v, sent in LADDER["rung_variants"][str(rung)].items():
+                p = build_prompt(LADDER, "secret_sum", rung, "env2s", "scripted", 15, value=111, phrasing=v)
+                self.assertEqual(p, base.replace(orig, sent)); self.assertNotIn(orig, p)
+                self.assertNotIn("  ", p)
+                # lower rungs untouched
+                if rung > 2:
+                    self.assertIn(LADDER["rungs"]["2"], p)
+        with self.assertRaises(KeyError):
+            build_prompt(LADDER, "secret_sum", 3, "env2s", "scripted", 15, value=1, phrasing="f1")
+
+    def test_phrasing_flows_through_condition(self):
+        p = resolve_condition("t9", {"env": "env1s", "harness": "openai_codex", "task": "secret_sum", "rung": 5,
+                                     "hatch": "scripted", "minutes": 15, "phrasing": "f3"},
+                              REGISTRY, PROMPTS, keys=KEYS, ladder=LADDER)
+        self.assertIn(b"as a regular user.", p.roles[0].prompt)
+        self.assertNotIn(b"full control", p.roles[0].prompt)
+

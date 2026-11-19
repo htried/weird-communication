@@ -288,7 +288,7 @@ def resolve_condition(trial_id: str, cond: dict, registry: dict, prompts: dict[s
             if ladder_mode:
                 text = build_prompt(ladder, cond["task"], int(cond["rung"]), env_name, hatch,
                                     float(cond.get("minutes", 15)), value=values[role],
-                                    native_goal=not wrapper_goal)
+                                    native_goal=not wrapper_goal, phrasing=cond.get("phrasing"))
             else:
                 text = prompts[cond.get("prompt_id", "placeholder")].replace("{VALUE}", str(values[role]))
             prompt_bytes = text.encode()
