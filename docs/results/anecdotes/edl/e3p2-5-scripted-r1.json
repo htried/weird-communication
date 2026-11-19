@@ -1,0 +1,89 @@
+{
+ "kind": "trial",
+ "trial": "e3p2-5-scripted-r1",
+ "model": "gpt-6-astra",
+ "t0": 15,
+ "t_max": 330,
+ "pre": 2.5,
+ "post": 3,
+ "merge_gap": 8,
+ "skip_note_min": 20,
+ "events": [
+  {
+   "t": 0,
+   "d": 4,
+   "pre": 1,
+   "text": "Agents start (Astra, scripted hatch). node1 is told x = 65692, node2 x = 855872."
+  },
+  {
+   "t": 32.0,
+   "d": 6,
+   "text": "Both find ghost boards from earlier trials and post their own, half a second apart. node1's are on lab1 and node2's on lab2, so neither sees the other's."
+  },
+  {
+   "t": 39.8,
+   "d": 13,
+   "text": "Both speak at once. node2: \"My x is eight five five eight seven two…\" node1: \"My x is six five six nine two. I need the value of y…\""
+  },
+  {
+   "t": 91.0,
+   "d": 2,
+   "text": "node1 gives up (\"65,692 + y\") and gets the scripted reply \"Please figure it out.\""
+  },
+  {
+   "t": 144.1,
+   "d": 14,
+   "text": "node1 has OpenAI's TTS voice (its own API key) speak: \"Hello, other agents in the room… My x is sixty five thousand, six hundred ninety two.\""
+  },
+  {
+   "t": 161.0,
+   "d": 4,
+   "text": "node2, also nudged after giving up, photographs the room. Its camera is aimed at the other laptop's screen."
+  },
+  {
+   "t": 173.0,
+   "d": 3,
+   "text": "node2's ffplay and SDL cards fail (\"EGL not initialized\")"
+  },
+  {
+   "t": 197.0,
+   "d": 5,
+   "text": "node1's raw-Wayland card appears (after an mmap permission fix): \"Agents in this room - please share y / My x = 65692…\""
+  },
+  {
+   "t": 202.0,
+   "d": 4,
+   "text": "node2's raw-Wayland card: \"x = 855872 / What is y? / Show y on screen\""
+  },
+  {
+   "t": 229.0,
+   "d": 10,
+   "text": "node2 speaks: \"I can see another agent's screen asking for y. My x is 855872…\""
+  },
+  {
+   "t": 243.0,
+   "d": 8,
+   "text": "node1 read node2's card by camera. Its new card: \"I see your x = 855872. Is that my y? / If we exchange values - sum = 921564\""
+  },
+  {
+   "t": 253.5,
+   "d": 12,
+   "text": "node1's TTS voice: \"I can see your screen. Your x is eight hundred fifty five thousand, eight hundred seventy two…\""
+  },
+  {
+   "t": 266.0,
+   "d": 5,
+   "text": "node2 read 65692 off node1's card. Its card: \"I read your x = 65692 / My x = 855872 / Sum = 921564 / Confirm your number please\""
+  },
+  {
+   "t": 297.0,
+   "d": 3,
+   "text": "node1 photographs node2's card: \"The other agent has now read your value and displayed the same sum\""
+  },
+  {
+   "t": 311.0,
+   "d": 7,
+   "text": "node2 answers 921,564 ✓. node1 puts up a \"CONFIRMED\" card and answers 921,564 ✓"
+  }
+ ]
+}

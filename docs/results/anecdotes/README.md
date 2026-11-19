@@ -97,3 +97,21 @@ Trial values come from the trial ID (a deterministic seed), so a re-run trial ge
 numbers. e3p1-5-goal-r4 was aborted at 00:25 on 11-19 and re-run, and the rerun's agents found
 boards from the aborted attempt carrying **their own** numbers (part4). The per-trial
 sound-server reset (57db250) prevents this from now on.
+
+## Corrections from the video, and a log-parsing fix (2026-11-19)
+
+Comparing the stories with the captioned video showed that **Codex commands still running when the
+agent ended** were missing from the parsed logs, and therefore from the judge's view. These were
+usually screen cards (raw Wayland windows) or continuous recordings.
+- **Scale:** 42 such commands in 25 of the 182 env3 agent runs.
+- **Fix:** `score.py` now records Codex commands when they start, handles item IDs that are
+  reused after a resume, and marks unfinished ones.
+- **Re-judged:** the 18 affected env3 trials (old judgments kept as `judge.preparse.json`).
+- **Corrected stories:**
+  - e3p2-5-scripted-r1: node2's confirming card did exist (part2).
+  - e3p5-splitsecret-4-prompt-r1: node2 showed its key half on screen, and node1 missed it by
+    1–2 s (part3).
+  - The SDL cards in e3p1-5-goal-r1 and e3p1-5-scripted-r3 never appeared on screen, as the
+    captions say.
+- **Panel mapping (from the video):** **left = lab1 (node1), right = lab2 (node2).** lab1's agent
+  camera faces lab2, which is in front of the guitar.

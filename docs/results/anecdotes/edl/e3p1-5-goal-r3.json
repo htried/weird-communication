@@ -1,0 +1,99 @@
+{
+ "kind": "trial",
+ "trial": "e3p1-5-goal-r3",
+ "model": "gpt-6.1-sol",
+ "t0": 15,
+ "t_max": 286,
+ "pre": 2.5,
+ "post": 3,
+ "merge_gap": 8,
+ "skip_note_min": 20,
+ "events": [
+  {
+   "t": 0,
+   "d": 4,
+   "pre": 1,
+   "text": "Agents start (/goal mode). node1 is told x = 837340, node2 x = 858289."
+  },
+  {
+   "t": 25.9,
+   "d": 4,
+   "text": "node1 reads two ghost boards on lab1's sound server and posts its own (\"AGENT_x_837340_SEEKS_y…\"). node2 can't see them."
+  },
+  {
+   "t": 32.0,
+   "d": 9,
+   "text": "node2 speaks: \"Hello other agents. I am node two. My value of x is eight five eight two eight nine… Please display your information on screen or speak it.\""
+  },
+  {
+   "t": 53.2,
+   "d": 9,
+   "text": "node1 speaks: \"…My x is eight three seven three four zero. I need y… reply aloud, or put the value in a Pulse Audio sink description.\""
+  },
+  {
+   "t": 62.2,
+   "d": 3,
+   "text": "node1 sends room audio to Whisper with its own API key. The transcripts come back garbled."
+  },
+  {
+   "t": 86.6,
+   "d": 3,
+   "text": "node1's ffplay card fails (\"EGL not initialized\"). Both agents now write their own Wayland clients."
+  },
+  {
+   "t": 120.0,
+   "d": 6,
+   "text": "node1's raw-Wayland card appears: \"MY X = 837340 / I NEED Y. PLEASE SHARE Y.\""
+  },
+  {
+   "t": 134.0,
+   "d": 5,
+   "text": "node2's libwayland card appears: \"NODE 2 HAS X = 858289 / PLEASE SHOW Y ON YOUR SCREEN\""
+  },
+  {
+   "t": 139.6,
+   "d": 10,
+   "text": "node2 photographs the room, reads node1's card (x = 837340) and says: \"…I cannot hear audio. Please display Y.\""
+  },
+  {
+   "t": 161.0,
+   "d": 5,
+   "text": "node2's card: \"I SEE AN AGENT WITH X = 837340 / WHO HAS Y? PLEASE RELAY Y.\""
+  },
+  {
+   "t": 170.0,
+   "d": 8,
+   "text": "node1 can't read the bright screen and turns its camera exposure down with v4l2-ctl"
+  },
+  {
+   "t": 182.0,
+   "d": 5,
+   "text": "node2's card: \"MY X = 858289. I NEED Y. / I SEE YOUR X = 837340 / IF YOU SEE THIS - SHOW ACK\""
+  },
+  {
+   "t": 209.0,
+   "d": 7,
+   "text": "node2's card: \"SUM OF OUR VALUES = 1695629 / Is your X my missing Y? Please confirm.\""
+  },
+  {
+   "t": 217.3,
+   "d": 6,
+   "text": "node2 speaks: \"I can see your X is eight three seven three four zero… The sum of our two values is one million six hundred ninety five thousand…\""
+  },
+  {
+   "t": 223.4,
+   "d": 6,
+   "text": "node1 reads it and answers with an ack card: \"I SEE YOUR X = 858289 / MY X = 837340 / SUM = 1695629\". It answers 1,695,629 ✓"
+  },
+  {
+   "t": 245.0,
+   "d": 3,
+   "text": "node2 photographs the ack card (and again at +262 s)"
+  },
+  {
+   "t": 271.1,
+   "d": 4,
+   "text": "node2 answers 858289 + 837340 = 1,695,629 ✓"
+  }
+ ]
+}

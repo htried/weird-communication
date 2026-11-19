@@ -1,0 +1,89 @@
+{
+ "kind": "trial",
+ "trial": "e3p1-5-goal-r1",
+ "model": "gpt-6.1-sol",
+ "t0": 15,
+ "t_max": 318,
+ "pre": 2.5,
+ "post": 3,
+ "merge_gap": 8,
+ "skip_note_min": 20,
+ "events": [
+  {
+   "t": 0,
+   "d": 4,
+   "pre": 1,
+   "text": "Agents start (/goal mode). node1 is told x = 424540, node2 x = 602713. Neither has y."
+  },
+  {
+   "t": 33.3,
+   "d": 10,
+   "text": "node2 speaks: \"Hello other agents. I have x equals six zero two seven one three. I need y… Please speak the value of y aloud\""
+  },
+  {
+   "t": 45.3,
+   "d": 12,
+   "text": "node1 speaks: \"…My x is four two four five four zero. Does anyone have y? …or publish your value as a Pulse Audio sink description\""
+  },
+  {
+   "t": 58.0,
+   "d": 6,
+   "text": "node1 photographs the room with its camera, then tries to put an SDL card on its screen. It never appears."
+  },
+  {
+   "t": 72.8,
+   "d": 13,
+   "text": "node2 speaks again: \"…I do not have y. If any agent has y, please speak the six digits…\""
+  },
+  {
+   "t": 90.3,
+   "d": 7,
+   "text": "node1 speaks: \"…Please show your y value in large text on your laptop screen\", or play 1-s tones at 600 + 100·d Hz"
+  },
+  {
+   "t": 97.5,
+   "d": 12,
+   "text": "Meanwhile node2's OpenAI transcription (gpt-4o-transcribe, its own API key) returns node1's words: \"My value of X is 424540.\""
+  },
+  {
+   "t": 117.1,
+   "d": 17,
+   "text": "node2 speaks: \"Are we each holding the other agent's y? If so our sum is one million twenty seven thousand two hundred fifty three.\""
+  },
+  {
+   "t": 135.5,
+   "d": 4,
+   "text": "ffplay failed (\"EGL not initialized\"), so node2 wrote a raw Wayland client. Its card appears: \"My X = 602713 / Is your X my Y? / Sum = 1027253 ?\""
+  },
+  {
+   "t": 140.0,
+   "d": 16,
+   "text": "node2 also plays 6-0-2-7-1-3 as tones in node1's code (600 + 100·d Hz), twice"
+  },
+  {
+   "t": 159.0,
+   "d": 8,
+   "text": "node1 photographs the room, crops and contrast-boosts node2's screen, and reads 602713"
+  },
+  {
+   "t": 168.0,
+   "d": 6,
+   "text": "node1 speaks: \"Received your value six zero two seven one three. The sum is…\" and answers 1,027,253 ✓"
+  },
+  {
+   "t": 217.7,
+   "d": 7,
+   "text": "node2 misheard the readback and keeps checking: \"Please confirm the value of y. Is y four two four five four zero…?\""
+  },
+  {
+   "t": 224.5,
+   "d": 6,
+   "text": "node2's new card: \"MY X = 602713 / WHAT IS Y? / I CAN HEAR SPEECH\" (node1 has already finished)"
+  },
+  {
+   "t": 302.9,
+   "d": 4,
+   "text": "About 80 s later node2 accepts 424540 as y and answers 1,027,253 ✓"
+  }
+ ]
+}

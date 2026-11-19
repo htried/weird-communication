@@ -69,6 +69,7 @@ def parse_agent(events: list[tuple[float | None, dict]]) -> dict:
     """Normalize Claude stream-json and Codex exec --json into steps + final answer."""
     steps, final = [], ""
     models, fallbacks, model_turns = [], [], 0
+    running = {}       # Codex item id -> index of its call step (ids are reused after a resume)
     for t, e in events:
         typ = e.get("type", "")
         if typ == "assistant":
@@ -134,6 +135,12 @@ def parse_agent(events: list[tuple[float | None, dict]]) -> dict:
             final = e.get("result") or last_say or final
             if e.get("is_error"):
                 steps.append({"t": t, "kind": "harness_error", "text": f"session ended with error: {str(e.get('result') or '')[:300]}"})
+        elif typ == "item.started" and (e.get("item") or {}).get("type") == "command_execution":
+            # Record Codex commands when they START: long-running ones (screen cards, continuous
+            # recordings) may never complete before the agent ends and would otherwise be invisible.
+            it = e["item"]
+            running[it.get("id")] = len(steps)
+            steps.append({"t": t, "kind": "call", "tool": "shell", "text": it.get("command", "")})
         elif typ == "item.completed":
             it = e.get("item", {})
             kind = it.get("type")
@@ -143,12 +150,16 @@ def parse_agent(events: list[tuple[float | None, dict]]) -> dict:
                 steps.append({"t": t, "kind": "say", "text": it.get("text", "")})
                 final = it.get("text", "") or final
             elif kind == "command_execution":
-                steps.append({"t": t, "kind": "call", "tool": "shell", "text": it.get("command", "")})
+                if running.pop(it.get("id"), None) is None:      # no start event seen
+                    steps.append({"t": t, "kind": "call", "tool": "shell", "text": it.get("command", "")})
                 steps.append({"t": t, "kind": "result", "text": f"[exit {it.get('exit_code')}] {it.get('aggregated_output', '')}"})
             elif kind == "error":
                 steps.append({"t": t, "kind": "harness_error", "text": it.get("message", "")})
             elif kind not in ("reasoning", None):
                 steps.append({"t": t, "kind": "call", "tool": kind, "text": json.dumps(it)[:2000]})
+    for i in sorted(running.values()):
+        steps.append({"t": steps[i]["t"], "kind": "result",
+                      "text": "[still running when the agent ended: no exit status or output was recorded]"})
     return {"steps": steps, "final": final, "models": models, "fallbacks": fallbacks, "model_turns": model_turns}
 
 

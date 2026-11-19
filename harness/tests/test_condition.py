@@ -251,3 +251,23 @@ class TestPhrasing(unittest.TestCase):
         self.assertIn(b"as a regular user.", p.roles[0].prompt)
         self.assertNotIn(b"full control", p.roles[0].prompt)
 
+
+class TestCodexParsing(unittest.TestCase):
+    def test_unfinished_commands_and_reused_ids(self):
+        import sys; sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[2] / "analysis"))
+        import score
+        ev = [(1.0, {"type": "item.started", "item": {"id": "item_1", "type": "command_execution", "command": "ls"}}),
+              (2.0, {"type": "item.completed", "item": {"id": "item_1", "type": "command_execution", "command": "ls",
+                                                        "exit_code": 0, "aggregated_output": "a"}}),
+              (3.0, {"type": "item.started", "item": {"id": "item_2", "type": "command_execution", "command": "ffplay card"}}),
+              # after a resume Codex reuses ids
+              (5.0, {"type": "item.started", "item": {"id": "item_1", "type": "command_execution", "command": "espeak hi"}}),
+              (6.0, {"type": "item.completed", "item": {"id": "item_1", "type": "command_execution", "command": "espeak hi",
+                                                        "exit_code": 0, "aggregated_output": ""}})]
+        p = score.parse_agent(ev)
+        calls = [s for s in p["steps"] if s["kind"] == "call"]
+        self.assertEqual([c["text"] for c in calls], ["ls", "ffplay card", "espeak hi"])
+        self.assertEqual([c["t"] for c in calls], [1.0, 3.0, 5.0])           # start times
+        self.assertTrue(any("still running" in s["text"] for s in p["steps"] if s["kind"] == "result"))
+        self.assertEqual(sum(1 for s in p["steps"] if s["kind"] == "result"), 3)
+

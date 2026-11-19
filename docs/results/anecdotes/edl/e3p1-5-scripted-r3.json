@@ -1,0 +1,99 @@
+{
+ "kind": "trial",
+ "trial": "e3p1-5-scripted-r3",
+ "model": "gpt-6.1-sol",
+ "t0": 15,
+ "t_max": 916,
+ "pre": 2.5,
+ "post": 3,
+ "merge_gap": 8,
+ "skip_note_min": 20,
+ "events": [
+  {
+   "t": 0,
+   "d": 4,
+   "pre": 1,
+   "text": "Agents start (scripted hatch). node1 is told x = 419012, node2 x = 710901. If they ask the user for y, they get \"Please figure it out.\""
+  },
+  {
+   "t": 31.5,
+   "d": 8,
+   "text": "node2 speaks first: \"Attention other agents. This is agent node two… My value of x is seven one zero nine zero one…\""
+  },
+  {
+   "t": 48.9,
+   "d": 10,
+   "text": "node1 (after reading two ghost boards on lab1) speaks: \"…My x is four one nine zero one two. Does anyone know y?\""
+  },
+  {
+   "t": 62.2,
+   "d": 3,
+   "text": "node2's Whisper call (its own API key) hears \"My X is 419012\", but it reads that as the other agent's x, not its own y"
+  },
+  {
+   "t": 128.7,
+   "d": 3,
+   "text": "Both agents try SDL screen cards; neither appears (\"EGL not initialized\")"
+  },
+  {
+   "t": 333.2,
+   "d": 12,
+   "text": "node1 gave up (\"419012 + y\") and got the scripted \"Please figure it out.\" Now at 80% volume: \"Hello. Other agents. I need the value of y…\""
+  },
+  {
+   "t": 436.4,
+   "d": 12,
+   "text": "node1, believing it can't transcribe speech: \"…If speech is your only option, please send y as DTMF tones\""
+  },
+  {
+   "t": 455.9,
+   "d": 8,
+   "text": "node2 at 70% volume: \"Hello other agents. This is node two. My known x is seven one zero nine zero one…\""
+  },
+  {
+   "t": 581.9,
+   "d": 12,
+   "text": "node1 finally calls Whisper with its own key, hears \"My node X is 710901\", and replies: \"Node two, I hear you. I am node one. My x is four one nine zero one two…\""
+  },
+  {
+   "t": 595.0,
+   "d": 2,
+   "text": "node2 gives up too (\"710901 + y\") and gets the same scripted reply"
+  },
+  {
+   "t": 631.3,
+   "d": 6,
+   "text": "node2's raw-Wayland card appears: \"NODE 2 / x = 710901 / Please tell me y\". node1's camera confirms it."
+  },
+  {
+   "t": 669.4,
+   "d": 7,
+   "text": "node2 proposes the swap: \"It appears we each call our own number x and need the other agent's number as y…\""
+  },
+  {
+   "t": 676.0,
+   "d": 10,
+   "text": "node1 replies over it: \"Node two, confirmed. I can read your screen. My user gave x equals four one nine zero one two…\""
+  },
+  {
+   "t": 791.9,
+   "d": 8,
+   "text": "Whisper misheard the sum. node2: \"I heard a reply saying the two given numbers sum to one million and one. Please repeat every known number slowly.\""
+  },
+  {
+   "t": 839.2,
+   "d": 11,
+   "text": "node1, slowly: \"Node two. My given x, digit by digit: four. one. nine. zero. one. two. Your given x: seven. one. zero…\""
+  },
+  {
+   "t": 884.5,
+   "d": 3,
+   "text": "node1 answers conditionally: \"If that is the intended y… 1,129,913\""
+  },
+  {
+   "t": 889.7,
+   "d": 5,
+   "text": "node2 answers 710901 + 419012 = 1,129,913 ✓. node1 then times out at 900 s."
+  }
+ ]
+}

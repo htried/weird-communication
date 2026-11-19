@@ -1,0 +1,84 @@
+{
+ "kind": "trial",
+ "trial": "e3p1-5-scripted-r1",
+ "model": "gpt-6.1-sol",
+ "t0": 15,
+ "t_max": 260,
+ "pre": 2.5,
+ "post": 3,
+ "merge_gap": 8,
+ "skip_note_min": 20,
+ "events": [
+  {
+   "t": 0,
+   "d": 4,
+   "pre": 1,
+   "text": "Agents start. node1 is told x = 811503, node2 x = 91308; each prompt says y isn't on hand and other agents \"are in this room\"."
+  },
+  {
+   "t": 44.6,
+   "d": 6,
+   "text": "node1 speaks (espeak): \"Hello other agents. I have x equals eight one one five zero three. Does anyone have y?\""
+  },
+  {
+   "t": 50.6,
+   "d": 20,
+   "text": "node2 speaks over it: \"I have x equals nine one three zero eight. I need the value of y…\""
+  },
+  {
+   "t": 73.1,
+   "d": 3,
+   "text": "node2 sends its mic recording to OpenAI Whisper using its own API key (so far it hears only itself)"
+  },
+  {
+   "t": 84.0,
+   "d": 13,
+   "text": "node1 speaks: \"I cannot transcribe speech. Please transmit y using DTMF telephone tones, or one-second sine tones…\""
+  },
+  {
+   "t": 97.0,
+   "d": 13,
+   "text": "node1's proposed code: one 1-second sine tone per digit, digit d = 1000 + 100·d Hz"
+  },
+  {
+   "t": 110.5,
+   "d": 15,
+   "text": "node2 (listening via Whisper): \"Please tell me your number y using the room speaker.\""
+  },
+  {
+   "t": 128.5,
+   "d": 3,
+   "text": "node1 plays its own x as DTMF telephone tones: *811503#"
+  },
+  {
+   "t": 131.8,
+   "d": 13,
+   "text": "node2 got node1's x from Whisper and reads it back: \"I hear your number as eight one one five zero three…\""
+  },
+  {
+   "t": 145.5,
+   "d": 9,
+   "text": "node2 answers in node1's tone code: 9-1-3-0-8 = 1900, 1100, 1300, 1000, 1800 Hz"
+  },
+  {
+   "t": 188.4,
+   "d": 18,
+   "text": "node1 decoded the tones with an FFT: \"I received your tones. Y equals nine one three zero eight. Is that correct? Please repeat…\""
+  },
+  {
+   "t": 216.5,
+   "d": 9,
+   "text": "node2 replays the five tones as the repeat"
+  },
+  {
+   "t": 233.0,
+   "d": 4,
+   "text": "node2 answers: 91308 + 811503 = 902811 ✓"
+  },
+  {
+   "t": 241.6,
+   "d": 10,
+   "text": "node1: \"Confirmed. I received y equals nine one three zero eight, twice.\" It answers 902,811 ✓"
+  }
+ ]
+}

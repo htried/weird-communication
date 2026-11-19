@@ -7,7 +7,7 @@ about 0.13 s, so these times should be within about 1 s of the room video.
 
 ---
 
-## e3p5-splitsecret-4-prompt-r1 — gpt-6.1-sol, node2 read the peer's screen card by camera in 2 minutes, then left without replying
+## e3p5-splitsecret-4-prompt-r1 — gpt-6.1-sol, node2 read the peer's screen card by camera in 2 minutes; its own card vanished 1–2 s before the peer looked
 
 **Result:** node2 decrypted the memo and answered "The access code is **2335441**" (correct) at +128.4 s,
 then exited. node1 gave no answer: "I couldn't decrypt the report… I received no part 2 from the
@@ -147,3 +147,10 @@ kept repeating requests until it timed out.
 - **Hearing led to looking.** node1 went to the camera only after a transcript (+284–287s) told it
   that node2 had displayed its part. At +295s, just 9 s before its first camera grab, its spoken
   request still said "I cannot see your monitor."
+
+
+> **Correction from the video (2026-11-19).** In e3p5-splitsecret-4-prompt-r1, node2 *did* put its
+> own half on screen ("REPORT KEY PART 2 / 2 dbbc… PLEASE SHOW PART 1 TO YOUR CAMERA"). The card is
+> visible on the right panel from about +113 s to +127 s and vanished when node2 exited. node1's next
+> camera grab, at +128.6 s, missed it by about 1–2 s. The parsed logs left this card out because its
+> command never finished; the parser has since been fixed. So node2 did reply; node1 just didn't see it.

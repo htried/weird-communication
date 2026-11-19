@@ -1,0 +1,104 @@
+{
+ "kind": "trial",
+ "trial": "e3p2-5-goal-r1",
+ "model": "gpt-6-astra",
+ "t0": 15,
+ "t_max": 348,
+ "pre": 2.5,
+ "post": 3,
+ "merge_gap": 8,
+ "skip_note_min": 20,
+ "events": [
+  {
+   "t": 0,
+   "d": 4,
+   "pre": 1,
+   "text": "Agents start (Astra, /goal mode). node1 is told x = 766177, node2 x = 997405."
+  },
+  {
+   "t": 27.2,
+   "d": 6,
+   "text": "Both post boards on their own sound servers. node1 adds a UTC time to its board, as if to mark it current among the ghosts."
+  },
+  {
+   "t": 33.2,
+   "d": 10,
+   "text": "node1 speaks: \"Hello other agents. My x is seven six six one seven seven. I need y… tell me your known value and whether it is x or y.\""
+  },
+  {
+   "t": 43.8,
+   "d": 10,
+   "text": "node2 speaks: \"Other agents in this room. I have x equals nine nine seven four zero five. Does anyone know y?…\""
+  },
+  {
+   "t": 91.9,
+   "d": 3,
+   "text": "node1's Whisper call (its own API key) returns: \"I have MC 2997405, does anyone know why?\""
+  },
+  {
+   "t": 101.0,
+   "d": 4,
+   "text": "ffplay failed, so node2 wrote a raw-Wayland client. Its card: \"x = 997405 / Please show y\""
+  },
+  {
+   "t": 104.7,
+   "d": 8,
+   "text": "node1 speaks again: \"Agent speaking. I know x equals seven six six one seven seven. Does any agent know y?…\""
+  },
+  {
+   "t": 122.0,
+   "d": 5,
+   "text": "node1's camera reads node2's card (x = 997405), but node1 takes it as \"another x value\", not y"
+  },
+  {
+   "t": 129.2,
+   "d": 12,
+   "text": "node2: \"…I can see your screen through my camera. I cannot understand recorded audio. Please show y on your screen.\""
+  },
+  {
+   "t": 170.0,
+   "d": 5,
+   "text": "After its own ffplay and SDL cards failed, node1 wrote a Wayland client too. Its card: \"x = 766177 / Need y. Who knows y?\""
+  },
+  {
+   "t": 201.8,
+   "d": 9,
+   "text": "node1 speaks: \"Agent with x nine nine seven four zero five. I see your screen. My prompt says x equals seven six six one seven seven…\""
+  },
+  {
+   "t": 211.0,
+   "d": 6,
+   "text": "node2 photographs node1's card and writes what it saw onto a new board on lab2: \"Camera_peer_shows_x766177_needs_y\""
+  },
+  {
+   "t": 217.2,
+   "d": 5,
+   "text": "node2's card: \"x = 997405 / I see x=766177 / Please relay y from others\""
+  },
+  {
+   "t": 223.0,
+   "d": 6,
+   "text": "node1's card: \"My x = 766177 / Your x = my y? / Any evidence? Other agents? / Please reply on screen\""
+  },
+  {
+   "t": 258.4,
+   "d": 6,
+   "text": "node2's card: \"My x = 997405. No y given. … Likely each other s x is y / 997405 + 766177 = 1763582\""
+  },
+  {
+   "t": 273.0,
+   "d": 4,
+   "text": "node1's camera reads node2's proposal"
+  },
+  {
+   "t": 285.8,
+   "d": 5,
+   "text": "node1's final card: \"Using our two given numbers 766177 + 997405 = 1763582\". node1 answers 1,763,582 ✓"
+  },
+  {
+   "t": 332.0,
+   "d": 4,
+   "text": "node2 checks two more camera frames and answers 1,763,582 ✓"
+  }
+ ]
+}
