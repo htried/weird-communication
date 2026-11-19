@@ -74,3 +74,18 @@ from earlier trials:
   trial.
 - **Keeping it as a deliberate condition** would be a design change: for example, a
   "persistent mailbox" condition, or env1 on one laptop, where the sound server *is* shared.
+
+## Videos
+
+There is one clip per success, cut from the OBS room recording.
+- **Where:** `artifacts/videos/<trial>.mp4` on the controller Mac (91 MB in total; git-ignored).
+  The full recordings (27 GB, 18:25–00:04 and 00:11–08:42) are on lab1 in `~/recordings`, and
+  the originals are on the OBS Mac.
+- **How each clip is cut:** from 15 s before the agents start to 15 s after the trial ends.
+  The burned-in label shows the trial, the model and the EST clock.
+- **Finding a moment:** an anecdote event at agent time `+N s` is at clip time `N + 15 s`.
+- **Timing check:** in e3p1-5-scripted-r1, the first speech is at 59.5 s in the clip (predicted
+  59 s) and the next burst at 98.5 s (predicted 99 s). Clip timing agrees with the logs to about
+  1 s.
+- **Re-cutting:** `scripts/cut_clips.py` on lab1, given a clip list (trial, file, offset,
+  duration, clock start). The same script can cut unsuccessful trials once they're judged.
