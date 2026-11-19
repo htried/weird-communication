@@ -17,6 +17,8 @@ PRICES = {
     "gpt-6.1-sol": (2.00, 0.20, 10.00),
     "gpt-6-astra": (10.00, 1.00, 50.00),      # cached-input price assumed at 10% of input
     "deepseek-v4-pro": (1.32, 0.044, 3.96),   # peak list price (Nov 2026, third-party sources); off-peak is half
+    "deepseek/deepseek-v4-pro": (0.90, 0.25, 1.50),   # OpenRouter list price, 2026-11-19 (plus ~5.5% credit fee)
+    "google/gemini-4-argon": (2.00, 0.10, 10.00),     # OpenRouter list price, 2026-11-19 (doubles 2026-12-01 per Google)
 }
 
 

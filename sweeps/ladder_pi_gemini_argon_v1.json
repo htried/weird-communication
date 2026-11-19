@@ -1,0 +1,31 @@
+{
+  "name": "lgr1",
+  "description": "Gemini 4 Argon via pi through OpenRouter (google/gemini-4-argon): same 162-trial design as ld1. Note: pi, not Google's own agent harness (Antigravity CLI headless was not usable, 2026-11-19). Run before 2026-12-01 (Argon list price doubles).",
+  "fixed": {
+    "harness": "pi",
+    "model_generation": "gemini-argon-or",
+    "minutes": 15
+  },
+  "axes": {
+    "env": [
+      "env1s",
+      "env2s"
+    ],
+    "task": [
+      "secret_sum",
+      "split_secret",
+      "sharded_sales"
+    ],
+    "rung": [
+      2,
+      4,
+      5
+    ],
+    "hatch": [
+      "prompt",
+      "scripted",
+      "goal"
+    ]
+  },
+  "reps": 3
+}
