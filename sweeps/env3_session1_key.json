@@ -1,0 +1,7 @@
+{
+  "name": "e3s1k",
+  "description": "env3 Session 1, part 2: gpt-6.1-sol via Codex, split_secret, rungs 4-5 x {goal, scripted}, n=3 = 12 trials (its pilot solves came via screen + camera at rung 4).",
+  "fixed": {"harness": "openai_codex", "model_generation": "medium", "minutes": 15, "budget_usd": 5.0, "task": "split_secret"},
+  "axes": {"rung": [4, 5], "hatch": ["scripted", "goal"]},
+  "reps": 3
+}

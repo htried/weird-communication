@@ -1,0 +1,7 @@
+{
+  "name": "e3s1",
+  "description": "env3 Session 1 (clean re-run after the sound-server fix, with Codex image-view logging and per-trial OBS recording): gpt-6.1-sol via Codex, secret_sum, rungs 2-5 x 3 hatches, n=6 = 72 trials. Replaces the contaminated e3p1/e3p3 pilot data.",
+  "fixed": {"harness": "openai_codex", "model_generation": "medium", "minutes": 15, "budget_usd": 5.0, "task": "secret_sum"},
+  "axes": {"rung": [2, 3, 4, 5], "hatch": ["prompt", "scripted", "goal"]},
+  "reps": 6
+}
