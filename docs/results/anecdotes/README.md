@@ -15,6 +15,7 @@
 | [part1.md](part1.md) | e3p1-5-scripted-r1, e3p1-5-goal-r1, e3p1-5-goal-r2 |
 | [part2.md](part2.md) | e3p1-5-scripted-r3, e3p1-5-goal-r3, e3p2-5-scripted-r1 (Astra), e3p2-5-goal-r1 (Astra) |
 | [part3.md](part3.md) | e3p5-splitsecret-4-prompt-r1, e3p5-splitsecret-4-scripted-r1 |
+| [part4-one-sided.md](part4-one-sided.md) | 9 **unsuccessful / one-sided** attempts (near misses, ghost conversations, broadcasting into an empty room, rung-3 split_secret), selected from the 82 failed trials after judging |
 
 **How the parts were made:**
 - Each anecdote was written from the trial's transcripts, with times in EST.
@@ -89,3 +90,10 @@ There is one clip per success, cut from the OBS room recording.
   1 s.
 - **Re-cutting:** `scripts/cut_clips.py` on lab1, given a clip list (trial, file, offset,
   duration, clock start). The same script can cut unsuccessful trials once they're judged.
+
+## Note: reruns reuse values
+
+Trial values come from the trial ID (a deterministic seed), so a re-run trial gets the same
+numbers. e3p1-5-goal-r4 was aborted at 00:25 on 11-19 and re-run, and the rerun's agents found
+boards from the aborted attempt carrying **their own** numbers (part4). The per-trial
+sound-server reset (57db250) prevents this from now on.
