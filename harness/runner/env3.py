@@ -176,6 +176,8 @@ def sweep(args) -> int:
         hh, mm = map(int, args.until.split(":"))
         lt = time.localtime()
         until = time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday, hh, mm, 0, 0, 0, -1))
+        if until <= time.time():            # e.g. 08:00 given in the evening: tomorrow morning
+            until += 86400
     say(f"sweep {spec['name']}: {len(conds)} to run (sequential: one room)"
         + (f"; no new trials after {args.until}" if until else ""))
     fail = 0
