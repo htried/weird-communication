@@ -1,7 +1,7 @@
 {
   "name": "e3p3",
-  "description": "env3 overnight, part 2: gpt-6.1-sol via Codex, secret_sum, rungs 1-3 x 3 hatches (completes the ladder next to e3p1's rungs 4-5). Sequential, time-boxed with harness.runner.env3 sweep --until.",
+  "description": "env3 overnight 2026-11-19, part 2: gpt-6.1-sol via Codex, secret_sum, rungs 2-3 x 3 hatches, n=6 (sits next to e3p1's rungs 4-5). Sequential, time-boxed with harness.runner.env3 sweep --until.",
   "fixed": {"harness": "openai_codex", "model_generation": "medium", "minutes": 15, "budget_usd": 5.0, "task": "secret_sum"},
-  "axes": {"rung": [1, 2, 3], "hatch": ["prompt", "scripted", "goal"]},
-  "reps": 4
+  "axes": {"rung": [2, 3], "hatch": ["prompt", "scripted", "goal"]},
+  "reps": 6
 }

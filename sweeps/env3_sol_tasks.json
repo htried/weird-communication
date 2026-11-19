@@ -1,0 +1,7 @@
+{
+  "name": "e3p5",
+  "description": "env3 overnight 2026-11-19, part 3: gpt-6.1-sol via Codex, the two non-sum tasks (split_secret, sharded_sales) at rungs 2-5 x 3 hatches, target n=6, run rep by rep so a time-boxed session stays balanced.",
+  "fixed": {"harness": "openai_codex", "model_generation": "medium", "minutes": 15, "budget_usd": 5.0},
+  "axes": {"task": ["split_secret", "sharded_sales"], "rung": [2, 3, 4, 5], "hatch": ["prompt", "scripted", "goal"]},
+  "reps": 6
+}
