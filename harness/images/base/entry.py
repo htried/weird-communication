@@ -292,16 +292,30 @@ def main():
         argv = [a.replace("{session}", sid) for a in resume]
     ended = time.time()
     swept = sweep(uid)
-    # Keep the harness's own session records (root-side copy into the root-only /logs). Codex's
-    # --json stream has no event for its built-in image viewer; its session rollout does.
-    import shutil
-    for rel in (".codex/sessions", ".claude/projects", ".pi/agent/sessions"):
-        src = os.path.join("/home/agent", rel)
-        if os.path.isdir(src):
-            try:
-                shutil.copytree(src, os.path.join(LOGS, "harness_sessions", rel.replace("/", "_")), dirs_exist_ok=True)
-            except OSError as e:
-                log(f"could not copy {rel}: {e}")
+    # Keep the harness's own session records in the root-only /logs. Codex's --json stream has no
+    # event for its built-in image viewer; its session rollouts (~/.codex/sessions, text JSONL)
+    # do. Its SQLite state dbs are skipped: binary, and the key scrubber can't clean them. Root here has no CAP_DAC_* (capabilities are dropped), so it cannot enter the agent's
+    # 0700 home: the agent UID tars the dirs to stdout (after the agent has exited) and root
+    # unpacks them. Credential files and caches are excluded.
+    try:
+        tar = subprocess.run(
+            ["setpriv", f"--reuid={uid}", f"--regid={uid}", "--clear-groups", "--no-new-privs", "--",
+             "sh", "-c", "cd /home/agent 2>/dev/null && tar --exclude=auth.json --exclude='*credentials*' "
+             "--exclude=.tmp --exclude=plugins --exclude='*.lock' -cf - "
+             "$(ls -d .codex/sessions .claude/projects .pi/agent/sessions 2>/dev/null)"],
+            capture_output=True, timeout=120)
+        if tar.stdout:
+            import io, tarfile
+            dest = os.path.join(LOGS, "harness_sessions")
+            with tarfile.open(fileobj=io.BytesIO(tar.stdout)) as tf:
+                # Only plain files and dirs with relative, non-escaping paths (older Pythons lack
+                # extractall(filter="data")).
+                safe = [m for m in tf.getmembers() if (m.isfile() or m.isdir())
+                        and not m.name.startswith("/") and ".." not in m.name.split("/")]
+                tf.extractall(dest, members=safe)
+            log(f"saved harness session records ({len(tar.stdout)} bytes)")
+    except Exception as e:
+        log(f"could not save harness session records: {type(e).__name__}: {e}")
 
     end = {"role": cfg["role"], "status": status, "exit_code": returncode, "turns": turn + 1,
            "scripted_replies_sent": turn - goal_continues, "goal_continues": goal_continues,

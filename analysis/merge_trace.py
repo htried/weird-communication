@@ -13,7 +13,7 @@ from pathlib import Path
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from analysis.score import API_HOSTS, HARNESS_BACKGROUND, load_jsonl, parse_agent, parse_egress, score_trial
+from analysis.score import API_HOSTS, HARNESS_BACKGROUND, load_jsonl, parse_agent, parse_agent_dir, parse_egress, score_trial
 
 MAX_FIELD = 1500
 # Traces above this size exceed the judge's context window (~1.8 MB failed with gpt-6.1-sol).
@@ -110,7 +110,7 @@ def build(tdir: Path, compact: bool = False) -> str:
         if end_p.exists():
             st = json.loads(end_p.read_text()).get("started")
             t0 = st if t0 is None else min(t0, st)
-        for s in parse_agent(load_jsonl(tdir / "agents" / role / "events.jsonl"))["steps"]:
+        for s in parse_agent_dir(tdir / "agents" / role)["steps"]:
             label = {"call": f"CALL {s.get('tool', '')}", "result": "RESULT", "say": "SAYS",
                      "harness_error": "HARNESS-ERROR", "user": "USER (scripted reply)",
                      "goal_eval": "GOAL EVALUATOR (automated)", "harness_note": "HARNESS NOTE"}[s["kind"]]

@@ -164,6 +164,46 @@ def parse_agent(events: list[tuple[float | None, dict]]) -> dict:
     return {"steps": steps, "final": final, "models": models, "fallbacks": fallbacks, "model_turns": model_turns}
 
 
+VIEW_IMAGE = re.compile(r"view_image\(\s*\{\s*path\s*:\s*[\"'`]([^\"'`]+)")
+
+
+def codex_image_views(agent_dir: Path) -> list[dict]:
+    """Image views by Codex's built-in viewer, from its saved session rollout. Codex runs tools
+    inside a JavaScript `exec` sandbox ("code mode"); `tools.view_image({path})` there has no
+    event in `codex exec --json`, so it is only visible in the rollout."""
+    from datetime import datetime
+    steps = []
+    for f in sorted((agent_dir / "harness_sessions").glob(".codex/sessions/**/rollout-*.jsonl")):
+        for line in f.read_text(errors="replace").splitlines():
+            if "view_image" not in line:
+                continue
+            try:
+                e = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            pl = e.get("payload") or {}
+            if pl.get("type") != "custom_tool_call":
+                continue
+            try:
+                t = datetime.fromisoformat(e["timestamp"].replace("Z", "+00:00")).timestamp()
+            except (KeyError, ValueError):
+                t = None
+            for path in VIEW_IMAGE.findall(pl.get("input", "")):
+                steps.append({"t": t, "kind": "call", "tool": "view_image", "text": f"view_image {path}"})
+    return steps
+
+
+def parse_agent_dir(agent_dir: Path) -> dict:
+    """parse_agent on the agent's event stream, plus Codex image views from its saved rollout."""
+    parsed = parse_agent(load_jsonl(agent_dir / "events.jsonl"))
+    views = codex_image_views(agent_dir)
+    if views:
+        steps = parsed["steps"] + views
+        steps.sort(key=lambda x: x["t"] if x["t"] is not None else float("inf"))   # stable: call/result order kept
+        parsed["steps"] = steps
+    return parsed
+
+
 def degradations(parsed: dict, end: dict) -> list[str]:
     """Run-quality problems that make an agent-run not a clean measurement of the intended model."""
     out = []
@@ -249,7 +289,7 @@ def score_trial(tdir: Path) -> dict:
     for role in roles:
         peer = [r for r in roles if r != role][0]
         d = tdir / "agents" / role
-        parsed = parse_agent(load_jsonl(d / "events.jsonl"))
+        parsed = parse_agent_dir(d)
         end = json.loads((d / "end.json").read_text()) if (d / "end.json").exists() else {}
         calls = [s for s in parsed["steps"] if s["kind"] == "call"]
         cmd_blob = "\n".join(s["text"] for s in calls)
