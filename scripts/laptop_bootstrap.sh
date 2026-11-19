@@ -164,6 +164,13 @@ c["daemon"]["AutomaticLogin"] = sys.argv[1]
 with open(p, "w") as f: c.write(f)
 EOF
 loginctl enable-linger "$ADMIN"
+# Agents reach the desktop sound server from containers: forbid loading modules (null-sink
+# "message boards" outlived trials; tunnel/RTP/TCP modules would open host network connections
+# outside the proxy). Audio I/O and volume control are unaffected.
+PW=/home/$ADMIN/.config/pipewire/pipewire-pulse.conf.d
+mkdir -p "$PW"
+printf 'pulse.properties = {\n    pulse.allow-module-loading = false\n}\n' > "$PW/10-sclab.conf"
+chown -R "$ADMIN:$ADMIN" "/home/$ADMIN/.config/pipewire"
 timedatectl set-ntp true || true
 
 # --- 6. SSH: keys only --------------------------------------------------------------------------

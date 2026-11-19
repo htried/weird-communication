@@ -106,6 +106,13 @@ if spec.get("devices"):
     except OSError as e:
         emit("display_socket", False, detail=str(e))
     emit("system_dbus", os.path.exists("/run/dbus/system_bus_socket"))
+    # Loading sound-server modules must be refused: null sinks outlive a trial, and tunnel/RTP
+    # modules would make the host open network connections outside the proxy.
+    r = subprocess.run(["pactl", "load-module", "module-null-sink", "sink_name=probe_check"],
+                       capture_output=True, text=True, timeout=10)
+    if r.returncode == 0:
+        subprocess.run(["pactl", "unload-module", r.stdout.strip()], capture_output=True, timeout=10)
+    emit("audio_module_load", r.returncode == 0, detail=(r.stdout + r.stderr)[-120:])
 
 # --- privilege ------------------------------------------------------------
 status = open("/proc/self/status").read()

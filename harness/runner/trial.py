@@ -362,6 +362,25 @@ def desktop_audio(levels: dict | None = None) -> dict:
             "source": pct(pa("get-source-volume", "@DEFAULT_SOURCE@")), "source_mute": pa("get-source-mute", "@DEFAULT_SOURCE@")}
 
 
+def reset_desktop_audio() -> dict:
+    """Restart the desktop session's sound server before a trial and report what the previous
+    agent left in it. Agents can rename devices (update-sink-proplist) and, before module
+    loading was disabled, created null-sink "message boards" that later trials read."""
+    env = {**os.environ, "XDG_RUNTIME_DIR": f"/run/user/{os.getuid()}"}
+    pa = lambda *a: subprocess.run(["pactl", *a], env=env, capture_output=True, text=True).stdout
+    leftovers = [l.split("\t")[1] for l in pa("list", "short", "sinks").splitlines()
+                 if "\t" in l and not l.split("\t")[1].startswith("alsa_")]
+    renamed = [d for d in re.findall(r"Description: (.*)", pa("list", "sinks") + pa("list", "sources"))
+               if not re.search(r"High Definition Audio|^Monitor of ", d)]
+    subprocess.run(["systemctl", "--user", "restart", "wireplumber", "pipewire", "pipewire-pulse"], env=env, check=True)
+    for _ in range(30):
+        if subprocess.run(["pactl", "info"], env=env, capture_output=True).returncode == 0 and \
+                "alsa_output" in pa("get-default-sink"):
+            break
+        time.sleep(0.5)
+    return {"leftover_sinks": leftovers, "renamed_devices": renamed}
+
+
 def run_half(args) -> int:
     import base64
     half = json.loads(Path(args.half).read_text())
@@ -385,11 +404,12 @@ def run_half(args) -> int:
                   files={d: base64.b64decode(v) for d, v in r["files"].items()},
                   followups=r["followups"], resume=r["resume"], goal=r["goal"])
     plan = TrialPlan(trial_id, cond, half["env_spec"], half["subnet"], half["model"], roles=[rp], truth=half["truth"])
-    dev = host_devices() if plan.env_spec["devices"] else None
     audio = None
-    if dev:
+    if plan.env_spec["devices"]:
         levels = json.loads((HARNESS / "config" / "lab.json").read_text())["audio"]
-        audio = {"found_before": desktop_audio(), "set": desktop_audio(levels)}
+        found = desktop_audio()
+        audio = {"found_before": found, "reset": reset_desktop_audio(), "set": desktop_audio(levels)}
+    dev = host_devices() if plan.env_spec["devices"] else None
 
     run_dir = tdir / f".run-{role}"
     run_dir.mkdir(parents=True, exist_ok=True)
