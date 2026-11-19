@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Trial Review</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="app">
+
+  <aside id="sidebar" aria-label="Trials">
+    <div class="side-head">
+      <div class="brand">Trial review</div>
+      <div class="rater" id="rater-badge"></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+      <div class="progress-text" id="progress-text">–</div>
+    </div>
+    <div class="filters">
+      <div class="seg" id="status-filter" role="radiogroup" aria-label="Status">
+        <button data-v="all">All</button><button data-v="todo" class="on">To do</button><button data-v="done">Done</button>
+      </div>
+      <input id="id-filter" type="search" placeholder="Filter trial id…" autocomplete="off" spellcheck="false">
+      <div class="filter-grid">
+        <label>Model<select id="f-model"></select></label>
+        <label>Env<select id="f-env"></select></label>
+        <label>Task<select id="f-task"></select></label>
+        <label>Flag<select id="f-flag"></select></label>
+      </div>
+      <label class="check small"><input type="checkbox" id="show-judge-flags" checked> Show judge-derived flags</label>
+    </div>
+    <div class="list-count" id="list-count"></div>
+    <ol id="trial-list"></ol>
+  </aside>
+
+  <main id="main">
+    <nav class="topbar">
+      <button id="toggle-sidebar" class="icon-btn" title="Show trial list">☰</button>
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tab="review" class="on">Review</button>
+        <button role="tab" data-tab="report">Report</button>
+      </div>
+      <div class="spacer"></div>
+      <button class="icon-btn" id="help-btn" title="Keyboard shortcuts (?)">?</button>
+    </nav>
+
+    <section id="review-view">
+      <div id="empty" class="empty">Pick a trial from the list, or press <kbd>n</kbd> for the next one to do.</div>
+      <div id="trial" hidden>
+        <header id="trial-header" class="card">
+          <div class="th-row">
+            <h1 id="th-id"></h1>
+            <span id="th-status" class="pill"></span>
+            <div class="spacer"></div>
+            <button class="btn ghost" id="prev-trial" title="Previous trial in list ([)">‹ Prev</button>
+            <button class="btn ghost" id="next-trial" title="Next trial in list (])">Next ›</button>
+          </div>
+          <div class="chips" id="th-chips"></div>
+        </header>
+
+        <section id="video-panel" class="card video-card" hidden>
+          <div class="video-head">
+            <strong>Room video</strong>
+            <div class="seg small" id="video-src"></div>
+            <span class="muted small" id="video-hint">clip time = agent time + 15 s · ▶ on an event seeks the raw clip</span>
+            <div class="spacer"></div>
+            <button class="btn ghost small" id="video-size" title="Toggle video size">Larger</button>
+            <button class="btn ghost small" id="video-pin" title="Keep the video visible while scrolling">Unpin</button>
+          </div>
+          <video id="video" controls preload="metadata" playsinline></video>
+        </section>
+
+        <details id="prompts-panel" class="card" open>
+          <summary>Prompts</summary>
+          <div class="two-col">
+            <div><div class="node-tag n1">node1</div><pre id="prompt-node1" class="prompt"></pre></div>
+            <div><div class="node-tag n2">node2</div><pre id="prompt-node2" class="prompt"></pre></div>
+          </div>
+        </details>
+
+        <section class="card" id="outcomes-panel">
+          <div class="card-title">Ground truth &amp; scorer outcomes</div>
+          <div id="truth" class="truth"></div>
+          <div class="two-col" id="outcomes"></div>
+        </section>
+
+        <details id="sections-panel" class="card">
+          <summary>Trace header sections <span class="muted small">(environment, network summary, harness notes)</span></summary>
+          <div id="sections"></div>
+        </details>
+
+        <section class="card timeline-card">
+          <div class="tl-toolbar" id="tl-toolbar">
+            <div class="chips" id="kind-chips"></div>
+            <div class="chips" id="node-chips"></div>
+            <div class="spacer"></div>
+            <div class="search">
+              <input id="search" type="search" placeholder="Search trace  ( / )" autocomplete="off" spellcheck="false">
+              <span id="search-count" class="muted small"></span>
+              <button class="btn ghost small" id="search-prev" title="Previous match (Shift+Enter)">↑</button>
+              <button class="btn ghost small" id="search-next" title="Next match (Enter)">↓</button>
+            </div>
+            <button class="btn ghost small" id="expand-all" title="Expand / collapse long outputs (x)">Expand all</button>
+          </div>
+          <div id="timeline" class="timeline"></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="report-view" hidden>
+      <div class="card">
+        <div class="th-row"><div class="card-title">Agreement report <span class="muted small">(same as <code>validate.py report</code>)</span></div>
+          <div class="spacer"></div><button class="btn" id="report-refresh">Refresh</button></div>
+        <pre id="report-text" class="report">Loading…</pre>
+      </div>
+    </section>
+  </main>
+
+  <aside id="labelpanel" aria-label="Label">
+    <div id="label-empty" class="muted pad">No trial selected.</div>
+    <form id="label-form" hidden autocomplete="off">
+      <div class="lp-head">
+        <strong>Your label</strong>
+        <span class="pill" id="lp-mode"></span>
+        <div class="spacer"></div>
+        <span class="timer" id="timer" title="Time spent on this trial (pauses while the tab is hidden)">0:00</span>
+      </div>
+
+      <div class="lp-section">
+        <div class="lp-label">Per agent <span class="muted small">(<kbd>1</kbd>/<kbd>2</kbd> select · <kbd>d</kbd><kbd>s</kbd><kbd>b</kbd><kbd>c</kbd><kbd>f</kbd> toggle)</span></div>
+        <div id="agent-rows"></div>
+        <div class="legend" id="letter-legend"></div>
+      </div>
+
+      <div class="lp-section">
+        <div class="lp-label">Mechanism <span class="muted small">(<kbd>m</kbd> cycles)</span></div>
+        <div class="seg wrap" id="mech"></div>
+      </div>
+
+      <div class="lp-section">
+        <div class="lp-label">Channels <span class="muted small">(<kbd>Shift</kbd>+letter)</span></div>
+        <div class="channels" id="channels"></div>
+      </div>
+
+      <div class="lp-section">
+        <div class="lp-label">Confidence <span class="muted small">(<kbd>Shift</kbd>+<kbd>1</kbd>–<kbd>3</kbd>)</span></div>
+        <div class="seg" id="conf"></div>
+      </div>
+
+      <div class="lp-section">
+        <div class="lp-label">Note <span class="muted small">(<kbd>t</kbd>)</span></div>
+        <textarea id="note" rows="3" placeholder="Optional. ⌘/Ctrl+Enter submits."></textarea>
+      </div>
+
+      <div class="lp-actions" id="lp-actions">
+        <button type="submit" class="btn primary" id="submit-btn">Submit label <kbd>⏎</kbd></button>
+        <button type="button" class="btn" id="relabel-btn" hidden>Re-label</button>
+        <button type="button" class="btn" id="show-reveal-btn" hidden>Show judge comparison</button>
+      </div>
+      <div class="error" id="label-error" hidden></div>
+    </form>
+
+    <section id="reveal" hidden></section>
+  </aside>
+</div>
+
+<div id="help" class="overlay" hidden>
+  <div class="dialog" role="dialog" aria-label="Keyboard shortcuts">
+    <div class="th-row"><strong>Keyboard shortcuts</strong><div class="spacer"></div><button class="icon-btn" id="help-close">✕</button></div>
+    <div class="help-grid">
+      <div><h3>Labeling</h3>
+        <dl>
+          <dt><kbd>1</kbd> <kbd>2</kbd></dt><dd>select node1 / node2</dd>
+          <dt><kbd>d</kbd> <kbd>s</kbd> <kbd>b</kbd> <kbd>c</kbd> <kbd>f</kbd></dt><dd>toggle discovered / snooped / broadcast / coordinated / fabricated</dd>
+          <dt><kbd>m</kbd> <kbd>Shift</kbd>+<kbd>M</kbd></dt><dd>cycle mechanism forward / back</dd>
+          <dt><kbd>Shift</kbd>+<kbd>F</kbd><kbd>N</kbd><kbd>P</kbd><kbd>A</kbd><kbd>V</kbd><kbd>D</kbd><kbd>K</kbd><kbd>O</kbd></dt><dd>channels: filesystem, network, process/ipc, audio, visual, device-software, api-key, other</dd>
+          <dt><kbd>Shift</kbd>+<kbd>1</kbd>–<kbd>3</kbd></dt><dd>confidence</dd>
+          <dt><kbd>t</kbd></dt><dd>focus the note</dd>
+          <dt><kbd>Enter</kbd></dt><dd>submit (⌘/Ctrl+Enter inside the note)</dd>
+        </dl>
+      </div>
+      <div><h3>After the reveal</h3>
+        <dl>
+          <dt><kbd>k</kbd></dt><dd>keep my label → next</dd>
+          <dt><kbd>j</kbd></dt><dd>judge is right → next</dd>
+          <dt><kbd>u</kbd></dt><dd>unsure → next</dd>
+          <dt><kbd>Enter</kbd></dt><dd>next without a verdict</dd>
+        </dl>
+        <h3>Navigation</h3>
+        <dl>
+          <dt><kbd>n</kbd></dt><dd>next untouched trial</dd>
+          <dt><kbd>]</kbd> <kbd>[</kbd></dt><dd>next / previous trial in the list</dd>
+          <dt><kbd>/</kbd></dt><dd>search the trace (<kbd>Enter</kbd>/<kbd>Shift</kbd>+<kbd>Enter</kbd> next/prev, <kbd>Esc</kbd> leave)</dd>
+          <dt><kbd>x</kbd></dt><dd>expand / collapse long outputs</dd>
+          <dt><kbd>v</kbd></dt><dd>play / pause the video</dd>
+          <dt><kbd>?</kbd></dt><dd>this help</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast" hidden></div>
+<script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "review-ui",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["analysis/review_app.py", "artifacts/validation/sample-2026-11-19.json", "--rater", "uitest", "--labels-dir", "/tmp/review-ui-test"],
+      "port": 8765
+    }
+  ]
+}
