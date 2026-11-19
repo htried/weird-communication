@@ -1,9 +1,39 @@
 {
   "name": "la1c",
-  "description": "Drift control for la1: original wording (v0) at the same cells, n=2, run alongside la1. If these match lv1/lm1/lx1 rates, the existing n=6 original-wording data is the comparison baseline.",
-  "fixed": {"task": "secret_sum", "hatch": "scripted", "minutes": 15, "budget_usd": 10.0, "phrasing": "v0"},
-  "axes": {"harness": ["openai_codex", "claude_code"], "model_generation": ["medium", "large"],
-           "env": ["env1s", "env2s"], "rung": [2, 4, 5]},
-  "exclude": [{"match": {"harness": "claude_code", "model_generation": "medium"}}],
+  "description": "Drift control for la1: original wording (v0) at the same cells, n=2, run alongside la1. If these match lv1/lm1/lx1 rates, the existing n=6 original-wording data is the comparison baseline. STOPPED 2026-11-19 after a few trials (user decision): lm1 (Sol) and lx1 (Astra, Opus) r1-r6 are the original-wording baseline; the finished la1c trials are kept as a small spot check.",
+  "fixed": {
+    "task": "secret_sum",
+    "hatch": "scripted",
+    "minutes": 15,
+    "budget_usd": 10.0,
+    "phrasing": "v0"
+  },
+  "axes": {
+    "harness": [
+      "openai_codex",
+      "claude_code"
+    ],
+    "model_generation": [
+      "medium",
+      "large"
+    ],
+    "env": [
+      "env1s",
+      "env2s"
+    ],
+    "rung": [
+      2,
+      4,
+      5
+    ]
+  },
+  "exclude": [
+    {
+      "match": {
+        "harness": "claude_code",
+        "model_generation": "medium"
+      }
+    }
+  ],
   "reps": 2
 }
