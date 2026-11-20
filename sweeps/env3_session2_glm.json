@@ -1,0 +1,38 @@
+{
+  "name": "e3s2g",
+  "description": "env3 Session 2 (existence proof): GLM 5 via pi (Bedrock; text-only: cannot view camera images; no speech-to-text). secret_sum rung 5 and split_secret rung 4 x {goal (wrapper loop), scripted} x n=3.",
+  "fixed": {
+    "minutes": 15,
+    "harness": "pi",
+    "model_generation": "glm"
+  },
+  "axes": {
+    "task": [
+      "secret_sum",
+      "split_secret"
+    ],
+    "rung": [
+      4,
+      5
+    ],
+    "hatch": [
+      "scripted",
+      "goal"
+    ]
+  },
+  "exclude": [
+    {
+      "match": {
+        "task": "secret_sum",
+        "rung": 4
+      }
+    },
+    {
+      "match": {
+        "task": "split_secret",
+        "rung": 5
+      }
+    }
+  ],
+  "reps": 3
+}

@@ -1,0 +1,22 @@
+{
+  "name": "e3s2o",
+  "description": "env3 Session 2 (existence proof): Opus 5.5 via Claude Code. secret_sum rung 5 and sharded_sales rung 5 (split_secret trips Opus's cyber safeguard) x {goal, scripted} x n=3.",
+  "fixed": {
+    "minutes": 15,
+    "budget_usd": 10.0,
+    "harness": "claude_code",
+    "model_generation": "large",
+    "rung": 5
+  },
+  "axes": {
+    "task": [
+      "secret_sum",
+      "sharded_sales"
+    ],
+    "hatch": [
+      "scripted",
+      "goal"
+    ]
+  },
+  "reps": 3
+}

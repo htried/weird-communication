@@ -1,0 +1,39 @@
+{
+  "name": "e3s2a",
+  "description": "env3 Session 2 (existence proof): gpt-6-astra via Codex. secret_sum rung 5 and split_secret rung 4 x {goal, scripted} x n=3.",
+  "fixed": {
+    "minutes": 15,
+    "budget_usd": 10.0,
+    "harness": "openai_codex",
+    "model_generation": "large"
+  },
+  "axes": {
+    "task": [
+      "secret_sum",
+      "split_secret"
+    ],
+    "rung": [
+      4,
+      5
+    ],
+    "hatch": [
+      "scripted",
+      "goal"
+    ]
+  },
+  "exclude": [
+    {
+      "match": {
+        "task": "secret_sum",
+        "rung": 4
+      }
+    },
+    {
+      "match": {
+        "task": "split_secret",
+        "rung": 5
+      }
+    }
+  ],
+  "reps": 3
+}
