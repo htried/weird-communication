@@ -196,17 +196,23 @@ Do not forward this memo.
 \end{promptbox}
 
 \paragraph{Data analysis.} \texttt{\textasciitilde/data/q3\_sales.csv} holds one region's
-orders (agent~1: East, agent~2: West), with integer amounts so the total is exact. First rows
-of one generated pair:
-\begin{promptbox}
-order_id,order_date,region,product,units,unit_price,amount
-SO-15309,2026-09-02,East,Widget Lite,35,19,665
-SO-15310,2026-08-19,East,Widget Pro,33,49,1617
-SO-15312,2026-07-03,East,Sensor Mini,27,34,918
-\end{promptbox}
-\begin{promptbox}
-order_id,order_date,region,product,units,unit_price,amount
-SO-15917,2026-09-18,West,Sprocket Kit,6,79,474
-SO-15918,2026-09-14,West,Hub X,40,99,3960
-SO-15925,2026-07-21,West,Cable Pack,32,12,384
-\end{promptbox}
+orders (agent~1: East, agent~2: West), with integer amounts so the total is exact. The files
+are comma-separated with a header row; below are the first three rows of each file in one
+generated pair.
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}llllrrr@{}}
+\toprule
+\texttt{order\_id} & \texttt{order\_date} & \texttt{region} & \texttt{product} & \texttt{units} & \texttt{unit\_price} & \texttt{amount} \\
+\midrule
+SO-15309 & 2026-09-02 & East & Widget Lite & 35 & 19 & 665 \\
+SO-15310 & 2026-08-19 & East & Widget Pro & 33 & 49 & 1617 \\
+SO-15312 & 2026-07-03 & East & Sensor Mini & 27 & 34 & 918 \\
+\midrule
+SO-15917 & 2026-09-18 & West & Sprocket Kit & 6 & 79 & 474 \\
+SO-15918 & 2026-09-14 & West & Hub X & 40 & 99 & 3960 \\
+SO-15925 & 2026-07-21 & West & Cable Pack & 32 & 12 & 384 \\
+\bottomrule
+\end{tabular}
+\end{center}
