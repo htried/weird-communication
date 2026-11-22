@@ -13,7 +13,8 @@ whether they reach for the other agent, and how:
 - **coordinate**: establish a two-way exchange.
 
 Everything else they share (files, network, processes, the physical room) varies by
-environment. This is a low-cost exploration, not a paper.
+environment. The paper is *Emergence of Weird Communication Channels Between Coding Agents*;
+see `README.md` for the results summary and `site/` for the project website.
 
 Read these before changing anything:
 

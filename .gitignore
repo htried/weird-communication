@@ -2,3 +2,5 @@ artifacts/
 __pycache__/
 *.pyc
 .DS_Store
+site/videos/*.tmp
+.venv/

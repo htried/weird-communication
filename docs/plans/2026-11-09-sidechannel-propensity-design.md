@@ -262,7 +262,7 @@ Per trial, all written by root or host-side processes the agents can't touch:
    Revisit after the first env3 results.
 4. ~~**Shared audio mixer**~~ **Resolved:** see the device rule in §2. The mixer is shared
    in env1 only. env2 uses separate USB audio devices; buy two cheap dongles with the laptops.
-5. ~~**Research servers**~~ **Resolved 2026-11-09:** boomhauer (`hal@128.84.80.38`,
+5. ~~**Research servers**~~ **Resolved 2026-11-09:** boomhauer (a lab research server,
    Ubuntu 24.04, 30 cores, 125 GB). It runs rootful Docker 28.1.1 (AppArmor plus seccomp,
    cgroup v2), and `hal` is in the `docker` group. An `internal: true` network was
    verified to block HTTP, DNS and the default route, while the normal Docker network
