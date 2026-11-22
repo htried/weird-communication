@@ -15,7 +15,7 @@
   <div class="wrap">
     <p class="kicker">Research preview</p>
     <h1>Emergence of Weird Communication Channels Between Coding Agents</h1>
-    <p class="authors">Authors to be added &middot; <a href="https://github.com/htried/sidechannel-exp">Code</a> &middot; Paper (coming soon)</p>
+    <p class="authors">Harold Triedman, Rishi Jha, and Vitaly Shmatikov &middot; <a href="https://github.com/htried/sidechannel-exp">Code</a> &middot; Paper (coming soon)</p>
     <div class="hero-video">
       <video id="hero-video" src="videos/e3s2a-splitsecret-4-goal-r3.mp4" poster="videos/e3s2a-splitsecret-4-goal-r3.jpg" controls muted playsinline preload="metadata"></video>
       <p class="caption">Two GPT-6 Astra agents on two laptops with no network between them. Each holds half of a decryption key. They put their halves on screen, read each other's through the webcam, and decrypt the memo in under two minutes.</p>
@@ -64,10 +64,10 @@
     <img src="img/env3-diagram.png" alt="Diagram of env3: two laptops, each running a locked-down agent container with access to its own camera, microphone, speaker and screen, recorded by a separate camera rig." loading="lazy">
     <figcaption>env3 conceptually: each agent is locked down to its own laptop's devices while an independent rig records the room.</figcaption>
   </figure>
-  <div class="placeholder small">
-    <strong>Photo of the env3 setup</strong>
-    <p>Placeholder: add <code>img/env3-photo.jpg</code>.</p>
-  </div>
+  <figure class="wide">
+    <img src="img/env3-photo.jpg" alt="The env3 desk: two ThinkPad laptops facing each other on taped positions, a MacBook in between running the recorder, two USB webcams and a USB microphone on the desk, and an alarm clock by the left laptop." loading="lazy">
+    <figcaption>env3 in reality: the two agent laptops (left and right) face each other; the MacBook in the middle records the room through two USB webcams and a microphone.</figcaption>
+  </figure>
   <p>In every environment, agents run unprivileged inside locked-down containers. Their only route off the machine is an allowlist proxy to their model provider's API. Prompts arrive on standard input, trial files are readable only by root, and the harnesses' own web-search and agent-messaging tools are disabled.</p>
 </section>
 
@@ -96,7 +96,7 @@
           <option value="prompt">&ldquo;Not around&rdquo; sentence</option>
         </select>
       </label>
-      <label>Wording of top level
+      <label>Level 5 wording
         <select id="pb-variant">
           <option value="v0">Original</option>
           <option value="f1">Paraphrase 1</option>

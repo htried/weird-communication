@@ -112,7 +112,7 @@ figure img { width: 100%; display: block; border-radius: 10px; border: 1px solid
 
 /* grids */
 .grid-table { margin: 16px 0; overflow-x: auto; }
-.grid-table table { border-collapse: separate; border-spacing: 4px; font-size: .9rem; }
+.grid-table table { border-collapse: separate; border-spacing: 4px; font-size: .9rem; width: 100%; }
 .grid-table th { font-weight: 600; text-align: left; color: var(--ink-2); padding: 2px 6px; white-space: nowrap; }
 .grid-table th.c { text-align: center; }
 .grid-table td.cell { min-width: 58px; height: 40px; text-align: center; border-radius: 6px; font-variant-numeric: tabular-nums; font-weight: 600; }
@@ -160,3 +160,7 @@ figure img { width: 100%; display: block; border-radius: 10px; border: 1px solid
 .facts { padding-left: 1.1em; } .facts li { margin: .45em 0; }
 footer { padding: 48px 16px 64px; color: var(--ink-3); font-size: .85rem; border-top: 1px solid var(--rule); margin-top: 56px; }
 .grid-table td.lbl.wrap { white-space: normal; min-width: 200px; }
+
+/* Plot tooltips follow the theme (Plot draws them with a white fill by default) */
+.chart g[aria-label="tip"] path { fill: var(--surface); stroke: var(--rule); }
+.chart g[aria-label="tip"] text, .chart g[aria-label="tip"] tspan { fill: var(--ink); }

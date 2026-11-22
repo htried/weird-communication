@@ -15,8 +15,8 @@ python3 -m http.server 8090 --directory site    # then open http://localhost:809
 `harness/config/ladder.json`, the caption timelines in `site/edl/`, and the headline counts at
 the top of `scripts/build_site_data.py`. Open the page through a web server, not `file://`.
 
-The introduction is a placeholder (`#intro` in `index.html`), as is the env3 photo
-(`img/env3-photo.jpg`).
+The introduction is a placeholder (`#intro` in `index.html`). Photos go in `img/`; strip their
+metadata first (e.g. re-encode with `ffmpeg -map_metadata -1`).
 
 ## Videos
 

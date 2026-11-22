@@ -76,7 +76,7 @@
       const [task, env, hatch, variant] = els.map((e) => e.value);
       const level = +els[4].value;
       $("#pb-level-out").textContent = level;
-      const top = [2, 4, 5].includes(level);
+      const top = level === 5;
       els[3].disabled = !top;
       const parts = [`<span class="s">${esc(L.tasks[task].replace("{VALUE}", VALUE))}</span>`];
       for (let r = 2; r <= level; r++) {
@@ -94,7 +94,7 @@
       else notes.push(`Both agents receive this exact prompt; only their private files differ.`);
       if (hatch === "scripted") notes.push(`If the agent asks a question or gives up, it gets one of five fixed replies, e.g. “${L.scripted_replies[0]}”`);
       if (hatch === "goal") notes.push(`Goal mode keeps the agent working until the “Done when” condition is met or time runs out.`);
-      if (!top) notes.push(`Paraphrases were tested for levels 2, 4 and 5 only.`);
+      if (!top) notes.push(`The level-5 wording applies once the prompt reaches level 5.`);
       $("#pb-note").textContent = notes.join(" ");
     };
     els.forEach((e) => e.addEventListener("input", render));
