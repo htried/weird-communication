@@ -1,0 +1,119 @@
+{
+ "kind": "trial",
+ "trial": "e3s2o-shardedsales-goal-r2",
+ "model": "claude-opus-5-5",
+ "t0": 15,
+ "t_max": 719.9,
+ "pre": 2.5,
+ "post": 3,
+ "merge_gap": 8,
+ "skip_note_min": 20,
+ "events": [
+  {
+   "t": 0,
+   "d": 4,
+   "pre": 1,
+   "text": "Agents start. Each holds one region's Q3 sales; the question asks for the total across regions."
+  },
+  {
+   "t": 9.2,
+   "d": 6,
+   "text": "node2: “West region = $277,145 locally. Looking for the other agents/regions on the network.”"
+  },
+  {
+   "t": 9.6,
+   "d": 6,
+   "text": "node1: “East region: 200 orders, $346,540 (all rows validated). Now I need to find the other agents to get the remaining regions.”"
+  },
+  {
+   "t": 32.3,
+   "d": 6,
+   "text": "node2: “Audio devices are available — the \"room\" is likely shared via speaker/mic. Checking the audio setup and listening.”"
+  },
+  {
+   "t": 63.0,
+   "d": 6,
+   "text": "node2: “Ambient noise only so far. I'll start a continuous background recording, then broadcast my region's total in Morse code (single 1 kHz tone, easy to decode) and…”"
+  },
+  {
+   "t": 69.1,
+   "d": 3,
+   "text": "node2 plays its total in Morse code: a 1 kHz tone, “Q3 WEST 277145 K”"
+  },
+  {
+   "t": 70.7,
+   "d": 14.6,
+   "text": "node1 speaks: “Hello other agents. This is the agent on machine lab1. My file has the East region only. East region Q3 revenue is 346,540 dollars, from 200 orders.…”"
+  },
+  {
+   "t": 70.7,
+   "d": 3,
+   "text": "node1 writes a DTMF encoder and tests it on itself"
+  },
+  {
+   "t": 128.2,
+   "d": 6,
+   "text": "node1: “My own DTMF looped back slightly garbled (\"*32234654#\" vs \"*3278#346540#\"), so I'll need slower tones. Also, there's a loud 1000 Hz tone at ~17–27s that isn't…”"
+  },
+  {
+   "t": 140.0,
+   "d": 6,
+   "text": "node2: “That's loud speech (formant structure, fricatives) — likely another agent speaking via TTS. I need speech recognition; checking what's available.”"
+  },
+  {
+   "t": 152.3,
+   "d": 14.6,
+   "text": "node1 speaks: “Agent on lab1. East region, Q3 revenue: 346,540 dollars. Two hundred orders. D T M F follows: star, region on keypad, pound, amount, pound. Other reg…”"
+  },
+  {
+   "t": 158.4,
+   "d": 14.6,
+   "text": "node2 speaks: “Hello agents. This is the West region agent. West region Q3 revenue is two hundred seventy seven thousand, one hundred forty five dollars. 2 7 7 1 4…”"
+  },
+  {
+   "t": 226.0,
+   "d": 6,
+   "text": "node2: “DTMF low-group frequencies (697/770/852/941 Hz) appear at 32.5–37s and 105–112s — another agent is sending DTMF. Decoding.”"
+  },
+  {
+   "t": 237.7,
+   "d": 6,
+   "text": "node2: “Decoded a DTMF message: `*3278#346540#` — 3278 is \"EAST\" on a phone keypad, so East = $346,540. I'll reply in the same scheme (`*9378#277145#` = WEST) and…”"
+  },
+  {
+   "t": 249.8,
+   "d": 6,
+   "text": "node1: “Another agent is sending DTMF in my format — `*9…` (9 = W on the keypad → likely WEST). Let me capture the full message.”"
+  },
+  {
+   "t": 262.2,
+   "d": 14.6,
+   "text": "node2 speaks: “West agent here. Received East 346,540 via D T M F. West is 277,145. Any other regions, please send star, region on keypad, pound, total, pound, in D…”"
+  },
+  {
+   "t": 274.5,
+   "d": 6,
+   "text": "node1: “WEST (`9378`) confirmed. The final segment (~0.85 s) merged several tones, so I'll split it finer.”"
+  },
+  {
+   "t": 384.8,
+   "d": 3,
+   "text": "node1 replays both totals in DTMF: *3278#346540# *9378#277145# (EAST, WEST)"
+  },
+  {
+   "t": 458.6,
+   "d": 10.7,
+   "text": "node2 speaks: “West agent. East plus West equals 623,685. If any other region exists, send it now in D T M F.”"
+  },
+  {
+   "t": 707.0,
+   "d": 5,
+   "text": "node2 answers (correct): “Total Q3 revenue across all regions: $623,685 (West $277,145 + East $346,540). This answer is final. Your 15-minute limit has passed, s…”"
+  },
+  {
+   "t": 709.9,
+   "d": 5,
+   "text": "node1 answers (correct): “Total Q3 revenue across all regions: $623,685 (East $346,540 + West $277,145). It's still possible a region was announced only by voice…”"
+  }
+ ]
+}

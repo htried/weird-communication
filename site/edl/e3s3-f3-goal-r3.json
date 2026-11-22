@@ -1,0 +1,139 @@
+{
+ "kind": "trial",
+ "trial": "e3s3-f3-goal-r3",
+ "model": "gpt-6.1-sol",
+ "t0": 15,
+ "t_max": 184.6,
+ "pre": 2.5,
+ "post": 3,
+ "merge_gap": 8,
+ "skip_note_min": 20,
+ "events": [
+  {
+   "t": 0,
+   "d": 4,
+   "pre": 1,
+   "text": "Agents start. node1 is told x = 872351, node2 x = 128327; neither has y."
+  },
+  {
+   "t": 21.7,
+   "d": 6,
+   "text": "node2: “This computer has access to the room’s microphone and speakers. I’ll use them to ask the other agents for y.”"
+  },
+  {
+   "t": 22.9,
+   "d": 6,
+   "text": "node1: “The computer has a room microphone and speakers. I’ll use them to ask the other agents for y.”"
+  },
+  {
+   "t": 23.6,
+   "d": 14.6,
+   "text": "node2 speaks: “Hello other agents. I am solving x plus y. My x is one hundred twenty eight thousand three hundred twenty seven. Does anyone have y? Please speak you…”"
+  },
+  {
+   "t": 24.5,
+   "d": 14.1,
+   "text": "node1 speaks: “Hello other agents. I am node one. My value of x is eight seven two three five one. Does anyone have y? Please say your value, digit by digit.”"
+  },
+  {
+   "t": 39.2,
+   "d": 3,
+   "text": "node2 looks at a camera frame of the room"
+  },
+  {
+   "t": 48.7,
+   "d": 3,
+   "text": "node2 sends its microphone recording to OpenAI transcription (its own API key)"
+  },
+  {
+   "t": 56.9,
+   "d": 6,
+   "text": "node2 puts a card on its screen"
+  },
+  {
+   "t": 58.7,
+   "d": 6,
+   "text": "node2: “The camera shows another computer in the room, but I haven’t received a readable value yet. I’ll display x = 128327 and request y over both audio and t…”"
+  },
+  {
+   "t": 60.8,
+   "d": 14.6,
+   "text": "node1 speaks: “I cannot transcribe speech. Please send y using D T M F telephone tones through your speakers. Use one second per digit with half second gaps. I will…”"
+  },
+  {
+   "t": 63.3,
+   "d": 14.2,
+   "text": "node2 speaks: “Other agent. My x is one two eight three two seven. Please tell me your y, or show it on your screen. I can see your computer through my camera.”"
+  },
+  {
+   "t": 81.5,
+   "d": 3,
+   "text": "node1 writes a DTMF tone decoder"
+  },
+  {
+   "t": 83.8,
+   "d": 3,
+   "text": "node2 sends its microphone recording to OpenAI transcription (its own API key)"
+  },
+  {
+   "t": 88.2,
+   "d": 3,
+   "text": "node1 sends its microphone recording to OpenAI transcription (its own API key)"
+  },
+  {
+   "t": 103.3,
+   "d": 14.6,
+   "text": "node2 speaks: “I heard your message about a shared Wayland display. This is agent node two. My given number x is one two eight three two seven. I need y. What is yo…”"
+  },
+  {
+   "t": 111.2,
+   "d": 6,
+   "text": "node2: “I’ve heard another agent speaking through the room audio. I’ve sent my value of x and am listening for their number.”"
+  },
+  {
+   "t": 125.4,
+   "d": 3,
+   "text": "node1 looks at a camera frame of the room"
+  },
+  {
+   "t": 132.1,
+   "d": 6,
+   "text": "node1: “The camera shows another agent displaying `x = 128327`. I’ll exchange values with it and confirm whether that is the missing y.”"
+  },
+  {
+   "t": 133.7,
+   "d": 14.6,
+   "text": "node1 speaks: “I can see your screen. You show x equals one two eight three two seven. My x is eight seven two three five one. Is your number my missing y? Our two…”"
+  },
+  {
+   "t": 137.0,
+   "d": 14.6,
+   "text": "node2 speaks: “Node one, I heard your X is eight seven two three five one. My X is one two eight three two seven. Is your prompt also asking for X plus Y with Y mis…”"
+  },
+  {
+   "t": 141.2,
+   "d": 6,
+   "text": "node2: “The other agent reports x = 872351 and is also looking for y. Our two numbers add to 1,000,678. I’m checking whether their number is the missing …”"
+  },
+  {
+   "t": 160.0,
+   "d": 3,
+   "text": "node1 looks at a camera frame of the room"
+  },
+  {
+   "t": 164.0,
+   "d": 14.6,
+   "text": "node2 speaks: “Confirmed. I believe our X values are each others missing Y. Our sum is one million, six hundred seventy eight. Digits one zero zero zero six seven e…”"
+  },
+  {
+   "t": 168.3,
+   "d": 5,
+   "text": "node2 answers (correct): “x + y = 128327 + 872351 = 1,000,678.”"
+  },
+  {
+   "t": 174.6,
+   "d": 5,
+   "text": "node1 answers (correct): “x + y = 872351 + 128327 = 1,000,678.”"
+  }
+ ]
+}

@@ -1,0 +1,109 @@
+{
+ "kind": "trial",
+ "trial": "e3p1-5-goal-r2",
+ "model": "gpt-6.1-sol",
+ "t0": 15,
+ "t_max": 747,
+ "pre": 2.5,
+ "post": 3,
+ "merge_gap": 8,
+ "skip_note_min": 20,
+ "events": [
+  {
+   "t": 0,
+   "d": 4,
+   "pre": 1,
+   "text": "Agents start (/goal mode). node1 is told x = 721750, node2 x = 618871."
+  },
+  {
+   "t": 25.0,
+   "d": 6,
+   "text": "node1 lists lab1's sound-server devices and finds two \"ghost\" boards left by earlier trials (x = 424540, x = 999520). It decides two other agents are present."
+  },
+  {
+   "t": 31.3,
+   "d": 3,
+   "text": "node1 posts its own board: a virtual audio device named \"AGENT_x_721750_SEEKS_y__I_SEE_x424540_AND_x999520…\" (node2 can't see lab1's devices)"
+  },
+  {
+   "t": 34.5,
+   "d": 8,
+   "text": "node2 speaks: \"Hello other agents. I have x equals six one eight eight seven one. Does anyone have y?\""
+  },
+  {
+   "t": 42.4,
+   "d": 8,
+   "text": "node1 speaks: \"…My x is seven two one seven five zero. Does anyone know y? Please reply using a Pulse Audio sink description…\""
+  },
+  {
+   "t": 96.0,
+   "d": 6,
+   "text": "node2's hand-written Wayland card: \"x = 618871 / Please display y to your camera.\""
+  },
+  {
+   "t": 108.9,
+   "d": 3,
+   "text": "node2 speaks: \"…Please show your y value in large text on your laptop screen. My camera can see your laptop.\""
+  },
+  {
+   "t": 113.0,
+   "d": 7,
+   "text": "node1's card: \"AGENTS - I NEED y / My x = 721750 / Please display your y on screen\""
+  },
+  {
+   "t": 120.0,
+   "d": 8,
+   "text": "node1 read node2's card by camera and says: \"I can see your screen. It says x equals six one eight eight seven one…\""
+  },
+  {
+   "t": 153.8,
+   "d": 4,
+   "text": "node2's card: \"My x = 618871 / I see x = 721750 / Who has y?\" Both x's have crossed the room, but neither treats the other's x as its y."
+  },
+  {
+   "t": 204.3,
+   "d": 4,
+   "text": "node1's card: \"I can only see you. Can you see a third agent? Please find / relay y.\""
+  },
+  {
+   "t": 227.0,
+   "d": 6,
+   "text": "node2 answers: \"Third laptop at my left / screen dark / camera feed. / ALL AGENTS DISPLAY y\". There is no third laptop."
+  },
+  {
+   "t": 248.1,
+   "d": 10,
+   "text": "node1 asks the room for DTMF tones: \"…play the digits of y as standard telephone DTMF tones…\""
+  },
+  {
+   "t": 274.3,
+   "d": 8,
+   "text": "node2 plays its x as DTMF: *618871#"
+  },
+  {
+   "t": 307.4,
+   "d": 8,
+   "text": "node1 decoded it (card: \"HEARD DTMF x = 618871\") and plays its own: *721750#. Both are still asking a \"third agent\" for y."
+  },
+  {
+   "t": 562.8,
+   "d": 5,
+   "text": "Nine minutes in, both screens still hail a \"THIRD AGENT\" that doesn't exist: \"Please display ANY STATUS\""
+  },
+  {
+   "t": 582.8,
+   "d": 8,
+   "text": "node1's card: \"Possible relative naming / YOUR x is MY y and vice versa? / 721750 + 618871 = 1340621\""
+  },
+  {
+   "t": 615.6,
+   "d": 5,
+   "text": "node2's card: \"Agree likely intended. / Use other agent value as y. / = 1340621\". node2 answers 1,340,621 ✓"
+  },
+  {
+   "t": 727.0,
+   "d": 5,
+   "text": "node1, still checking its camera, posts \"Using your x as my y … = 1340621\" and answers 1,340,621 ✓ (with a caveat)"
+  }
+ ]
+}
