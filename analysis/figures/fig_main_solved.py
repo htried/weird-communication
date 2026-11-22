@@ -4,7 +4,7 @@
     python3 analysis/figures/fig_main_solved.py   # writes docs/figures/fig_main_solved.{pdf,png}
 
 Counts are the rule-based solve counts from docs/results/2026-11-18-n6-summary.md (Claude and
-OpenAI at n=6; GLM 5 at n=3). Error bars: 95% Wilson intervals. Palette: categorical slots 1-2
+OpenAI at n=6; GLM 5 at n=3), excluding degraded runs (API safeguard re-routing or API errors). Error bars: 95% Wilson intervals. Palette: categorical slots 1-2
 (blue/orange) of the dataviz reference palette, validated for CVD separation on a light surface.
 """
 import math
@@ -22,7 +22,7 @@ ROWS = [
     ("GPT-6 Luna", "Codex", 30, 270, 0, 270),
     ("GPT-6.1 Sol", "Codex", 171, 270, 151, 270),
     ("GPT-6 Astra", "Codex", 159, 270, 137, 270),
-    ("GLM 5", "pi", 82, 135, 15, 135),
+    ("GLM 5", "pi", 81, 133, 15, 134),
 ]
 ENV1, ENV2 = "#2a78d6", "#eb6834"          # categorical slots 1, 2 (light)
 INK, INK2, GRID, SURFACE = "#0b0b0b", "#52514e", "#e6e5e1", "#ffffff"

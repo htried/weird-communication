@@ -28,7 +28,7 @@ POOLED = [
     ("GPT-6 Luna", "Codex", 30, 270, 0, 270),
     ("GPT-6.1 Sol", "Codex", 171, 270, 151, 270),
     ("GPT-6 Astra", "Codex", 159, 270, 137, 270),
-    ("GLM 5", "pi", 82, 135, 15, 135),
+    ("GLM 5", "pi", 81, 133, 15, 134),
 ]
 ENV3_SOL = [  # task, persistence, {level: [solved, n]}
     ("Addition", "/goal", {"2": [0, 6], "3": [0, 6], "4": [0, 6], "5": [6, 6]}),
