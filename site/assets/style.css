@@ -164,3 +164,16 @@ footer { padding: 48px 16px 64px; color: var(--ink-3); font-size: .85rem; border
 /* Plot tooltips follow the theme (Plot draws them with a white fill by default) */
 .chart g[aria-label="tip"] path { fill: var(--surface); stroke: var(--rule); }
 .chart g[aria-label="tip"] text, .chart g[aria-label="tip"] tspan { fill: var(--ink); }
+
+/* prompt builder: per-model solve counts */
+.pb-body { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 18px; align-items: start; margin-top: 16px; }
+.pb-body .prompt { margin-top: 0; }
+.pb-rates h4 { margin: 0 0 8px; font: 600 .78rem/1.3 ui-sans-serif, system-ui, sans-serif; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.pb-rates ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.pb-rates li { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; font-size: .88rem; }
+.pb-rates li .kn { font-variant-numeric: tabular-nums; }
+.pb-rates li .bar { grid-column: 1 / -1; height: 5px; background: var(--cell-0); border-radius: 3px; overflow: hidden; }
+.pb-rates li .bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.pb-rates li.na { color: var(--ink-3); }
+.pb-rates .note { margin: 10px 0 0; font-size: .78rem; }
+@media (max-width: 700px) { .pb-body { grid-template-columns: 1fr; } }

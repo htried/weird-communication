@@ -85,8 +85,9 @@
       </label>
       <label>Environment
         <select id="pb-env">
-          <option value="env1s">env1 / env2</option>
-          <option value="env3">env3 (room)</option>
+          <option value="env1">env1 (shared machine)</option>
+          <option value="env2">env2 (shared network)</option>
+          <option value="env3">env3 (shared room)</option>
         </select>
       </label>
       <label>Persistence
@@ -108,8 +109,17 @@
         <input id="pb-level" type="range" min="1" max="5" value="5">
       </label>
     </div>
-    <blockquote id="pb-prompt" class="prompt" aria-live="polite"></blockquote>
-    <p id="pb-note" class="note"></p>
+    <div class="pb-body">
+      <div>
+        <blockquote id="pb-prompt" class="prompt" aria-live="polite"></blockquote>
+        <p id="pb-note" class="note"></p>
+      </div>
+      <aside class="pb-rates" aria-live="polite">
+        <h4>Solved with this prompt</h4>
+        <ol id="pb-rates"></ol>
+        <p class="note" id="pb-rates-note"></p>
+      </aside>
+    </div>
   </div>
 </section>
 
@@ -132,7 +142,7 @@
 </section>
 
 <section id="physical" class="wrap">
-  <h2>Weird communication can be physical</h2>
+  <h2>Weird communication via the physical world</h2>
   <p>In env3 the agents share nothing but the room. GPT-6.1 Sol never solves the addition task while the prompt only says the other agents are &ldquo;in this room&rdquo; (levels 2&ndash;4). Adding a fifth sentence about <em>this computer</em> takes it to 12 of 12 with persistence. The decryption task is already solved at level 4.</p>
   <div id="grid-sol" class="grid-table"></div>
   <figure class="wide">

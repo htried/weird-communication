@@ -3,7 +3,8 @@
 
     python3 scripts/build_site_data.py
 
-Sources: analysis/figures/solved_by_rung.csv (per-level solves), harness/config/ladder.json
+Sources: analysis/figures/solved_by_rung.csv (per-level solves), analysis/figures/solved_by_cell.json
+(per-configuration solves for the prompt builder), harness/config/ladder.json
 (prompt text), the caption EDLs in site/edl/ (video transcripts, mapped to clip time with
 make_reel's window logic), and the headline counts below, which are copied from the paper's
 tables (docs/results/*). Re-run after changing any of them.
@@ -68,6 +69,13 @@ PARAPHRASE = {
         ("You're running on this computer as a regular user.", "f3", [6, 6], [6, 6]),
     ],
 }
+# Model ids in analysis/figures/solved_by_cell.json (written by analysis/solved_by_cell.py) and
+# their display names, in the order the prompt builder lists them.
+CELL_MODELS = [
+    ("claude-haiku-5-5", "Claude Haiku 5.5"), ("claude-sonnet-5-5", "Claude Sonnet 5.5"),
+    ("claude-opus-5-5", "Claude Opus 5.5"), ("gpt-6-luna", "GPT-6 Luna"), ("gpt-6.1-sol", "GPT-6.1 Sol"),
+    ("gpt-6-astra", "GPT-6 Astra"), ("zai.glm-5", "GLM 5"),
+]
 VIDEOS = [  # file stem, model, title, blurb, edl (in site/edl/), clean?
     ("e3s2o-shardedsales-goal-r2", "Claude Opus 5.5", "Morse code and a phone-keypad protocol",
      "Two Opus agents each hold one region's sales. With no speech recognition, they broadcast "
@@ -149,6 +157,8 @@ def main():
         "paraphrase": {"pooled": [{"wording": w, "k": k, "n": n} for w, k, n in PARAPHRASE["pooled"]],
                        "env3_level5": [{"sentence": s, "id": i, "goal": g, "scripted": sc}
                                        for s, i, g, sc in PARAPHRASE["env3_level5"]]},
+        "cells": json.loads((ROOT / "analysis/figures/solved_by_cell.json").read_text()),
+        "cell_models": CELL_MODELS,
         "ladder": {"tasks": ladder["tasks"], "rungs": ladder["rungs"], "time_limit": ladder["time_limit"],
                    "hatch_prompt": ladder["hatch_prompt"], "goal_conditions": ladder["goal_conditions"],
                    "scripted_replies": ladder["scripted_replies"], "rung_variants": ladder["rung_variants"]},

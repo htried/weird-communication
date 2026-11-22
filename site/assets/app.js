@@ -53,7 +53,7 @@
   });
 
   function init(D) {
-    promptBuilder(D.ladder);
+    promptBuilder(D.ladder, D.cells, D.cell_models);
     const draw = () => {
       levelsChart(D);
       pooledChart(D);
@@ -69,7 +69,7 @@
   }
 
   /* ---------- prompt builder ---------- */
-  function promptBuilder(L) {
+  function promptBuilder(L, cells, models) {
     const els = ["task", "env", "hatch", "variant", "level"].map((k) => $("#pb-" + k));
     const VALUE = "279298";
     const render = () => {
@@ -81,7 +81,7 @@
       const parts = [`<span class="s">${esc(L.tasks[task].replace("{VALUE}", VALUE))}</span>`];
       for (let r = 2; r <= level; r++) {
         let s = L.rungs[String(r)];
-        if (typeof s === "object") s = s[env] || s.env1s;
+        if (typeof s === "object") s = s[env === "env3" ? "env3" : "env1s"];
         if (r === level && top && variant !== "v0") s = L.rung_variants[String(r)][variant];
         parts.push(`<span class="s lvl${r === level ? " new" : ""}" title="Level ${r}">${esc(s)}</span>`);
       }
@@ -96,7 +96,21 @@
       if (hatch === "goal") notes.push(`Goal mode keeps the agent working until the “Done when” condition is met or time runs out.`);
       if (!top) notes.push(`The level-5 wording applies once the prompt reaches level 5.`);
       $("#pb-note").textContent = notes.join(" ");
+      rates(env, task, level, hatch, top ? variant : "v0");
     };
+    function rates(env, task, level, hatch, variant) {
+      let any = false;
+      $("#pb-rates").innerHTML = models.map(([id, name]) => {
+        const c = cells[[env, task, level, hatch, variant, id].join("|")];
+        if (!c) return `<li class="na"><span>${esc(name)}</span><span>not run</span></li>`;
+        any = true;
+        const [k, n] = c, p = n ? Math.round((100 * k) / n) : 0;
+        return `<li><span>${esc(name)}</span><span class="kn"><b>${k}/${n}</b></span><span class="bar"><i style="width:${p}%"></i></span></li>`;
+      }).join("");
+      $("#pb-rates-note").textContent = any
+        ? "Trials in which at least one agent stated the correct answer, for this exact prompt and persistence strategy (runs degraded by the provider's API excluded)."
+        : "This exact configuration wasn't run.";
+    }
     els.forEach((e) => e.addEventListener("input", render));
     render();
   }
