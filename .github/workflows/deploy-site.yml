@@ -2,8 +2,9 @@
 # Same approach as haltriedman.com: upload only, nothing on the server is deleted (remove
 # stale files by hand). Needs repo secrets FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
 #
-# Order matters: the password file and .htaccess go up first, so the site is never briefly
-# public. The password file lives outside public_html (~/.htpasswds/theagentsaretalking.com/).
+# The FTP account is rooted at the site's public_html, so the remote target is "." (the web root).
+# Order matters: .htaccess and the password file go up first, so the site is never briefly
+# public. The password file sits in the web root as .htpasswd; .htaccess denies all .ht* files.
 name: Deploy site
 
 on:
@@ -46,7 +47,7 @@ jobs:
         run: |
           # Hostinger home is /home/<account>, where <account> is the FTP user before any dot.
           ACCOUNT="${FTP_USERNAME%%.*}"
-          HTPASSWD="/home/${ACCOUNT}/.htpasswds/${DOMAIN}/.htpasswd"
+          HTPASSWD="/home/${ACCOUNT}/domains/${DOMAIN}/public_html/.htpasswd"
           sed -i "s|__HTPASSWD__|${HTPASSWD}|" site/.htaccess
           grep -q "__HTPASSWD__" site/.htaccess && { echo "path not filled in"; exit 1; } || true
       - name: Upload
@@ -59,17 +60,24 @@ jobs:
           lftp -u "$FTP_USERNAME,$FTP_PASSWORD" "$FTP_SERVER" -e "
             set ftp:ssl-allow no;
             set net:max-retries 3;
-            mkdir -p -f .htpasswds/${DOMAIN};
-            put -O .htpasswds/${DOMAIN}/ deploy/theagentsaretalking.htpasswd -o .htpasswd;
-            put -O domains/${DOMAIN}/public_html/ site/.htaccess;
+            put site/.htaccess -o .htaccess;
+            put deploy/theagentsaretalking.htpasswd -o .htpasswd;
+            rm -r -f domains;
+            rm -r -f .htpasswds;
             mirror --reverse --verbose \
               --exclude-glob .htaccess --exclude-glob README.md \
-              site/ domains/${DOMAIN}/public_html/;
+              site/ ./;
+            cls -la;
             quit"
       - name: Check that the site requires a password
         if: steps.check.outputs.ready == 'true'
         run: |
           sleep 5
+          fail=0
+          for path in / /index.html /videos/e3s1-5-goal-r1.mp4 /.htpasswd /domains/${DOMAIN}/public_html/index.html; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "https://${DOMAIN}${path}")
+            echo "unauthenticated ${path} -> HTTP $code"
+            case "$code" in 401|403|404) ;; *) fail=1 ;; esac
+          done
           code=$(curl -s -o /dev/null -w "%{http_code}" "https://${DOMAIN}/")
-          echo "unauthenticated request -> HTTP $code"
-          test "$code" = "401"
+          test "$code" = "401" -a "$fail" = "0"
