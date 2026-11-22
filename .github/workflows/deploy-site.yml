@@ -62,8 +62,6 @@ jobs:
             set net:max-retries 3;
             put site/.htaccess -o .htaccess;
             put deploy/theagentsaretalking.htpasswd -o .htpasswd;
-            rm -r -f domains;
-            rm -r -f .htpasswds;
             mirror --reverse --verbose \
               --exclude-glob .htaccess --exclude-glob README.md \
               site/ ./;
