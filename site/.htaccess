@@ -1,0 +1,21 @@
+# Password gate (HTTP basic auth). The deploy workflow replaces __HTPASSWD__ with the absolute
+# path of the password file, which it uploads outside public_html
+# (deploy/theagentsaretalking.htpasswd in the repo).
+AuthType Basic
+AuthName "The Agents Are Talking"
+AuthUserFile __HTPASSWD__
+Require valid-user
+
+# Keep it out of search engines and shared caches (the Hostinger CDN must not serve
+# authenticated pages to anyone else).
+<IfModule mod_headers.c>
+  Header always set X-Robots-Tag "noindex, nofollow, noarchive"
+  Header always set Cache-Control "private, no-store"
+</IfModule>
+
+Options -Indexes
+
+# Don't serve housekeeping files
+<FilesMatch "^(\.ht.*|README\.md)$">
+  Require all denied
+</FilesMatch>

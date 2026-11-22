@@ -1,0 +1,75 @@
+# Uploads site/ to theagentsaretalking.com on Hostinger over FTP when site/ changes on main.
+# Same approach as haltriedman.com: upload only, nothing on the server is deleted (remove
+# stale files by hand). Needs repo secrets FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
+#
+# Order matters: the password file and .htaccess go up first, so the site is never briefly
+# public. The password file lives outside public_html (~/.htpasswds/theagentsaretalking.com/).
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", "deploy/**", ".github/workflows/deploy-site.yml"]
+  workflow_dispatch:
+
+concurrency: deploy-site
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DOMAIN: theagentsaretalking.com
+    steps:
+      - name: Check that the FTP secrets are set
+        id: check
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          if [ -n "$FTP_SERVER" ] && [ -n "$FTP_USERNAME" ] && [ -n "$FTP_PASSWORD" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::FTP_SERVER / FTP_USERNAME / FTP_PASSWORD are not set; skipping deploy."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          persist-credentials: false
+      - if: steps.check.outputs.ready == 'true'
+        run: sudo apt-get install -y -qq lftp
+      - name: Fill in the password-file path
+        if: steps.check.outputs.ready == 'true'
+        env:
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        run: |
+          # Hostinger home is /home/<account>, where <account> is the FTP user before any dot.
+          ACCOUNT="${FTP_USERNAME%%.*}"
+          HTPASSWD="/home/${ACCOUNT}/.htpasswds/${DOMAIN}/.htpasswd"
+          sed -i "s|__HTPASSWD__|${HTPASSWD}|" site/.htaccess
+          grep -q "__HTPASSWD__" site/.htaccess && { echo "path not filled in"; exit 1; } || true
+      - name: Upload
+        if: steps.check.outputs.ready == 'true'
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          lftp -u "$FTP_USERNAME,$FTP_PASSWORD" "$FTP_SERVER" -e "
+            set ftp:ssl-allow no;
+            set net:max-retries 3;
+            mkdir -p -f .htpasswds/${DOMAIN};
+            put -O .htpasswds/${DOMAIN}/ deploy/theagentsaretalking.htpasswd -o .htpasswd;
+            put -O domains/${DOMAIN}/public_html/ site/.htaccess;
+            mirror --reverse --verbose \
+              --exclude-glob .htaccess --exclude-glob README.md \
+              site/ domains/${DOMAIN}/public_html/;
+            quit"
+      - name: Check that the site requires a password
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          sleep 5
+          code=$(curl -s -o /dev/null -w "%{http_code}" "https://${DOMAIN}/")
+          echo "unauthenticated request -> HTTP $code"
+          test "$code" = "401"

@@ -34,5 +34,13 @@ them "pilot".
 
 ## Deploy
 
-Any static host works (GitHub Pages, Netlify, Cloudflare Pages). The site is about 30 MB, mostly
-video. GitHub Pages serves from a public repository, or from a private one on a paid plan.
+Pushing a change under `site/` to `main` uploads the site to theagentsaretalking.com on Hostinger
+over FTP (`.github/workflows/deploy-site.yml`, same approach as haltriedman.com). The workflow
+needs repo secrets `FTP_SERVER`, `FTP_USERNAME` and `FTP_PASSWORD`, and the domain must be added
+as a website in hPanel. It only uploads; files removed from `site/` must be deleted on the server
+by hand.
+
+The site is behind HTTP basic auth (`site/.htaccess`). The password hash is
+`deploy/theagentsaretalking.htpasswd` (APR1), uploaded outside `public_html`. To change the
+password: `printf 'USER:%s\n' "$(openssl passwd -apr1 'NEW_PASSWORD')" > deploy/theagentsaretalking.htpasswd`
+and push. Pages are also marked `noindex` and `Cache-Control: private`.
