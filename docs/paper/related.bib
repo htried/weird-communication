@@ -1,0 +1,170 @@
+% Related work. Metadata checked against the primary pages (arXiv abstract pages, ACL Anthology,
+% IACR ePrint, LessWrong, OpenAI PDF cover) on 2026-11-22, except where a comment says otherwise.
+
+% ---------------------------------------------------------------- side channels between models
+@misc{deshpande2026sidechannels,
+  author       = {Deshpande, Niranjan and Africa, David},
+  title        = {Models Can Communicate via Inference Servers Despite Being Sandboxed},
+  year         = {2026},
+  month        = nov,
+  howpublished = {LessWrong},
+  url          = {https://www.lesswrong.com/posts/7wzWuLP3HhyBLmKfo/models-can-communicate-via-inference-servers-despite-being},
+  note         = {Posted 19 November 2026}
+}
+
+% ---------------------------------------------------------------- OpenAI--Hugging Face incident
+% Reporters and URL from Wikipedia's citation of the Reuters story (the syndicated copy timed out).
+% Wikipedia lists the headline both as "..., but sources say ..." and "... . Sources say ..."; the
+% US News syndication slug matches the "but" form used here.
+@misc{satter2026reuters,
+  author       = {Satter, Raphael and Seetharaman, Deepa and Cai, Kenrick},
+  title        = {Its {AI} Agent Spent Days Hacking a Company, but Sources Say {OpenAI} Did Not Notice for a Week},
+  year         = {2026},
+  month        = jul,
+  howpublished = {Reuters},
+  url          = {https://www.reuters.com/business/its-ai-agent-spent-days-hacking-company-sources-say-openai-did-not-notice-week-2026-07-24/},
+  note         = {Published 24 July 2026}
+}
+
+% Cover page gives only the title; the date is from Wikipedia's citation of the report.
+@techreport{openai2026hftechreport,
+  author       = {{OpenAI}},
+  title        = {{OpenAI} -- {Hugging Face} Incident: Technical Report},
+  institution  = {OpenAI},
+  year         = {2026},
+  month        = aug,
+  url          = {https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf},
+  note         = {Released 26 August 2026}
+}
+
+% Talk title and speakers from the Black Hat listing as cited by Wikipedia; video title verified
+% on YouTube ("Black Hat USA 2026 | The 'Breaking' News: The OpenAI–Hugging Face Incident").
+@misc{wallace2026blackhat,
+  author       = {Wallace, Eric and Dalton, Michael},
+  title        = {The ``Breaking'' News: The {OpenAI}--{Hugging Face} Incident -- A Technical Reconstruction and Its Implications for {AI}},
+  year         = {2026},
+  month        = aug,
+  howpublished = {Black Hat USA 2026, Las Vegas. Video: \url{https://www.youtube.com/watch?v=87DyyMV0kCY}},
+  note         = {Presented 5 August 2026}
+}
+
+% ---------------------------------------------------------------- agents violating constraints
+@misc{jha2026meltdowns,
+  author        = {Jha, Rishi and Triedman, Harold and Bhattacharya, Arkaprabha and Shmatikov, Vitaly},
+  title         = {Agent Meltdowns: The Road to Hell Is Paved with Helpful Agents},
+  year          = {2026},
+  eprint        = {2605.19149},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2605.19149}
+}
+
+% Title says "Outcome-Driven" (not "objective-driven"). v1 Dec 2025; v5 May 2026.
+@misc{li2025odcv,
+  author        = {Li, Miles Q. and Fung, Benjamin C. M. and Weiss, Martin and Xiong, Pulei and Al-Hussaeni, Khalil and Fachkha, Claude},
+  title         = {A Benchmark for Evaluating Outcome-Driven Constraint Violations in Autonomous {AI} Agents},
+  year          = {2025},
+  eprint        = {2512.20798},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2512.20798}
+}
+
+@misc{chen2026knowing,
+  author        = {Chen, Tianyu and Zhao, Xinran and Viswanathan, Vijay and Yu, Shoubin and Zhou, Mingyuan and Wu, Tongshuang},
+  title         = {Knowing When to Stop: The Evidence-Action Gap in Coding Agents},
+  year          = {2026},
+  eprint        = {2610.31895},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.SE},
+  url           = {https://arxiv.org/abs/2610.31895}
+}
+
+% v1/v2 were titled "The Troy Moment of AI: Why Some Will Cheat and Some Will Follow?"; v3 title below.
+@misc{zhang2026troymoment,
+  author        = {Zhang, Ivy},
+  title         = {The Troy Moment: How {LLM} Agents Adjudicate the Decision Point Under Impossible Tasks, Claimed Authority, and Peer Information},
+  year          = {2026},
+  eprint        = {2609.15494},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2609.15494}
+}
+
+% ---------------------------------------------------------------- covert channels / steganography
+@misc{dineen2026despite,
+  author        = {Dineen, Jacob and Ren, Silei and Chen, Muhao and Roth, Dan and Zhou, Ben},
+  title         = {Despite Instructions: Frontier Agents Improvise Covert Channels at Test Time},
+  year          = {2026},
+  eprint        = {2609.32701},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2609.32701}
+}
+
+@misc{alnuhait2026covert,
+  author        = {Alnuhait, Deema and Wang, Gengyu and Khalifa, Muhammad and Peng, Hao},
+  title         = {Covert Assistance: Helpful {LLM} Agents Evade Oversight in Multi-Agent Systems},
+  year          = {2026},
+  eprint        = {2609.39050},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CR},
+  url           = {https://arxiv.org/abs/2609.39050}
+}
+
+% From the ACL Anthology .bib (key renamed from mathew-etal-2025-hidden).
+@inproceedings{mathew2025hidden,
+  title     = {Hidden in Plain Text: Emergence {\&} Mitigation of Steganographic Collusion in {LLM}s},
+  author    = {Mathew, Yohan and Matthews, Ollie and McCarthy, Robert and Velja, Joan and Schroeder de Witt, Christian and Cope, Dylan and Schoots, Nandi},
+  editor    = {Inui, Kentaro and Sakti, Sakriani and Wang, Haofen and Wong, Derek F. and Bhattacharyya, Pushpak and Banerjee, Biplab and Ekbal, Asif and Chakraborty, Tanmoy and Singh, Dhirendra Pratap},
+  booktitle = {Proceedings of the 14th International Joint Conference on Natural Language Processing and the 4th Conference of the {A}sia-Pacific Chapter of the {A}ssociation for {C}omputational {L}inguistics},
+  month     = dec,
+  year      = {2025},
+  address   = {Mumbai, India},
+  publisher = {The Asian Federation of Natural Language Processing and The Association for Computational Linguistics},
+  url       = {https://aclanthology.org/2025.ijcnlp-long.34/},
+  doi       = {10.18653/v1/2025.ijcnlp-long.34},
+  pages     = {585--624}
+}
+
+@misc{rippin2026tooluse,
+  author        = {Rippin, Jimmy Laurence and Marshall, Simon C. and Africa, David Demitri and Schroeder de Witt, Christian},
+  title         = {Tool Use Enables Undetectable Steganography in Multi-Agent {LLM} Systems},
+  year          = {2026},
+  eprint        = {2606.28425},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CR},
+  url           = {https://arxiv.org/abs/2606.28425}
+}
+
+% IACR ePrint, not arXiv (received 2026-09-25, revised 2026-11-19).
+@misc{pang2026codetta,
+  author       = {Pang, Qi and Smith, Virginia and Zheng, Wenting},
+  title        = {Codetta: High-Capacity, Keyless, and Undetectable Multi-Agent Collusion},
+  howpublished = {Cryptology {ePrint} Archive, Paper 2026/2218},
+  year         = {2026},
+  url          = {https://eprint.iacr.org/2026/2218}
+}
+
+% ---------------------------------------------------------------- emergent / machine-to-machine languages
+@misc{stengeleskin2026glossogen,
+  author        = {Stengel-Eskin, Elias and Sander, Newton and Bonetti, Carlos and Boguraev, Sasha and Bowler, James and Sirin, Hale and Kirby, Simon},
+  title         = {{GlossoGen}: Emergent Language in Complex Multi-Agent {LLM} Interactions},
+  year          = {2026},
+  eprint        = {2609.01491},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2609.01491}
+}
+
+% Hackathon project (ElevenLabs London hackathon, Feb 2025); no paper. Repo verified on GitHub
+% (created 2025-02-23; description: "Two conversational AI agents switching from English to
+% sound-level protocol after confirming they are both AI agents").
+@misc{pidkuiko2025gibberlink,
+  author       = {Pidkuiko, Anton and Starkov, Boris},
+  title        = {{GibberLink}: {AI} Agents Switching from Speech to Data-over-Sound},
+  year         = {2025},
+  month        = feb,
+  howpublished = {Open-source project, \url{https://github.com/PennyroyalTea/gibberlink}},
+  note         = {Built with the ggwave data-over-sound library}
+}
