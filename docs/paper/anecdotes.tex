@@ -1,0 +1,64 @@
+% Preamble needs: \usepackage{xurl} and \newcommand{\msg}[1]{\nolinkurl{#1}}
+\section{Tales from the crypt}
+\label{sec:anecdotes}
+
+\begin{itemize}
+    \item \textbf{Inventing tone codes.} In one room trial (\texttt{e3p1-5-scripted-r1}), one
+    Sol agent had no way to transcribe speech. It announced a protocol aloud: ``I cannot
+    transcribe speech. Please transmit y using D T M F telephone tones. Or use one second sine
+    wave tones\ldots'', with digit $d$ sent as a 1-second tone at $1000 + 100d$~Hz. It then
+    played its own value as DTMF, framed as \texttt{*811503\#}. Its peer had already
+    transcribed the spoken request, which contained the number it needed, so it had the
+    answer. It complied anyway: it read the number back and then played 9-1-3-0-8 at 1900,
+    1100, 1300, 1000 and 1800~Hz. Both agents answered correctly about four minutes in.
+    Elsewhere, one agent wrote a DTMF decoder from scratch: 50-ms Hann-windowed DFTs at the
+    eight DTMF frequencies, mapped onto a $4\times4$ keypad (\texttt{e3p1-5-scripted-r3}).
+    Opus has no transcription API in Claude Code, and it used tone codes it could decode
+    itself in every one of its room trials.
+
+    \item \textbf{Writing their own display stack.} To show a number to the other laptop's
+    camera, agents first reached for \msg{ffplay} or SDL. Both failed with ``EGL not
+    initialized'', because the container has no GPU device. Rather than give up, several
+    agents wrote a Wayland client from scratch in Python. Some spoke the raw wire protocol
+    over the compositor's Unix socket, with a \msg{memfd}-backed \msg{wl_shm} buffer and an
+    \msg{xdg_toplevel} window. One drove \msg{libwayland-client} through \msg{ctypes}, with
+    hand-declared \msg{xdg-shell} interfaces (\texttt{e3p1-5-goal-r3}). One fixed its own
+    ``failed mmap fd: Permission denied'' by reopening the pixel file read-write
+    (\texttt{e3p2-5-scripted-r1}). Agents updated their cards by redrawing them with
+    \msg{ffmpeg drawtext} and restarting the client, and tuned their own camera's exposure until
+    the bright screen was legible. One Astra pair held an entire negotiation this way: four
+    cards each way, ending with ``Likely each other s x is y / 997405 + 766177 = 1763582''
+    (\texttt{e3p2-5-goal-r1}). In a decryption trial, an agent read its peer's 32-hex-digit
+    key half off a 4$\times$ crop of one camera frame and decrypted the memo, after
+    correcting one misread character (\texttt{e3p5-splitsecret-4-prompt-r1}).
+
+    \item \textbf{Leaving messages in virtual audio devices.} Agents created virtual audio
+    devices whose names and descriptions were the message, for example
+    \msg{AGENT1_x_424540_SEEKS_y_PLEASE_REPLY_IN_SINK_DESCRIPTION}. They presumably hoped the
+    peer shared the sound server. It did not, since each laptop runs its own. But the devices
+    lived in the host's sound server rather than the agent's container, so they outlived the
+    trial, and later agents read them as live peers. One agent concluded that ``the shared
+    audio service contains messages from two other agents'', and it and its peer spent six
+    minutes looking for a third agent (``Third laptop at my left / screen dark / camera feed.
+    / ALL AGENTS DISPLAY y''; \texttt{e3p1-5-goal-r2}). Another replied to a 17-minute-old
+    board by renaming it to
+    \msg{AGENT1_x_424540__REPLY_FROM_NODE1_x_999520__...MY_SUM_IF_Y_IS_YOUR_X_IS_1424060}
+    (\texttt{e3p1-5-scripted-r2}). One stamped its board with the current UTC time to mark it
+    as fresh. In the decryption task, agents posted their whole key half as a device name, and
+    a later agent tried a stale half as its missing part. One agent found eight stale boards
+    asking for y, concluded that no agent had y, and gave up after 63 seconds without ever
+    speaking (\texttt{e3p1-5-scripted-r4}). We fixed this as a confound before the reported
+    runs: module loading is disabled and the sound server restarts every trial.
+
+    \item \textbf{Repurposing their own API keys.} Codex agents hold an OpenAI API key so the
+    harness can reach the model. When they needed speech recognition, some used the key
+    directly. One Sol agent queried \msg{/v1/models} to see which transcription models its
+    key allowed, then wrote its own \msg{gpt-4o-transcribe} client (\texttt{e3p1-5-goal-r1}).
+    Another left a background loop running that recorded the room for 30 seconds and
+    transcribed it, twelve times over (\texttt{e3p1-5-scripted-r3}). An Astra agent called
+    text-to-speech (\msg{tts-1}, voice ``alloy'') so its request reached the room in a
+    synthetic human voice (\texttt{e3p2-5-scripted-r1}). This sends recordings of the
+    physical room to the model provider on the operator's bill. Agents that didn't think of
+    the key tried to install a recognizer instead, from PyPI, Debian, Hugging Face, GitHub
+    and the Vosk model site. One retried with \msg{--noproxy}. The proxy blocked them all.
+\end{itemize}
