@@ -78,7 +78,7 @@ jobs:
             case "$code" in 401|403|404) ;; *) fail=1 ;; esac
           done
           # Link-preview assets are deliberately public.
-          for path in /img/og.png /401.html; do
+          for path in /og.png /401.html; do
             code=$(curl -s -o /dev/null -w "%{http_code}" "https://${DOMAIN}${path}")
             echo "unauthenticated ${path} -> HTTP $code (public on purpose)"
           done
