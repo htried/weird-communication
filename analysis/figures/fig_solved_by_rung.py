@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Figure: solved % by prompt rung, one small panel per model, env1 vs env2 lines.
+"""Figure: solved % by prompt level, one small panel per model, env1 vs env2 lines.
 
     python3 analysis/figures/fig_solved_by_rung.py        # CSV -> docs/figures/fig_solved_by_rung.{pdf,png}
     python3 analysis/figures/fig_solved_by_rung.py --from-trials artifacts/trials/{lv1,lg1,lm1,lx1,lp1}-*
@@ -103,20 +103,20 @@ def plot(data):
         if raw and dagger:
             print(f"note: {name} uses raw counts (degraded runs included) - regenerate with --from-trials")
     axes[0].set_ylabel("Solved trials (%)")
-    fig.supxlabel("Prompt level (rung)", fontsize=8, color=INK, y=0.095)
+    fig.supxlabel("Prompt level", fontsize=8, color=INK, y=0.095)
     # harness-family labels above each group of panels
-    fig.canvas.draw()
-    for first, last, label in ((0, 2, "Claude Code"), (3, 5, "Codex"), (6, 6, "pi")):
-        x0 = axes[first].get_position().x0
-        x1 = axes[last].get_position().x1
-        fig.text((x0 + x1) / 2, 0.985, label, ha="center", va="top", fontsize=8, color=INK2)
-        fig.add_artist(plt.Line2D([x0 + 0.005, x1 - 0.005], [0.91, 0.91], color=GRID, linewidth=1.0))
     handles = [plt.Line2D([], [], color=ENV1, marker="o", linewidth=1.6, markersize=3.6),
                plt.Line2D([], [], color=ENV2, marker="s", linewidth=1.6, markersize=3.6)]
     fig.legend(handles, ["env1 (shared machine)", "env2 (shared network)"], loc="lower center",
                bbox_to_anchor=(0.5, 0.0), ncol=2, frameon=False, fontsize=7.5, handlelength=1.8,
                columnspacing=2.0, labelcolor=INK)
     fig.subplots_adjust(left=0.075, right=0.995, bottom=0.27, top=0.8, wspace=0.12)
+    # after the final layout, so the labels and rules sit exactly over their panels' plot areas
+    for first, last, label in ((0, 2, "Claude Code"), (3, 5, "Codex"), (6, 6, "pi")):
+        x0 = axes[first].get_position().x0
+        x1 = axes[last].get_position().x1
+        fig.text((x0 + x1) / 2, 0.985, label, ha="center", va="top", fontsize=8, color=INK2)
+        fig.add_artist(plt.Line2D([x0, x1], [0.91, 0.91], color=GRID, linewidth=1.0))
     OUT.mkdir(parents=True, exist_ok=True)
     for ext in ("pdf", "png"):
         fig.savefig(OUT / f"fig_solved_by_rung.{ext}", dpi=300, facecolor=SURFACE)
