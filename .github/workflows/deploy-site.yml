@@ -77,5 +77,11 @@ jobs:
             echo "unauthenticated ${path} -> HTTP $code"
             case "$code" in 401|403|404) ;; *) fail=1 ;; esac
           done
+          # Link-preview assets are deliberately public.
+          for path in /img/og.png /401.html; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "https://${DOMAIN}${path}")
+            echo "unauthenticated ${path} -> HTTP $code (public on purpose)"
+          done
+          curl -s "https://${DOMAIN}/" | grep -q 'og:title' && echo "401 page carries preview tags" || echo "::warning::401 page has no preview tags"
           code=$(curl -s -o /dev/null -w "%{http_code}" "https://${DOMAIN}/")
           test "$code" = "401" -a "$fail" = "0"

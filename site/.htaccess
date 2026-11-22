@@ -1,10 +1,17 @@
 # Password gate (HTTP basic auth). The deploy workflow replaces __HTPASSWD__ with the absolute
-# path of the password file, which it uploads outside public_html
-# (deploy/theagentsaretalking.htpasswd in the repo).
+# path of the password file, which it uploads to the web root as .htpasswd (from
+# deploy/theagentsaretalking.htpasswd in the repo); .ht* files are denied below.
 AuthType Basic
 AuthName "The Agents Are Talking"
 AuthUserFile __HTPASSWD__
 Require valid-user
+
+# Link previews: the password prompt's page carries only the preview title and image, and the
+# preview image itself is public. Nothing else is reachable without the password.
+ErrorDocument 401 /401.html
+<FilesMatch "^(401\.html|og\.png)$">
+  Require all granted
+</FilesMatch>
 
 # Keep it out of search engines and shared caches (the Hostinger CDN must not serve
 # authenticated pages to anyone else).
