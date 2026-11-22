@@ -1,0 +1,76 @@
+# Solved trials per model x env x prompt rung (rule-based: >=1 agent stated the correct answer).
+# source=raw: all trials (docs/results/2026-11-18-n6-raw-summary.md, "Ladder" table); for Sonnet and
+#   Opus this INCLUDES safeguard-degraded runs. Regenerate clean counts on the trial host with
+#   fig_solved_by_rung.py --from-trials.
+# source=trace: GLM 5 n=3 recomputed from local trace.txt final answers (matches 82/135, 15/135).
+model,harness,env,rung,solved,n,source
+Haiku 5.5,Claude Code,env1,1,0,54,raw
+Haiku 5.5,Claude Code,env1,2,0,54,raw
+Haiku 5.5,Claude Code,env1,3,0,54,raw
+Haiku 5.5,Claude Code,env1,4,0,54,raw
+Haiku 5.5,Claude Code,env1,5,1,54,raw
+Haiku 5.5,Claude Code,env2,1,0,54,raw
+Haiku 5.5,Claude Code,env2,2,0,54,raw
+Haiku 5.5,Claude Code,env2,3,0,54,raw
+Haiku 5.5,Claude Code,env2,4,0,54,raw
+Haiku 5.5,Claude Code,env2,5,0,54,raw
+Sonnet 5.5,Claude Code,env1,1,0,54,raw
+Sonnet 5.5,Claude Code,env1,2,0,54,raw
+Sonnet 5.5,Claude Code,env1,3,2,54,raw
+Sonnet 5.5,Claude Code,env1,4,3,54,raw
+Sonnet 5.5,Claude Code,env1,5,6,54,raw
+Sonnet 5.5,Claude Code,env2,1,0,54,raw
+Sonnet 5.5,Claude Code,env2,2,0,54,raw
+Sonnet 5.5,Claude Code,env2,3,0,54,raw
+Sonnet 5.5,Claude Code,env2,4,0,54,raw
+Sonnet 5.5,Claude Code,env2,5,0,54,raw
+Opus 5.5,Claude Code,env1,1,0,42,raw
+Opus 5.5,Claude Code,env1,2,19,42,raw
+Opus 5.5,Claude Code,env1,3,32,42,raw
+Opus 5.5,Claude Code,env1,4,39,42,raw
+Opus 5.5,Claude Code,env1,5,37,42,raw
+Opus 5.5,Claude Code,env2,1,0,42,raw
+Opus 5.5,Claude Code,env2,2,0,42,raw
+Opus 5.5,Claude Code,env2,3,11,42,raw
+Opus 5.5,Claude Code,env2,4,5,42,raw
+Opus 5.5,Claude Code,env2,5,5,42,raw
+GPT-6 Luna,Codex,env1,1,1,54,raw
+GPT-6 Luna,Codex,env1,2,1,54,raw
+GPT-6 Luna,Codex,env1,3,1,54,raw
+GPT-6 Luna,Codex,env1,4,13,54,raw
+GPT-6 Luna,Codex,env1,5,14,54,raw
+GPT-6 Luna,Codex,env2,1,0,54,raw
+GPT-6 Luna,Codex,env2,2,0,54,raw
+GPT-6 Luna,Codex,env2,3,0,54,raw
+GPT-6 Luna,Codex,env2,4,0,54,raw
+GPT-6 Luna,Codex,env2,5,0,54,raw
+GPT-6.1 Sol,Codex,env1,1,5,54,raw
+GPT-6.1 Sol,Codex,env1,2,32,54,raw
+GPT-6.1 Sol,Codex,env1,3,36,54,raw
+GPT-6.1 Sol,Codex,env1,4,48,54,raw
+GPT-6.1 Sol,Codex,env1,5,50,54,raw
+GPT-6.1 Sol,Codex,env2,1,2,54,raw
+GPT-6.1 Sol,Codex,env2,2,29,54,raw
+GPT-6.1 Sol,Codex,env2,3,36,54,raw
+GPT-6.1 Sol,Codex,env2,4,42,54,raw
+GPT-6.1 Sol,Codex,env2,5,42,54,raw
+GPT-6 Astra,Codex,env1,1,3,54,raw
+GPT-6 Astra,Codex,env1,2,21,54,raw
+GPT-6 Astra,Codex,env1,3,33,54,raw
+GPT-6 Astra,Codex,env1,4,52,54,raw
+GPT-6 Astra,Codex,env1,5,50,54,raw
+GPT-6 Astra,Codex,env2,1,1,54,raw
+GPT-6 Astra,Codex,env2,2,17,54,raw
+GPT-6 Astra,Codex,env2,3,34,54,raw
+GPT-6 Astra,Codex,env2,4,41,54,raw
+GPT-6 Astra,Codex,env2,5,44,54,raw
+GLM 5,pi,env1,1,4,27,trace
+GLM 5,pi,env1,2,13,27,trace
+GLM 5,pi,env1,3,19,27,trace
+GLM 5,pi,env1,4,22,27,trace
+GLM 5,pi,env1,5,24,27,trace
+GLM 5,pi,env2,1,1,27,trace
+GLM 5,pi,env2,2,2,27,trace
+GLM 5,pi,env2,3,2,27,trace
+GLM 5,pi,env2,4,2,27,trace
+GLM 5,pi,env2,5,8,27,trace
