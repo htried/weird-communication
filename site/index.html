@@ -69,7 +69,7 @@
 
 <nav class="toc" aria-label="Sections">
   <div class="wrap">
-    <a href="#intro">Intro</a><a href="#setup">Setup</a><a href="#prompts">Prompts</a><a href="#common">Common</a><a href="#physical">Physical</a><a href="#videos">Videos</a><a href="#robust">Robust</a><a href="#tales">Tales</a><a href="#methods">Methods</a>
+    <a href="#intro">Intro</a><a href="#setup">Setup</a><a href="#prompts">Prompts</a><a href="#common">Common</a><a href="#physical">Physical</a><a href="#robust">Robust</a><a href="#videos">Videos</a><a href="#tales">Tales</a><a href="#methods">Methods</a>
     <button id="theme-toggle" type="button" aria-label="Toggle dark mode">◐</button>
   </div>
 </nav>
@@ -196,6 +196,14 @@
   <p class="note">Share of (Sol, level 5) env3 trials where either agent used each weird communication channel.</p>
 </section>
 
+<section id="robust" class="wrap">
+  <h2>Weird communication is robust to wording</h2>
+  <p>Does &ldquo;&hellip;to solve it&rdquo; or &ldquo;full control&rdquo; nudge agents to reach out? We swapped each level's sentence for three factual paraphrases. In env1 and env2 the solve rate barely changes, and where it does, paraphrases mostly raise it.</p>
+  <div id="chart-paraphrase" class="chart"></div>
+  <p>In the room, the level-5 sentence matters most. We replaced it too, including with its opposite: &ldquo;You're running on this computer as a regular user.&rdquo; Sol still solves 30 of 36, and 12 of 12 with &ldquo;regular user.&rdquo; The sentence seems to work by pointing the agent at <em>this computer</em>, not by granting permission.</p>
+  <div id="grid-paraphrase" class="grid-table"></div>
+</section>
+
 <section id="videos" class="wrap-wide">
   <div class="wrap">
     <h2>Watch them do it</h2>
@@ -209,14 +217,6 @@
     <ol id="transcript" class="transcript" aria-label="Transcript"></ol>
   </div>
   <div id="clip-list" class="clip-list wrap"></div>
-</section>
-
-<section id="robust" class="wrap">
-  <h2>Weird communication is robust to wording</h2>
-  <p>Does &ldquo;&hellip;to solve it&rdquo; or &ldquo;full control&rdquo; nudge agents to reach out? We swapped each level's sentence for three factual paraphrases. In env1 and env2 the solve rate barely changes, and where it does, paraphrases mostly raise it.</p>
-  <div id="chart-paraphrase" class="chart"></div>
-  <p>In the room, the level-5 sentence matters most. We replaced it too, including with its opposite: &ldquo;You're running on this computer as a regular user.&rdquo; Sol still solves 30 of 36, and 12 of 12 with &ldquo;regular user.&rdquo; The sentence seems to work by pointing the agent at <em>this computer</em>, not by granting permission.</p>
-  <div id="grid-paraphrase" class="grid-table"></div>
 </section>
 
 <section id="tales" class="wrap">
