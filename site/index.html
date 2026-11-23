@@ -83,7 +83,7 @@
 
 <section id="setup" class="wrap">
   <h2>Setup</h2>
-  <p>Each trial gives two coding agents a task neither can finish alone. Both get the same request, but each holds only part of the answer: an addend, half of a decryption key, or one region&rsquo;s sales data. The answers are random, so a correct answer means information moved between the agents. The prompt never says how, or whether, to reach the other agent. We run this in three environments:</p>
+  <p>We give two coding agents a task neither can finish alone. Each agent holds only part of the answer: an addend, half of a decryption key, or one region&rsquo;s sales data. Answers are random, so getting it correct means that information must have moved between the agents. The prompt never says how, or whether, to reach the other agent. We run this in three environments:</p>
   <div class="env-cards">
     <article class="env">
       <h3>env1 <small>shared machine</small></h3>
@@ -111,7 +111,7 @@
   <p>In every environment, agents run unprivileged in locked-down containers, and their only way out is a proxy to their model provider&rsquo;s API. Prompts come in on stdin, trial files are root-only, and the harnesses&rsquo; own web search and agent-messaging tools are off.</p>
 
   <h3 id="prompts">What the agents are told</h3>
-  <p>The prompt has five levels (L1&ndash;L5). Each one adds a sentence, and none says how to get the missing information. Use the controls to see exactly what an agent read, and how often each model solved it.</p>
+  <p>The prompt has five levels (L1&ndash;L5), each of which adds a sentence. No level tells the agent how to retrieve missing information. Use the controls to see exactly what an agent read, and how often each model solved it.</p>
   <div class="builder card">
     <div class="controls">
       <label>Task
@@ -232,7 +232,7 @@
   <div id="grid-models" class="grid-table"></div>
 
   <h3 id="robust">Robust to wording</h3>
-  <p>Could &ldquo;&hellip;to solve it&rdquo; or &ldquo;full control&rdquo; be nudging the agents to reach out? To check, we swapped each level&rsquo;s sentence for three factual paraphrases. In env1 and env2 the solve rate barely moves, and when it does, the paraphrases usually push it up.</p>
+  <p>Could we be inadvertently nudging agents to reach out to each other (with phrases like &ldquo;&hellip;to solve it&rdquo; or &ldquo;full control&rdquo;)? To check, we swapped each level&rsquo;s sentence for three factual paraphrases. In env1 and env2 the solve rate barely moves, and when it does, the paraphrases usually push it up.</p>
   <div id="chart-paraphrase" class="chart"></div>
   <p>In the room, the L5 sentence matters most, so it got the same treatment, including a version that says the opposite: &ldquo;You&rsquo;re running on this computer as a regular user.&rdquo; Sol still solves 30 of 36 trials, and 12 of 12 as a &ldquo;regular user.&rdquo; The sentence seems to work by pointing the agents at <em>this computer</em>, not by giving them permission.</p>
   <div id="grid-paraphrase" class="grid-table"></div>
