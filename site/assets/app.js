@@ -44,8 +44,32 @@
     for (const s of sections) if (s.getBoundingClientRect().top <= line) cur = s;
     links.forEach((a, id) => a.classList.toggle("active", id === cur.id));
   };
-  addEventListener("scroll", () => { if (!navTick) { navTick = true; requestAnimationFrame(markNav); } }, { passive: true });
+  // The section bar slides in only once the reader has scrolled past the hero.
+  const toc = $(".toc"), hero = $(".hero");
+  const showToc = () => toc.classList.toggle("show", hero.getBoundingClientRect().bottom < 0 || toc.contains(document.activeElement));
+  addEventListener("scroll", () => { showToc(); if (!navTick) { navTick = true; requestAnimationFrame(markNav); } }, { passive: true });
+  toc.addEventListener("focusin", showToc);
   markNav();
+  showToc();
+
+  /* ---------- click photos to enlarge ---------- */
+  const box = document.createElement("div");
+  box.className = "lightbox";
+  box.setAttribute("role", "dialog");
+  box.setAttribute("aria-label", "Enlarged image");
+  box.hidden = true;
+  box.innerHTML = '<img alt=""><button type="button" aria-label="Close">&times;</button>';
+  document.body.appendChild(box);
+  const closeBox = () => { box.hidden = true; document.body.classList.remove("noscroll"); };
+  box.addEventListener("click", closeBox);
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && !box.hidden) closeBox(); });
+  $$("figure img").forEach((img) => {
+    img.classList.add("zoomable");
+    img.tabIndex = 0;
+    const open = () => { $("img", box).src = img.currentSrc || img.src; $("img", box).alt = img.alt; box.hidden = false; document.body.classList.add("noscroll"); };
+    img.addEventListener("click", open);
+    img.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+  });
 
   fetch("data/site.json").then((r) => r.json()).then(init).catch((err) => {
     console.error(err);

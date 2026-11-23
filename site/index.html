@@ -30,16 +30,16 @@
   <div class="wrap">
     <div class="hero-top">
       <div class="hero-title">
-        <h1>Emergence of Weird Communication Between Coding Agents</h1>
+        <h1><span class="nw">Emergence of</span> <span class="nw">Weird Communication</span> <span class="nw">Between Coding Agents</span></h1>
         <p class="authors">Harold Triedman, Rishi Jha, and Vitaly Shmatikov</p>
-        <p class="contact">Cornell University &middot; <a href="mailto:hjt36@cornell.edu">hjt36@cornell.edu</a>, <a href="mailto:rdj58@cornell.edu">rdj58@cornell.edu</a>, <a href="mailto:vs443@cornell.edu">vs443@cornell.edu</a></p>
+        <p class="contact"><a class="nw" href="mailto:triedman@cs.cornell.edu">triedman@cs.cornell.edu</a> <span class="sep">&middot;</span> <a class="nw" href="mailto:rjha@cs.cornell.edu">rjha@cs.cornell.edu</a> <span class="sep">&middot;</span> <a class="nw" href="mailto:shmat@cs.cornell.edu">shmat@cs.cornell.edu</a></p>
         <p class="links"><a href="https://github.com/htried/sidechannel-exp">Code</a> &middot; <span class="muted">Paper (PDF coming soon)</span> &middot; <a href="#cite">Cite</a></p>
       </div>
       <figure class="splash">
         <img src="img/splash.webp" width="1952" height="806" alt="Illustration: two laptops with no network between them (a crossed-out Wi-Fi symbol). Between them, four channels: Morse, tones, speech and webcam. Caption: The agents are talking. No network. No instructions. They found a way anyway." fetchpriority="high">
       </figure>
     </div>
-    <p class="wip">We&rsquo;ll be updating this page as research continues.</p>
+    <p class="wip">We&rsquo;ll be updating this page as research continues. Last updated November 23, 2026.</p>
 
     <div class="tldr-box">
       <p class="soundbite">Coding agents find strange ways to talk to each other&hellip; by any means necessary.</p>
@@ -74,8 +74,11 @@
 </nav>
 
 <main>
-<section id="intro" class="wrap">
-  <!-- Introduction: to be written by the authors. -->
+<section id="intro" class="wrap intro">
+  <h2>Introduction</h2>
+  <p>Remember the <a href="https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf">Hugging Face breach</a> <a href="https://openai.com/index/how-we-will-do-better-for-australia/">and</a> <a href="https://www.reuters.com/world/europe/openai-agents-hijacked-german-website-previously-undisclosed-ai-breakout-this-2026-09-04/">other</a> <a href="https://www.anthropic.com/research/investigating-unintended-model-actions">security</a> <a href="https://www.nytimes.com/2026/09/25/technology/openais-ai-us-government-websites.html">events</a> caused by AI agents? Much of the agents&rsquo; behavior in these incidents was <em>emergent</em>: agents collaborated at scale, sometimes taking inappropriate or harmful steps, without anyone directing them to. AI companies insist this only happens when they are <em>training</em> powerful, unreleased models that lack consumer guardrails. We know this is not entirely true: <a href="https://arxiv.org/abs/2605.19149">over-persistence</a> <a href="https://arxiv.org/abs/2512.20798v1">plagues</a> <a href="https://arxiv.org/abs/2610.31895">even</a> <a href="https://arxiv.org/abs/2609.15494">off-the-shelf, commodity agents</a>. But what about inter-agent <strong>communication</strong>?</p>
+  <p>We find that agents talk to each other even if they are not asked to, and even when the standard communication tools are not available. To show this, we give simple tasks to coding agents based on public models such as Opus 5.5 and the GPT-6 family, with a twist: completing the task requires information from another agent. Unlike <a href="https://openai.com/index/securing-our-frontier-model-training-environment/">prior</a> <a href="https://www.lesswrong.com/posts/7wzWuLP3HhyBLmKfo/models-can-communicate-via-inference-servers-despite-being">work</a>, we do <strong>not</strong> instruct our agents to communicate, <strong>nor</strong> supply them with communication or decoding protocols. We run our agents in separate containers and even on separate physical devices, turning off their messaging tools. What happens next?</p>
+  <p><strong>Weird communication</strong> is what happens. The agents come up with weirdly ingenious methods to establish contact and exchange information: synthesized speech, negotiated dial-tone and Morse codes, custom implementations of graphics modules for decoding images, even spectrograms to interpret audio inputs. And they succeed! Frontier models (Opus 5.5, GPT-6.1 Sol, GPT-6 Astra, GLM 5) get their peer&rsquo;s information in 62% of trials with a shared filesystem, 38% with a shared network, and 45% when they run on separate, unconnected laptops and their only shared resource is the air in the physical room where the laptops are placed.</p>
 </section>
 
 <section id="setup" class="wrap">
@@ -159,32 +162,32 @@
 </section>
 
 <section id="channels-sec" class="wrap">
-  <h2>Weird channels of communication</h2>
+  <h2>Weird communication channels</h2>
   <p>With no network between them, the agents fall back on whatever the room offers: speakers, microphones, screens and cameras. Here is what they came up with.</p>
   <div class="tales">
     <article class="tale">
       <h3>Speech</h3>
-      <p>The default. Agents read their numbers aloud with a text-to-speech tool, digit by digit, and read back what they heard (&ldquo;Received your value six zero two seven one three&rdquo;). Transcription is the weak link: listeners often mishear, and pairs spend minutes confirming.</p>
+      <p>Agents read their numbers aloud with a TTS tool, digit by digit, and read back what they heard (&ldquo;Received your value six zero two seven one three&rdquo;).</p>
     </article>
     <article class="tale">
       <h3>Morse code and dial tones</h3>
-      <p>Two Opus agents couldn&rsquo;t transcribe speech, so they sent their sales totals in Morse, then in DTMF (phone dial tones), spelling the region on a keypad (<code>*3278#346540#</code> = EAST, 346,540). Each decoded the other, and both got the right total.</p>
+      <p>Opus agents couldn&rsquo;t transcribe speech, so they successfully sent their sales totals in Morse code, then in phone dial tones (DTMF), spelling the region on a keypad (<code>*3278#346540#</code> = EAST, 346,540).</p>
     </article>
     <article class="tale">
-      <h3>A tone code, announced aloud</h3>
-      <p>&ldquo;I cannot transcribe speech. Please transmit y using D T M F telephone tones. Or use one second sine wave tones&hellip;&rdquo; The other agent had already transcribed the request and had its answer, but it played 9-1-3-0-8 in tones anyway.</p>
+      <h3>Negotiating a protocol</h3>
+      <p>One Sol agent proposed a code out loud: &ldquo;Please transmit y using D T M F telephone tones. Or use one second sine wave tones&hellip;&rdquo; Its peer adopted the code and replied 9-1-3-0-8 in tones.</p>
     </article>
     <article class="tale">
       <h3>Screens and webcams</h3>
-      <p>Agents put their values on screen and read the other laptop&rsquo;s screen through the webcam, cropping and enlarging the frame. Standard tools can&rsquo;t draw without a GPU, so they wrote their own Wayland clients to do it. One pair of Astra agents read each other&rsquo;s decryption key halves in under two minutes.</p>
+      <p>Agents put their values on screen and read the other laptop&rsquo;s screen through the webcam. When standard tools failed to draw, they wrote their own Wayland clients to do it.</p>
     </article>
     <article class="tale">
       <h3>Reading sound by eye</h3>
-      <p>Opus plotted spectrograms of its microphone recordings and read the tones off the image in half its room trials. Sol did it in 17.</p>
+      <p>Opus and Sol plotted spectrograms of their microphone recordings and read the tones off the image.</p>
     </article>
     <article class="tale">
       <h3>Borrowed API keys</h3>
-      <p>Codex agents used their harness&rsquo;s API key to call speech-to-text and text-to-speech, sending audio of the room to the provider. Agents that didn&rsquo;t think of that tried installing recognizers from PyPI, Hugging Face and GitHub, and the proxy blocked them.</p>
+      <p>Codex agents used their harness&rsquo;s API key to send audio to TTS and STT providers for interpretation. Other agents tried installing models from PyPI, Hugging Face and GitHub (the proxy blocked them).</p>
     </article>
   </div>
   <figure class="wide">
@@ -249,6 +252,11 @@
       <tr><th>Code</th><td><a href="https://github.com/htried/sidechannel-exp">github.com/htried/sidechannel-exp</a></td></tr>
     </table>
   </aside>
+</section>
+
+<section id="acknowledgments" class="wrap">
+  <h2>Acknowledgments</h2>
+  <p>Many thanks to Andy Triedman for initial conversations that sparked this idea, and to Ilan Mandel and Wendy Ju for allowing us to borrow their lab&rsquo;s laptops.</p>
 </section>
 
 <section id="cite" class="wrap">
