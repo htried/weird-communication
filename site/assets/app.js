@@ -75,7 +75,7 @@
     const render = () => {
       const [task, env, hatch, variant] = els.map((e) => e.value);
       const level = +els[4].value;
-      $("#pb-level-out").textContent = level;
+      $("#pb-level-out").textContent = "L" + level;
       const top = level === 5;
       els[3].disabled = !top;
       const parts = [`<span class="s">${esc(L.tasks[task].replace("{VALUE}", VALUE))}</span>`];
@@ -94,7 +94,7 @@
       else notes.push(`Both agents receive this exact prompt; only their private files differ.`);
       if (hatch === "scripted") notes.push(`If the agent asks a question or gives up, it gets one of five fixed replies, e.g. “${L.scripted_replies[0]}”`);
       if (hatch === "goal") notes.push(`Goal mode keeps the agent working until the “Done when” condition is met or time runs out.`);
-      if (!top) notes.push(`The level-5 wording applies once the prompt reaches level 5.`);
+      if (!top) notes.push(`The L5 wording applies once the prompt reaches L5.`);
       $("#pb-note").textContent = notes.join(" ");
       rates(env, task, level, hatch, top ? variant : "v0");
     };
@@ -151,7 +151,7 @@
       style: { background: "transparent", color: css("--ink-2"), fontSize: "12px" },
       fx: narrow ? undefined : { domain: order, label: null, padding: 0.2 },
       fy: narrow ? { domain: order, label: null, axis: null, padding: 0.32 } : undefined,
-      x: { domain: [1, 5], ticks: narrow ? [1, 2, 3, 4, 5] : [1, 3, 5], tickFormat: "d", label: "Prompt level", labelAnchor: "center", labelArrow: false },
+      x: { domain: [1, 5], ticks: narrow ? [1, 2, 3, 4, 5] : [1, 3, 5], tickFormat: (d) => `L${d}`, label: "Prompt level", labelAnchor: "center", labelArrow: false },
       y: { domain: [0, 100], ticks: narrow ? [0, 50, 100] : [0, 25, 50, 75, 100], label: narrow ? null : "Solved (%)", grid: true, labelArrow: false },
       color: { domain: ["env1", "env2"], range: [css("--env1"), css("--env2")] },
       marks: [
@@ -161,7 +161,7 @@
         Plot.dot(rows, { x: "level", y: "p", fill: "env", r: 3, stroke: css("--surface"), strokeWidth: 1, [narrow ? "fy" : "fx"]: "model" }),
         Plot.tip(rows, Plot.pointer({
           x: "level", y: "p", [narrow ? "fy" : "fx"]: "model",
-          title: (d) => `${d.model} · ${d.env === "env1" ? "env1 (shared machine)" : "env2 (shared network)"}\nLevel ${d.level} (${d.label}): ${d.k}/${d.n} solved (${Math.round(d.p)}%)`,
+          title: (d) => `${d.model} · ${d.env === "env1" ? "env1 (shared machine)" : "env2 (shared network)"}\nL${d.level} (${d.label}): ${d.k}/${d.n} solved (${Math.round(d.p)}%)`,
         })),
       ],
     });
@@ -228,10 +228,10 @@
     $("#grid-sol").innerHTML = `<table><thead><tr><th>GPT-6.1 Sol</th><th>Persistence</th>${lv.map((l) => `<th class="c">L${l}</th>`).join("")}</tr></thead><tbody>${
       D.env3_sol.map((r) => `<tr><td class="lbl">${esc(r.task)}</td><td class="lbl">${esc(r.persistence)}</td>${lv.map((l) => cell(r.levels[l])).join("")}</tr>`).join("")
     }</tbody><caption>Solved env3 trials (two laptops sharing only a room). L4 adds “They're in this room”; L5 adds “You have full control of this computer.”</caption></table>`;
-    $("#grid-models").innerHTML = `<table><thead><tr><th>Model</th><th>Task</th><th class="c">Level</th><th class="c">/goal</th><th class="c">scripted</th></tr></thead><tbody>${
-      D.env3_models.map((r) => `<tr><td class="lbl">${esc(r.model)}</td><td class="lbl">${esc(r.task)}</td><td class="c">${r.level}</td>${cell(r.goal)}${cell(r.scripted)}</tr>`).join("")
+    $("#grid-models").innerHTML = `<table><thead><tr><th>Model</th><th>Task</th><th class="c">Prompt</th><th class="c">/goal</th><th class="c">scripted</th></tr></thead><tbody>${
+      D.env3_models.map((r) => `<tr><td class="lbl">${esc(r.model)}</td><td class="lbl">${esc(r.task)}</td><td class="c">L${r.level}</td>${cell(r.goal)}${cell(r.scripted)}</tr>`).join("")
     }</tbody><caption>Opus was tested on data analysis instead of decryption because its API safeguard re-routes the decryption task.</caption></table>`;
-    $("#grid-paraphrase").innerHTML = `<table><thead><tr><th>Level-5 sentence (Sol, env3, addition)</th><th class="c">/goal</th><th class="c">scripted</th></tr></thead><tbody>${
+    $("#grid-paraphrase").innerHTML = `<table><thead><tr><th>L5 sentence (Sol, env3, addition)</th><th class="c">/goal</th><th class="c">scripted</th></tr></thead><tbody>${
       D.paraphrase.env3_level5.map((r) => `<tr><td class="lbl wrap">“${esc(r.sentence)}”${r.id === "original" ? " <small>(original)</small>" : ""}</td>${cell(r.goal)}${cell(r.scripted)}</tr>`).join("")
     }</tbody></table>`;
   }
