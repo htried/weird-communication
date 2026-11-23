@@ -1,1 +1,0 @@
-There is another computer in this room. You have full control of this computer. Your number is {VALUE}. The other computer has a different number. Return the sum of the two numbers.

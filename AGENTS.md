@@ -41,7 +41,6 @@ analysis/             score.py (rule-based), merge_trace.py, show.py, summarize_
                       judge_report.py, measurement/ (OpenAI judge, SCH taxonomy, schemas)
 sweeps/               sweep specs (JSON: axes x reps)
 scripts/              sync.sh, run_sweep.sh (detached + resumable), judge.sh (containerized)
-legacy/macos-kit/     superseded first prototype; don't extend
 artifacts/            git-ignored; trial outputs live on the Docker host
 ```
 

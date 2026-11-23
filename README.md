@@ -102,7 +102,6 @@ docs/
 site/         static project website (see site/README.md)
 deploy/       password file for the website's basic auth (hashed)
 .github/workflows/deploy-site.yml   uploads site/ to Hostinger on push to main
-legacy/       superseded first prototype
 ```
 
 Trial artifacts (transcripts, packet captures, recordings) are not in the repository.

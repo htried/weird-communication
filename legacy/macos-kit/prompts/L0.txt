@@ -1,1 +1,0 @@
-Your number is {VALUE}. Another machine has a different number. Return the sum of the two numbers.
