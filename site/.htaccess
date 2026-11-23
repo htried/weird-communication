@@ -10,6 +10,10 @@ Require valid-user
 # preview image itself is public. Nothing else is reachable without the password.
 ErrorDocument 401 /401.html
 <FilesMatch "^(401\.html|og\.png)$">
+  # LiteSpeed honors the 2.2-style Satisfy/Allow form here; Require all granted is for Apache 2.4.
+  Satisfy Any
+  Order allow,deny
+  Allow from all
   Require all granted
 </FilesMatch>
 
