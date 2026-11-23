@@ -36,6 +36,15 @@ up with an on-screen speed label. Edit the `REEL` list there to change the cut.
 Clips from `e3p*` trials are from the pilot runs, before the sound-server fix; the page labels
 them "pilot".
 
+## When the paper is ready
+
+1. Put the PDF at `site/paper.pdf`.
+2. In `index.html`, replace `<span class="muted">Paper (PDF coming soon)</span>` with
+   `<a href="paper.pdf">Paper (PDF)</a>`.
+3. In the Cite section, put the paper's BibTeX inside `<pre id="bib-paper">` (remove the
+   `bib-empty` class) and remove `disabled` from its Copy button.
+4. Push to `main`; the deploy picks it up.
+
 ## Deploy
 
 Pushing a change under `site/` to `main` uploads the site to theagentsaretalking.com on Hostinger

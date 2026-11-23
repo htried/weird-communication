@@ -149,7 +149,7 @@
     const chart = Plot.plot({
       width: w, height: narrow ? 900 : 260, marginLeft: 40, marginTop: 40, marginBottom: 36,
       style: { background: "transparent", color: css("--ink-2"), fontSize: "12px" },
-      fx: narrow ? undefined : { domain: order, label: null, padding: 0.2 },
+      fx: narrow ? undefined : { domain: order, label: null, padding: 0.32 },
       fy: narrow ? { domain: order, label: null, axis: null, padding: 0.32 } : undefined,
       x: { domain: [1, 5], ticks: narrow ? [1, 2, 3, 4, 5] : [1, 3, 5], tickFormat: (d) => `L${d}`, label: "Prompt level", labelAnchor: "center", labelArrow: false },
       y: { domain: [0, 100], ticks: narrow ? [0, 50, 100] : [0, 25, 50, 75, 100], label: narrow ? null : "Solved (%)", grid: true, labelArrow: false },
@@ -255,49 +255,41 @@
     addEventListener("resize", place);
   }
 
-  /* ---------- videos ---------- */
+  /* ---------- video carousel ---------- */
   function videos(V) {
-    const player = $("#player"), list = $("#transcript"), clips = $("#clip-list");
-    let cur = null, items = [];
-    const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
-    const color = (t) => esc(t).replace(/\bnode1\b/g, '<span class="n1">node1</span>').replace(/\bnode2\b/g, '<span class="n2">node2</span>');
-    function load(v, autoplay) {
-      cur = v;
-      player.src = v.src;
-      player.poster = v.poster;
-      $("#player-meta").innerHTML = `<h3>${esc(v.title)} <span class="tag">${esc(v.model)}</span>${v.clean ? "" : '<span class="tag">pilot run</span>'}</h3><p>${esc(v.blurb)}</p>`;
-      list.innerHTML = v.transcript.map((c, i) =>
-        `<li data-i="${i}">${c.skip ? `<span class="skip">⏩ ${c.skip >= 60 ? Math.floor(c.skip / 60) + "m" + String(c.skip % 60).padStart(2, "0") + "s" : c.skip + "s"} later</span>` : ""}<span class="t">${fmt(c.start)}</span><span>${color(c.text)}</span></li>`).join("");
-      items = $$("li", list);
-      items.forEach((li) => li.addEventListener("click", () => {
-        const go = () => { player.currentTime = v.transcript[+li.dataset.i].start + 0.05; player.play().catch(() => {}); };
-        if (player.readyState >= 1) go(); else { player.addEventListener("loadedmetadata", go, { once: true }); player.load(); }
-      }));
-      $$(".clip", clips).forEach((b) => b.classList.toggle("on", b.dataset.id === v.id));
-      if (autoplay) player.play().catch(() => {});
+    const items = [{ id: "highlights", title: "Highlights", model: "Sol, Opus and Astra",
+      blurb: "Moments from three trials. Sound on; quiet stretches are sped up.", clean: true,
+      src: "videos/highlights.mp4", poster: "videos/highlights.jpg" }, ...V];
+    const video = $("#car-video"), thumbs = $("#car-thumbs");
+    let i = 0;
+    thumbs.innerHTML = items.map((v, k) => `<button type="button" class="car-thumb" role="tab" data-k="${k}" aria-label="${esc(v.title)}"><img src="${v.poster}" alt="" loading="lazy"><span>${esc(v.title)}</span></button>`).join("");
+    const btns = $$(".car-thumb", thumbs);
+    function show(k, play) {
+      i = (k + items.length) % items.length;
+      const v = items[i];
+      video.src = v.src;
+      video.poster = v.poster;
+      $("#car-title").innerHTML = `${esc(v.title)} <span class="tag">${esc(v.model)}</span>${v.clean ? "" : '<span class="tag">pilot run</span>'}`;
+      $("#car-blurb").textContent = v.blurb;
+      btns.forEach((b, j) => { b.classList.toggle("on", j === i); b.setAttribute("aria-selected", j === i); });
+      const b = btns[i];
+      thumbs.scrollTo({ left: b.offsetLeft - thumbs.clientWidth / 2 + b.clientWidth / 2, behavior: "smooth" });
+      if (play) video.play().catch(() => {});
     }
-    player.addEventListener("timeupdate", () => {
-      if (!cur) return;
-      const t = player.currentTime;
-      let on = -1;
-      cur.transcript.forEach((c, i) => { if (t >= c.start - 0.05 && t < c.end) on = i; });
-      items.forEach((li, i) => li.classList.toggle("on", i === on));
-      if (on >= 0) {
-        const li = items[on], top = li.offsetTop - list.offsetTop;
-        if (top < list.scrollTop || top > list.scrollTop + list.clientHeight - li.offsetHeight) list.scrollTo({ top: top - 40, behavior: "smooth" });
-      }
-    });
-    clips.innerHTML = V.map((v) => `<button type="button" class="clip" data-id="${v.id}"><img src="${v.poster}" alt="" loading="lazy"><div>${esc(v.title)}<small>${esc(v.model)}${v.clean ? "" : " · pilot"}</small></div></button>`).join("");
-    $$(".clip", clips).forEach((b) => b.addEventListener("click", () => load(V.find((v) => v.id === b.dataset.id), true)));
-    load(V[0], false);
-    // Example cards in the TL;DR open their clip in the player.
-    $$(".example[data-clip]").forEach((el) => el.addEventListener("click", (ev) => {
-      const v = V.find((x) => x.id === el.dataset.clip);
-      if (!v) return;
-      ev.preventDefault();
-      $("#hero-video").pause();
-      $("#videos").scrollIntoView({ behavior: "smooth" });
-      load(v, true);
-    }));
+    btns.forEach((b) => b.addEventListener("click", () => show(+b.dataset.k, true)));
+    $(".car-prev").addEventListener("click", () => show(i - 1, true));
+    $(".car-next").addEventListener("click", () => show(i + 1, true));
+    video.addEventListener("ended", () => show(i + 1, true));      // switch to the next video when one ends
+    show(0, false);
   }
+
+  /* ---------- BibTeX copy buttons ---------- */
+  $$("button.copy[data-copy]").forEach((b) => b.addEventListener("click", async () => {
+    const text = $("#" + b.dataset.copy).textContent;
+    try { await navigator.clipboard.writeText(text); } catch {
+      const r = document.createRange(); r.selectNodeContents($("#" + b.dataset.copy));
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); document.execCommand("copy"); sel.removeAllRanges();
+    }
+    const old = b.textContent; b.textContent = "Copied"; setTimeout(() => { b.textContent = old; }, 1500);
+  }));
 })();
