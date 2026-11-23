@@ -207,3 +207,5 @@ footer { padding: 48px 16px 64px; color: var(--ink-3); font-size: .85rem; border
 main > section.wrap, main > section.wrap-wide { padding-top: 36px; padding-bottom: 4px; }
 main > section#intro { padding-top: 32px; }
 .tldr-coda { margin: 14px 0 0; color: var(--ink); font-weight: 500; }
+.splash { margin: 0 0 28px; }
+.splash img { width: 100%; height: auto; display: block; border: 0; border-radius: 12px; background: transparent; }
