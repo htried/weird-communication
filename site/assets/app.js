@@ -242,9 +242,17 @@
     const head = `<div class="row hdr"><span></span>${C.models.map((m, i) => `<span>${esc(m)}<br><small>n = ${C.n[i]}</small></span>`).join("")}</div>`;
     const body = C.rows.map((r) => `<div class="row"><span>${esc(r.channel)}</span>${r.k.map((k, i) => {
       const p = pct(k, C.n[i]);
-      return `<div class="bar${p >= 85 ? " in" : ""}" style="--p:${p}" title="${k} of ${C.n[i]} trials"><span class="track"><i></i></span><b>${p}%</b></div>`;
+      return `<div class="bar" style="--p:${p}" title="${k} of ${C.n[i]} trials"><span class="track"><i></i></span><b>${p}%</b></div>`;
     }).join("")}</div>`).join("");
     $("#channels").innerHTML = head + body;
+    // Values of 50% or more go inside the bar's end, but only where the label fits in the fill.
+    const place = () => $$("#channels .bar").forEach((b) => {
+      b.classList.remove("in");
+      const fill = $(".track i", b).getBoundingClientRect().width, label = $("b", b).getBoundingClientRect().width;
+      if (+b.style.getPropertyValue("--p") >= 50 && fill >= label + 8) b.classList.add("in");
+    });
+    place();
+    addEventListener("resize", place);
   }
 
   /* ---------- videos ---------- */
