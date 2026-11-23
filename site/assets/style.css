@@ -124,9 +124,9 @@ figure img { width: 100%; display: block; border-radius: 10px; border: 1px solid
 .channels { display: grid; gap: 4px; margin: 12px 0; font-size: .88rem; overflow-x: auto; }
 .channels .row { display: grid; grid-template-columns: 170px repeat(4, minmax(90px, 1fr)); gap: 8px; align-items: center; }
 .channels .hdr { color: var(--ink-2); font-weight: 600; font-size: .8rem; }
-.channels .bar { position: relative; height: 24px; background: var(--cell-0); border-radius: 5px; overflow: hidden; }
-.channels .bar i { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 5px; }
-.channels .bar b { position: absolute; left: 6px; top: 2px; font-weight: 600; color: var(--ink); mix-blend-mode: normal; text-shadow: 0 0 3px var(--surface); }
+
+
+
 @media (max-width: 680px) { .channels .row { grid-template-columns: 120px repeat(4, 80px); } }
 
 /* video player */
@@ -195,3 +195,9 @@ footer { padding: 48px 16px 64px; color: var(--ink-3); font-size: .85rem; border
 .example span { padding: 10px 12px 12px; }
 .example strong { display: block; color: var(--ink); font-size: .95rem; margin-bottom: 3px; }
 @media (max-width: 760px) { .tldr, .examples { grid-template-columns: 1fr; } }
+
+/* channel bars: the value sits just past the end of its bar, in text color */
+.channels .bar { position: relative; height: 24px; padding-right: 46px; }
+.channels .bar .track { position: relative; display: block; height: 100%; background: var(--cell-0); border-radius: 5px; overflow: hidden; }
+.channels .bar .track i { position: absolute; inset: 0 auto 0 0; width: calc(var(--p) * 1%); background: var(--accent); border-radius: 5px; }
+.channels .bar b { position: absolute; top: 50%; transform: translateY(-50%); left: calc((100% - 46px) * var(--p) / 100 + 6px); font-weight: 600; font-size: .85rem; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }

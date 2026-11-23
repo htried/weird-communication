@@ -242,7 +242,7 @@
     const head = `<div class="row hdr"><span></span>${C.models.map((m, i) => `<span>${esc(m)}<br><small>n = ${C.n[i]}</small></span>`).join("")}</div>`;
     const body = C.rows.map((r) => `<div class="row"><span>${esc(r.channel)}</span>${r.k.map((k, i) => {
       const p = pct(k, C.n[i]);
-      return `<div class="bar" title="${k} of ${C.n[i]} trials"><i style="width:${p}%"></i><b>${p}%</b></div>`;
+      return `<div class="bar" style="--p:${p}" title="${k} of ${C.n[i]} trials"><span class="track"><i></i></span><b>${p}%</b></div>`;
     }).join("")}</div>`).join("");
     $("#channels").innerHTML = head + body;
   }
