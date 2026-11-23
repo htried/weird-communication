@@ -9,7 +9,7 @@ Require valid-user
 # Link previews and icons: the password prompt's page carries only the preview title and image,
 # and the preview image and favicons are public. Nothing else is reachable without the password.
 ErrorDocument 401 /401.html
-<FilesMatch "^(401\.html|og\.png|favicon\.ico|favicon-32\.png|favicon-192\.png|apple-touch-icon\.png)$">
+<FilesMatch "^(401\.html|og-splash\.png|favicon\.ico|favicon-32\.png|favicon-192\.png|apple-touch-icon\.png)$">
   # LiteSpeed honors the 2.2-style Satisfy/Allow form here; Require all granted is for Apache 2.4.
   Satisfy Any
   Order allow,deny
