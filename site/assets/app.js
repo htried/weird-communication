@@ -282,5 +282,14 @@
     clips.innerHTML = V.map((v) => `<button type="button" class="clip" data-id="${v.id}"><img src="${v.poster}" alt="" loading="lazy"><div>${esc(v.title)}<small>${esc(v.model)}${v.clean ? "" : " · pilot"}</small></div></button>`).join("");
     $$(".clip", clips).forEach((b) => b.addEventListener("click", () => load(V.find((v) => v.id === b.dataset.id), true)));
     load(V[0], false);
+    // Example cards in the TL;DR open their clip in the player.
+    $$(".example[data-clip]").forEach((el) => el.addEventListener("click", (ev) => {
+      const v = V.find((x) => x.id === el.dataset.clip);
+      if (!v) return;
+      ev.preventDefault();
+      $("#hero-video").pause();
+      $("#videos").scrollIntoView({ behavior: "smooth" });
+      load(v, true);
+    }));
   }
 })();

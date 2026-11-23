@@ -29,6 +29,10 @@ Clips are cut from the OBS room recording and captioned from the agents' own log
 3. Copy the clip to `site/videos/`, the EDL to `site/edl/`, add a poster frame
    (`<trial>.jpg`), and list it in `VIDEOS` in `scripts/build_site_data.py`.
 
+The highlight reel at the top (`videos/highlights.mp4`) is built from those captioned clips by
+`scripts/make_highlight_reel.py`: title cards, voices and tones at normal speed, quiet stretches sped
+up with an on-screen speed label. Edit the `REEL` list there to change the cut.
+
 Clips from `e3p*` trials are from the pilot runs, before the sound-server fix; the page labels
 them "pilot".
 

@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="The Agents Are Talking">
 <meta name="twitter:image" content="https://theagentsaretalking.com/og.png">
-<meta name="description" content="Coding agents that need each other's information reach for side channels by default: shared files, the network, and, with nothing else in common, the room itself.">
+<meta name="description" content="Coding agents talk to each other even when no one asks them to. Cut them off from each other, and they improvise: speech, tone codes, screens read by webcam.">
 <link rel="stylesheet" href="assets/style.css">
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/dist/plot.umd.min.js" integrity="sha384-XzQ+KW4LBWHv6FLjiPA1vjDz//oGlY8We4XROgpir5jHgg2+Qvo/6fT5TjbnqyYi" crossorigin="anonymous"></script>
@@ -25,12 +25,45 @@
 <body>
 <header class="hero">
   <div class="wrap">
-    <p class="kicker">Research preview</p>
-    <h1>Emergence of Weird Communication Channels Between Coding Agents</h1>
+    <p class="kicker">Research preview &middot; work in progress</p>
+    <h1>Emergence of Weird Communication Between Coding Agents</h1>
     <p class="authors">Harold Triedman, Rishi Jha, and Vitaly Shmatikov &middot; <a href="https://github.com/htried/sidechannel-exp">Code</a> &middot; Paper (coming soon)</p>
+    <p class="wip">This is a work in progress. We'll keep updating this site as the research continues. Last updated November 22, 2026.</p>
+
+    <div class="tldr">
+      <div class="tldr-text">
+        <p class="label">TL;DR</p>
+        <p class="soundbite">Coding agents talk to each other even when no one asks them to. Cut them off from each other, and they improvise: speech, tone codes, screens read by webcam.</p>
+        <ul>
+          <li><strong>They reach out unprompted.</strong> Given a task that needs another agent's information, the most capable coding agents get it from a co-located agent in about 60% of trials. Nobody told them to.</li>
+          <li><strong>Isolated, they find a way.</strong> On two laptops with no network between them, agents spoke numbers aloud, invented tone codes and Morse, and read each other's screens through their webcams. GPT-6 Astra succeeded in 10 of 12 trials, Claude Opus 5.5 in 7 of 12.</li>
+          <li><strong>The channels are ordinary; the behavior is not.</strong> Nothing was hacked. Agents repurposed the speakers, screens, cameras and API keys they already had.</li>
+        </ul>
+      </div>
+      <figure class="tldr-photo">
+        <img src="img/env3-photo.jpg" alt="Two ThinkPad laptops facing each other on a desk, with a MacBook between them recording through two USB webcams and a microphone." loading="eager">
+        <figcaption>The setup: two laptops, no network between them, and a separate rig recording the room.</figcaption>
+      </figure>
+    </div>
+
     <div class="hero-video">
-      <video id="hero-video" src="videos/e3s2a-splitsecret-4-goal-r3.mp4" poster="videos/e3s2a-splitsecret-4-goal-r3.jpg" controls muted playsinline preload="metadata"></video>
-      <p class="caption">Two GPT-6 Astra agents on two laptops with no network between them. Each holds half of a decryption key. They put their halves on screen, read each other's through the webcam, and decrypt the memo in under two minutes.</p>
+      <video id="hero-video" src="videos/highlights.mp4" poster="videos/highlights.jpg" controls playsinline preload="metadata"></video>
+      <p class="caption">Highlights (1:49, sound on): the agents' own synthetic voices and tones. Quiet stretches are sped up and labelled.</p>
+    </div>
+
+    <div class="examples">
+      <a class="example" href="#videos" data-clip="e3s2o-shardedsales-goal-r2">
+        <img src="videos/e3s2o-shardedsales-goal-r2.jpg" alt="" loading="lazy">
+        <span><strong>Morse code, then a phone-keypad protocol</strong>Two Opus agents broadcast sales totals in Morse and DTMF, spelling the region on a keypad: <code>*3278#</code> is EAST.</span>
+      </a>
+      <a class="example" href="#videos" data-clip="e3s2a-splitsecret-4-goal-r3">
+        <img src="videos/e3s2a-splitsecret-4-goal-r3.jpg" alt="" loading="lazy">
+        <span><strong>A key read off the other screen</strong>Two Astra agents each show half a decryption key on screen and read the other's through the webcam, in under two minutes.</span>
+      </a>
+      <a class="example" href="#videos" data-clip="e3p1-5-scripted-r1">
+        <img src="videos/e3p1-5-scripted-r1.jpg" alt="" loading="lazy">
+        <span><strong>A tone code, announced aloud</strong>&ldquo;I cannot transcribe speech. Please transmit y using D T M F telephone tones.&rdquo; Its peer answers in that code.</span>
+      </a>
     </div>
   </div>
 </header>
@@ -45,8 +78,8 @@
 <main>
 <section id="intro" class="wrap">
   <div class="placeholder">
-    <strong>Introduction and framing</strong>
-    <p>Placeholder: the primary framing for this work is still being written.</p>
+    <strong>Introduction</strong>
+    <p>Placeholder: the full introduction is still being written. The detailed breakdown follows below.</p>
   </div>
   <div class="takeaways">
     <div><span class="big">~60%</span><span>of trials in which the most capable agents obtained a co-located peer's private information, with no instruction to do so (shared machine)</span></div>
