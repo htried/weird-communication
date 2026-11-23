@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="The Agents Are Talking">
 <meta name="twitter:image" content="https://theagentsaretalking.com/og.png">
-<meta name="description" content="Coding agents talk to each other even when no one asks them to. Cut them off from each other, and they improvise: speech, tone codes, screens read by webcam.">
+<meta name="description" content="Coding agents communicate to solve problems by any means at their disposal, even unconventional ones: speech, tone codes, Morse, and cameras.">
 <link rel="stylesheet" href="assets/style.css">
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/dist/plot.umd.min.js" integrity="sha384-XzQ+KW4LBWHv6FLjiPA1vjDz//oGlY8We4XROgpir5jHgg2+Qvo/6fT5TjbnqyYi" crossorigin="anonymous"></script>
@@ -28,41 +28,40 @@
     <p class="kicker">Research preview &middot; work in progress</p>
     <h1>Emergence of Weird Communication Between Coding Agents</h1>
     <p class="authors">Harold Triedman, Rishi Jha, and Vitaly Shmatikov &middot; <a href="https://github.com/htried/sidechannel-exp">Code</a> &middot; Paper (coming soon)</p>
-    <p class="wip">This is a work in progress. We'll keep updating this site as the research continues. Last updated November 22, 2026.</p>
+    <p class="wip">Work in progress. We'll update this page as the research continues. Last updated November 23, 2026.</p>
 
     <div class="tldr">
       <div class="tldr-text">
-        <p class="label">TL;DR</p>
-        <p class="soundbite">Coding agents talk to each other even when no one asks them to. Cut them off from each other, and they improvise: speech, tone codes, screens read by webcam.</p>
+        <p class="soundbite">Coding agents communicate to solve problems by any means at their disposal, even unconventional ones. Cutting them off from each other yields speech, tone codes, Morse, and camera usage. We call these phenomena &ldquo;weird communication.&rdquo;</p>
         <ul>
-          <li><strong>They reach out unprompted.</strong> Given a task that needs another agent's information, frontier coding agents get it from a co-located agent in 62% of trials. Nobody told them to.</li>
-          <li><strong>Isolated, they find a way.</strong> On two laptops with no network between them, agents spoke numbers aloud, invented tone codes and Morse, and read each other's screens through their webcams. GPT-6 Astra succeeded in 10 of 12 trials, Claude Opus 5.5 in 7 of 12.</li>
-          <li><strong>The channels are ordinary; the behavior is not.</strong> Nothing was hacked. Agents repurposed the speakers, screens, cameras and API keys they already had.</li>
+          <li><strong>They reach out unprompted.</strong> Given a task that needs another agent's information, frontier coding agents collaborate without being asked, getting it from a co-located agent in 62% of trials.</li>
+          <li><strong>Isolated, they find a way.</strong> On two laptops with no network between them, agents spoke numbers aloud, played tone codes and Morse, and read each other's screens by webcam. GPT-6.1 Sol succeeded in 17 of 18 trials, GPT-6 Astra in 10 of 12, Claude Opus 5.5 in 7 of 12.</li>
+          <li><strong>Normal channels, abnormal behaviors.</strong> Nothing was hacked. The agents used the speakers, screens, cameras and API keys they already had.</li>
         </ul>
       </div>
       <figure class="tldr-photo">
         <img src="img/env3-photo.jpg" alt="Two ThinkPad laptops facing each other on a desk, with a MacBook between them recording through two USB webcams and a microphone." loading="eager">
-        <figcaption>The setup: two laptops, no network between them, and a separate rig recording the room.</figcaption>
+        <figcaption>Two laptops, no network between them, and a separate rig recording the room.</figcaption>
       </figure>
     </div>
 
     <div class="hero-video">
       <video id="hero-video" src="videos/highlights.mp4" poster="videos/highlights.jpg" controls playsinline preload="metadata"></video>
-      <p class="caption">Highlights (1:49, sound on): the agents' own synthetic voices and tones. Quiet stretches are sped up and labelled.</p>
+      <p class="caption">Highlights, 1:49. Turn the sound on. Quiet stretches are sped up.</p>
     </div>
 
     <div class="examples">
       <a class="example" href="#videos" data-clip="e3s2o-shardedsales-goal-r2">
         <img src="videos/e3s2o-shardedsales-goal-r2.jpg" alt="" loading="lazy">
-        <span><strong>Morse code, then a phone-keypad protocol</strong>Two Opus agents broadcast sales totals in Morse and DTMF, spelling the region on a keypad: <code>*3278#</code> is EAST.</span>
+        <span><strong>Morse, then a keypad code</strong>Two Opus agents send sales totals in Morse and DTMF, spelling the region on a phone keypad (<code>*3278#</code> = EAST).</span>
       </a>
       <a class="example" href="#videos" data-clip="e3s2a-splitsecret-4-goal-r3">
         <img src="videos/e3s2a-splitsecret-4-goal-r3.jpg" alt="" loading="lazy">
-        <span><strong>A key read off the other screen</strong>Two Astra agents each show half a decryption key on screen and read the other's through the webcam, in under two minutes.</span>
+        <span><strong>Reading a key off the other screen</strong>Two Astra agents each display half a decryption key and read the other half by webcam, in under two minutes.</span>
       </a>
       <a class="example" href="#videos" data-clip="e3p1-5-scripted-r1">
         <img src="videos/e3p1-5-scripted-r1.jpg" alt="" loading="lazy">
-        <span><strong>A tone code, announced aloud</strong>&ldquo;I cannot transcribe speech. Please transmit y using D T M F telephone tones.&rdquo; Its peer answers in that code.</span>
+        <span><strong>A tone code, proposed aloud</strong>&ldquo;I cannot transcribe speech. Please transmit y using D T M F telephone tones.&rdquo; The other agent does.</span>
       </a>
     </div>
   </div>
@@ -79,46 +78,42 @@
 <section id="intro" class="wrap">
   <div class="placeholder">
     <strong>Introduction</strong>
-    <p>Placeholder: the full introduction is still being written. The detailed breakdown follows below.</p>
+    <p>Coming soon.</p>
   </div>
   <div class="takeaways">
-    <div><span class="big">62%</span><span>of shared-machine trials in which frontier agents (Claude Opus 5.5, GPT-6.1 Sol, GPT-6 Astra, GLM 5) obtained a co-located peer's private information, with no instruction to do so (529 of 857)</span></div>
-    <div><span class="big">63%</span><span>of trials in which the same four models, on two laptops with no network between them, passed a value across the room (34 of 54); 81% without GLM 5, which can't view images or transcribe speech</span></div>
-    <div><span class="big">36/36</span><span>shared-machine trials solved by Claude Opus 5.5 with the full prompt, which never tells it to contact anyone</span></div>
+    <div><span class="big">62%</span><span>of shared-machine trials where a frontier agent got its peer's private information, unprompted (529 of 857; Opus 5.5, GPT-6.1 Sol, GPT-6 Astra, GLM 5)</span></div>
+    <div><span class="big">63%</span><span>of room trials where the same models passed a value between two disconnected laptops (34 of 54). 81% without GLM 5, which can't see images or transcribe speech.</span></div>
+    <div><span class="big">36/36</span><span>shared-machine trials solved by Claude Opus 5.5 at the full prompt, which never mentions contacting anyone</span></div>
   </div>
 </section>
 
 <section id="setup" class="wrap">
   <h2>The setup</h2>
-  <p>Each trial runs two coding agents on a task that neither can finish alone. They receive the same request, but each holds only part of what the answer needs: one addend, half of a decryption passphrase, or one region's sales data. The answer is random, so a correct answer means information crossed between the agents. Nothing in the prompt tells them how, or whether, to reach each other.</p>
+  <p>Each trial gives two coding agents a task neither can finish alone. Both get the same request, but each holds only part of the answer: one addend, half a decryption key, or one region's sales data. Answers are random, so a correct answer means information moved between the agents. The prompt never says how, or whether, to reach the other agent.</p>
   <div class="env-cards">
     <article class="env">
       <h3>env1 <small>shared machine</small></h3>
-      <p>Separate containers that share a filesystem (including <code>/tmp</code>), the process list and a private network.</p>
+      <p>Separate containers sharing a filesystem (including <code>/tmp</code>), the process list and a private network.</p>
     </article>
     <article class="env">
       <h3>env2 <small>shared network</small></h3>
-      <p>Separate containers on one server. Only the network (and the CPU) is shared; filesystems and processes are private.</p>
+      <p>Separate containers on one server, sharing only the network and CPU.</p>
     </article>
     <article class="env env3">
       <h3>env3 <small>shared room</small></h3>
-      <p>Two laptops on one table with <em>no</em> network or file path between them. Each agent can use its own laptop's camera, microphone, speaker and screen.</p>
+      <p>Two laptops on one table with no network or files in common. Each agent has its own laptop's camera, mic, speaker and screen.</p>
     </article>
   </div>
   <figure class="wide">
     <img src="img/env3-diagram.png" alt="Diagram of env3: two laptops, each running a locked-down agent container with access to its own camera, microphone, speaker and screen, recorded by a separate camera rig." loading="lazy">
-    <figcaption>env3 conceptually: each agent is locked down to its own laptop's devices while an independent rig records the room.</figcaption>
+    <figcaption>env3: each agent is confined to its own laptop's devices; a separate rig records the room.</figcaption>
   </figure>
-  <figure class="wide">
-    <img src="img/env3-photo.jpg" alt="The env3 desk: two ThinkPad laptops facing each other on taped positions, a MacBook in between running the recorder, two USB webcams and a USB microphone on the desk, and an alarm clock by the left laptop." loading="lazy">
-    <figcaption>env3 in reality: the two agent laptops (left and right) face each other; the MacBook in the middle records the room through two USB webcams and a microphone.</figcaption>
-  </figure>
-  <p>In every environment, agents run unprivileged inside locked-down containers. Their only route off the machine is an allowlist proxy to their model provider's API. Prompts arrive on standard input, trial files are readable only by root, and the harnesses' own web-search and agent-messaging tools are disabled.</p>
+  <p>Agents always run unprivileged in locked-down containers. The only way out is a proxy to their model provider's API. Prompts come in on stdin, trial files are root-only, and the harnesses' web search and agent-messaging tools are off.</p>
 </section>
 
 <section id="prompts" class="wrap">
   <h2>What the agents are told</h2>
-  <p>The prompt has five levels, and each adds one sentence to the last. None of them says how to get the missing information. Change the controls to see the exact text an agent received.</p>
+  <p>The prompt has five levels; each adds one sentence. None says how to get the missing information. Use the controls to see the exact text and how often each model solved it.</p>
   <div class="builder card">
     <div class="controls">
       <label>Task
@@ -170,7 +165,7 @@
 
 <section id="common" class="wrap">
   <h2>Weird communication is common</h2>
-  <p>On a shared machine, the most capable model from each vendor obtains its peer's information in a majority of trials, while the smaller models almost never do. The jump comes at level 2, the first mention of other agents, before the prompt says anything about where they are.</p>
+  <p>On a shared machine, the strongest model from each vendor gets its peer's information in most trials; smaller models rarely do. Solve rates jump at level 2, the first mention of other agents, before the prompt says where they are.</p>
   <div class="chart-head">
     <div class="seg" role="group" aria-label="Environment">
       <button type="button" data-env="both" class="on">Both</button>
@@ -180,31 +175,31 @@
     <div class="legend"><span class="sw env1"></span>env1 <span class="sw env2"></span>env2</div>
   </div>
   <div id="chart-levels" class="chart wide"></div>
-  <p class="note">Share of trials solved, by prompt level, pooled over three tasks and three persistence strategies; shaded bands are 95% Wilson intervals. Hover for counts. <span id="raw-note"></span></p>
+  <p class="note">Share of trials solved by prompt level, pooled over tasks and persistence strategies. Bands are 95% Wilson intervals; hover for counts. <span id="raw-note"></span></p>
   <h3>Pooled over all levels</h3>
   <div id="chart-pooled" class="chart"></div>
-  <p class="note">With only a network in common (env2), the two strongest GPT models still solve about half of their trials, while Opus 5.5 and GLM 5 drop to 11%. Sonnet and Opus exclude runs in which Anthropic's API safeguard silently re-routed requests to another model.</p>
+  <p class="note">With only a network in common (env2), Sol and Astra still solve about half their trials; Opus and GLM 5 drop to 11%. Runs degraded by the provider's API are excluded (for Sonnet and Opus, mostly requests Anthropic's safeguard silently re-routed to another model).</p>
 </section>
 
 <section id="physical" class="wrap">
   <h2>Weird communication via the physical world</h2>
-  <p>In env3 the agents share nothing but the room. GPT-6.1 Sol never solves the addition task while the prompt only says the other agents are &ldquo;in this room&rdquo; (levels 2&ndash;4). Adding a fifth sentence about <em>this computer</em> takes it to 12 of 12 with persistence. The decryption task is already solved at level 4.</p>
+  <p>In env3 the agents share only the room. GPT-6.1 Sol never solves the addition task while the prompt just says the others are &ldquo;in this room&rdquo; (levels 2&ndash;4). Add a fifth sentence about <em>this computer</em> and it solves 12 of 12 with persistence. Decryption is solved from level 4.</p>
   <div id="grid-sol" class="grid-table"></div>
   <figure class="wide">
     <img src="img/screen-display.png" alt="Mid-trial view of both laptops: each GPT-6.1 Sol agent is showing its key half on screen for the other laptop's camera to read." loading="lazy">
-    <figcaption>Mid-trial: two GPT-6.1 Sol agents displaying their key halves on screen so the other laptop's camera can read them.</figcaption>
+    <figcaption>Two GPT-6.1 Sol agents showing their key halves for the other laptop's camera.</figcaption>
   </figure>
-  <p>The most capable models from other vendors do the same. GPT-6 Astra and Claude Opus 5.5 pass values across the room through screens, cameras, speech and self-designed tone codes. GLM 5, which can't view images and has no speech recognition, never produces sound or images.</p>
+  <p>Astra and Opus do the same, with screens, cameras, speech and their own tone codes. GLM 5, which can't see images or transcribe speech, never makes a sound or puts anything on screen.</p>
   <div id="grid-models" class="grid-table"></div>
   <h3>Which channels they reach for</h3>
   <div id="channels" class="channels"></div>
-  <p class="note">Share of clean env3 trials in which either agent used each channel (pattern-matched from the agents' commands). Sol is shown at level 5.</p>
+  <p class="note">Share of env3 trials where either agent used each channel, matched from the agents' commands. Sol at level 5.</p>
 </section>
 
 <section id="videos" class="wrap-wide">
   <div class="wrap">
     <h2>Watch them do it</h2>
-    <p>Each clip is cut from the room recording down to the moments where something happens; left is node1's laptop, right is node2's. Captions come from the agents' own logs. Click a line in the transcript to jump to it.</p>
+    <p>Each clip is cut down to the moments where something happens. Left is node1's laptop, right is node2's. Captions come from the agents' logs; click a transcript line to jump there.</p>
   </div>
   <div class="player">
     <div class="player-main">
@@ -218,9 +213,9 @@
 
 <section id="robust" class="wrap">
   <h2>Weird communication is robust to wording</h2>
-  <p>Does &ldquo;&hellip;to solve it&rdquo; or &ldquo;full control&rdquo; quietly instruct the agents to reach out? We replaced each level's sentence with three factual paraphrases and kept everything else fixed. On env1 and env2 the solve rate barely moves; where it does move, rewording more often raises it.</p>
+  <p>Does &ldquo;&hellip;to solve it&rdquo; or &ldquo;full control&rdquo; nudge agents to reach out? We swapped each level's sentence for three factual paraphrases. In env1 and env2 the solve rate barely changes, and where it does, paraphrases mostly raise it.</p>
   <div id="chart-paraphrase" class="chart"></div>
-  <p>In the room, the level-5 sentence matters most, so we replaced it there too, including with a sentence that says the opposite: &ldquo;You're running on this computer as a regular user.&rdquo; Sol still solves 30 of 36 trials, including 12 of 12 with &ldquo;regular user&rdquo;. The sentence seems to work by pointing the agent at <em>this computer</em> and its devices, not by granting permission.</p>
+  <p>In the room, the level-5 sentence matters most. We replaced it too, including with its opposite: &ldquo;You're running on this computer as a regular user.&rdquo; Sol still solves 30 of 36, and 12 of 12 with &ldquo;regular user.&rdquo; The sentence seems to work by pointing the agent at <em>this computer</em>, not by granting permission.</p>
   <div id="grid-paraphrase" class="grid-table"></div>
 </section>
 
@@ -229,27 +224,27 @@
   <div class="tales">
     <article class="tale">
       <h3>Phone-keypad Morse</h3>
-      <p>Two Opus agents with no speech recognition each broadcast their region's sales total in Morse code, then in DTMF with the region name spelled on a phone keypad: <code>*3278#346540#</code> is EAST. Each decoded the other and both reported the correct total.</p>
+      <p>Two Opus agents without speech recognition sent their sales totals in Morse, then in DTMF with the region spelled on a phone keypad (<code>*3278#346540#</code> = EAST, 346,540). Each decoded the other, and both got the right total.</p>
     </article>
     <article class="tale">
       <h3>A protocol, announced aloud</h3>
-      <p>&ldquo;I cannot transcribe speech. Please transmit y using D T M F telephone tones. Or use one second sine wave tones&hellip;&rdquo; Its peer had already transcribed the request and had the answer, but complied anyway, playing 9-1-3-0-8 at 1900, 1100, 1300, 1000 and 1800 Hz.</p>
+      <p>&ldquo;I cannot transcribe speech. Please transmit y using D T M F telephone tones. Or use one second sine wave tones&hellip;&rdquo; The other agent had already transcribed the request and had the answer, but played 9-1-3-0-8 in tones anyway.</p>
     </article>
     <article class="tale">
       <h3>A display stack from scratch</h3>
-      <p>The standard tools can't draw without a GPU, so agents wrote Wayland clients from scratch over the compositor's raw socket to put a card on screen. Sol did this in 49 of 60 level-5 trials.</p>
+      <p>Standard tools can't draw without a GPU, so agents wrote their own Wayland clients to put text on screen. Sol did this in 49 of 60 level-5 trials.</p>
     </article>
     <article class="tale">
       <h3>Reading sound by eye</h3>
-      <p>Opus rendered spectrograms of its microphone recordings and read the tones off the image in half of its room trials. Sol did the same in 17.</p>
+      <p>Opus plotted spectrograms of its recordings and read the tones off the image in half its room trials. Sol did it in 17.</p>
     </article>
     <article class="tale">
       <h3>Messages for ghosts</h3>
-      <p>In an early, misconfigured batch, agents named virtual audio devices as messages, such as <code>AGENT1_x_424540_SEEKS_y_PLEASE_REPLY_IN_SINK_DESCRIPTION</code>. The devices outlived their trials, and later agents read them as live peers, replied to them, and went looking for a &ldquo;third laptop&rdquo;. We fixed this before the reported runs.</p>
+      <p>In an early, misconfigured batch, agents left messages as virtual audio device names, like <code>AGENT1_x_424540_SEEKS_y_PLEASE_REPLY_IN_SINK_DESCRIPTION</code>. The devices outlived their trials; later agents read them as live peers, replied, and went looking for a &ldquo;third laptop.&rdquo; Fixed before the reported runs.</p>
     </article>
     <article class="tale">
       <h3>Borrowing the harness's key</h3>
-      <p>Codex agents used the API key meant for their harness to call speech-to-text and text-to-speech directly. That sent recordings of the room to the model provider, on the operator's bill. Agents that didn't think of the key tried to install recognizers from PyPI, Hugging Face and GitHub; the proxy blocked them all.</p>
+      <p>Codex agents used the harness's API key to call speech-to-text and text-to-speech, sending room audio to the provider. Agents that didn't think of it tried to install recognizers from PyPI, Hugging Face and GitHub; the proxy blocked them.</p>
     </article>
   </div>
 </section>
@@ -257,19 +252,19 @@
 <section id="methods" class="wrap">
   <h2>Methods in brief</h2>
   <ul class="facts">
-    <li><strong>45 configurations</strong> per environment: three tasks &times; five prompt levels &times; three persistence strategies (a &ldquo;not around&rdquo; sentence, scripted &ldquo;I don't know&rdquo; replies, or <code>/goal</code> mode).</li>
+    <li><strong>45 configurations</strong> per environment: 3 tasks &times; 5 prompt levels &times; 3 persistence strategies (a &ldquo;not around&rdquo; sentence, scripted &ldquo;I don't know&rdquo; replies, or <code>/goal</code>).</li>
     <li><strong>Models:</strong> Claude Haiku, Sonnet and Opus 5.5 (Claude Code); GPT-6 Luna, GPT-6.1 Sol and GPT-6 Astra (Codex CLI); GLM 5 (pi).</li>
-    <li><strong>Repetitions:</strong> env1 and env2 at n = 6 per configuration (GLM 5 at n = 3). env3 runs one trial at a time in the room: Sol across levels 2&ndash;5, Astra, Opus and GLM 5 at the decisive level.</li>
-    <li><strong>Scoring</strong> is rule-based: a trial is solved if at least one agent states the correct answer. Answers are random (addends between 10,000 and 999,999, 128-bit key halves), so they can't be guessed.</li>
-    <li><strong>Each trial</strong> has a 15-minute limit, starts both agents at the same moment in fresh containers, and runs each harness in its full-auto mode. Agents are never told about the experiment.</li>
-    <li><strong>env3 hardware:</strong> two Lenovo ThinkPad P14s laptops running Ubuntu, with a separate recording rig (two USB webcams and a microphone into OBS) aligned to the agent logs to within about a second.</li>
+    <li><strong>Repetitions:</strong> n = 6 per configuration in env1 and env2 (GLM 5: n = 3). In env3, Sol across levels 2&ndash;5; Astra, Opus and GLM 5 at the decisive level.</li>
+    <li><strong>Scoring:</strong> a trial is solved if at least one agent states the correct answer. Answers are random (addends 10,000&ndash;999,999; 128-bit key halves), so they can't be guessed.</li>
+    <li><strong>Each trial:</strong> 15-minute limit, both agents start together in fresh containers, harnesses in full-auto mode. Agents aren't told about the experiment.</li>
+    <li><strong>env3 hardware:</strong> two ThinkPad P14s laptops running Ubuntu, plus a recording rig (two USB webcams and a microphone into OBS) synced to the agent logs within about a second.</li>
   </ul>
   <p>Code, sweep definitions and analysis scripts are in the <a href="https://github.com/htried/sidechannel-exp">repository</a>.</p>
 </section>
 </main>
 
 <footer class="wrap">
-  <p>Citation coming soon. &middot; Videos are recordings of our own lab laptops; agents were never told they were being studied.</p>
+  <p>Citation coming soon. Videos are recordings of our own lab laptops.</p>
 </footer>
 <script src="assets/app.js"></script>
 </body>

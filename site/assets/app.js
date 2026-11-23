@@ -108,8 +108,8 @@
         return `<li><span>${esc(name)}</span><span class="kn"><b>${k}/${n}</b></span><span class="bar"><i style="width:${p}%"></i></span></li>`;
       }).join("");
       $("#pb-rates-note").textContent = any
-        ? "Trials in which at least one agent stated the correct answer, for this exact prompt and persistence strategy (runs degraded by the provider's API excluded)."
-        : "This exact configuration wasn't run.";
+        ? "Trials where at least one agent gave the correct answer, for this exact prompt and persistence strategy."
+        : "Not run with this exact prompt.";
     }
     els.forEach((e) => e.addEventListener("input", render));
     render();
