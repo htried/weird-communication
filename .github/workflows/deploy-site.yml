@@ -1,6 +1,6 @@
 # Uploads site/ to theagentsaretalking.com on Hostinger over FTP when site/ changes on main.
-# Same approach as haltriedman.com: upload only, nothing on the server is deleted (remove
-# stale files by hand). Needs repo secrets FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
+# Same approach as haltriedman.com: upload only; files dropped from site/ are deleted on the server
+# only when listed in the rm -f line below. Needs repo secrets FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
 #
 # The FTP account is rooted at the site's public_html, so the remote target is "." (the web root).
 name: Deploy site
@@ -49,7 +49,7 @@ jobs:
             set ftp:ssl-allow no;
             set net:max-retries 3;
             put site/.htaccess -o .htaccess;
-            rm -f .htpasswd 401.html;
+            rm -f .htpasswd 401.html og.png videos/e3s2a-secretsum-5-scripted-r3.mp4 videos/e3s2a-secretsum-5-scripted-r3.jpg;
             mirror --reverse --verbose \
               --exclude-glob .htaccess --exclude-glob README.md \
               site/ ./;
