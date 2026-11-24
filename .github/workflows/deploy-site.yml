@@ -3,14 +3,12 @@
 # stale files by hand). Needs repo secrets FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
 #
 # The FTP account is rooted at the site's public_html, so the remote target is "." (the web root).
-# Order matters: .htaccess and the password file go up first, so the site is never briefly
-# public. The password file sits in the web root as .htpasswd; .htaccess denies all .ht* files.
 name: Deploy site
 
 on:
   push:
     branches: [main]
-    paths: ["site/**", "deploy/**", ".github/workflows/deploy-site.yml"]
+    paths: ["site/**", ".github/workflows/deploy-site.yml"]
   workflow_dispatch:
 
 concurrency: deploy-site
@@ -40,16 +38,6 @@ jobs:
           persist-credentials: false
       - if: steps.check.outputs.ready == 'true'
         run: sudo apt-get install -y -qq lftp
-      - name: Fill in the password-file path
-        if: steps.check.outputs.ready == 'true'
-        env:
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-        run: |
-          # Hostinger home is /home/<account>, where <account> is the FTP user before any dot.
-          ACCOUNT="${FTP_USERNAME%%.*}"
-          HTPASSWD="/home/${ACCOUNT}/domains/${DOMAIN}/public_html/.htpasswd"
-          sed -i "s|__HTPASSWD__|${HTPASSWD}|" site/.htaccess
-          grep -q "__HTPASSWD__" site/.htaccess && { echo "path not filled in"; exit 1; } || true
       - name: Upload
         if: steps.check.outputs.ready == 'true'
         env:
@@ -61,28 +49,27 @@ jobs:
             set ftp:ssl-allow no;
             set net:max-retries 3;
             put site/.htaccess -o .htaccess;
-            put deploy/theagentsaretalking.htpasswd -o .htpasswd;
+            rm -f .htpasswd 401.html;
             mirror --reverse --verbose \
               --exclude-glob .htaccess --exclude-glob README.md \
               site/ ./;
             cls -la;
             quit"
-      - name: Check that the site requires a password
+      - name: Check the deployed site
         if: steps.check.outputs.ready == 'true'
         run: |
           sleep 5
           fail=0
-          for path in / /index.html /videos/e3s1-5-goal-r1.mp4 /.htpasswd /domains/${DOMAIN}/public_html/index.html; do
+          # Public pages. Redirects (3xx) can come from the CDN's bot challenge for CI runners.
+          for path in / /og-splash.png /favicon.ico /data/site.json; do
             code=$(curl -s -o /dev/null -w "%{http_code}" "https://${DOMAIN}${path}")
-            echo "unauthenticated ${path} -> HTTP $code"
-            # Fail on content served without the password (2xx) or server errors (5xx, e.g. a wrong
-            # AuthUserFile path). Redirects can come from the CDN's bot challenge for CI runners.
-            case "$code" in 2*|5*|000) fail=1 ;; esac
+            echo "${path} -> HTTP $code"
+            case "$code" in 2*|3*) ;; *) fail=1 ;; esac
           done
-          # Link-preview assets are deliberately public.
-          for path in /og-splash.png /401.html /favicon.ico /apple-touch-icon.png; do
+          # Housekeeping files must not be served.
+          for path in /.htaccess /README.md; do
             code=$(curl -s -o /dev/null -w "%{http_code}" "https://${DOMAIN}${path}")
-            echo "unauthenticated ${path} -> HTTP $code (public on purpose)"
+            echo "${path} -> HTTP $code (should be refused)"
+            case "$code" in 2*) fail=1 ;; esac
           done
-          curl -s "https://${DOMAIN}/" | grep -q 'og:title' && echo "401 page carries preview tags" || echo "::warning::401 page has no preview tags"
           test "$fail" = "0"

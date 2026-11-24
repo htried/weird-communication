@@ -53,7 +53,4 @@ needs repo secrets `FTP_SERVER`, `FTP_USERNAME` and `FTP_PASSWORD`, and the doma
 as a website in hPanel. It only uploads; files removed from `site/` must be deleted on the server
 by hand.
 
-The site is behind HTTP basic auth (`site/.htaccess`). The password hash is
-`deploy/theagentsaretalking.htpasswd` (APR1), uploaded outside `public_html`. To change the
-password: `printf 'USER:%s\n' "$(openssl passwd -apr1 'NEW_PASSWORD')" > deploy/theagentsaretalking.htpasswd`
-and push. Pages are also marked `noindex` and `Cache-Control: private`.
+`.htaccess` only turns off directory listings and refuses to serve housekeeping files.
