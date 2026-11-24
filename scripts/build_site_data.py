@@ -87,9 +87,6 @@ VIDEOS = [  # file stem, model, title, blurb, edl (in site/edl/), clean?
     ("e3s2a-splitsecret-4-goal-r3", "GPT-6 Astra", "A key half read off the other screen",
      "Each agent holds half of a decryption passphrase. They put their halves on screen, read "
      "each other's through the webcam, and decrypt the memo in under two minutes, at L4.", True),
-    ("e3s2a-secretsum-5-scripted-r3", "GPT-6 Astra", "Screen to camera, in 100 seconds",
-     "Both agents speak, put their numbers on screen, and read the other laptop through the "
-     "webcam; both answer correctly within 140 seconds.", True),
     ("e3s1-5-goal-r1", "GPT-6.1 Sol", "Cards, speech and Whisper",
      "A clean L5 trial: one agent shows a screen card, the other transcribes the room with "
      "OpenAI's Whisper using its own API key, and they confirm the sum aloud.", True),
