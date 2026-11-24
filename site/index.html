@@ -27,6 +27,7 @@
 </head>
 <body>
 <header class="hero">
+  <button type="button" class="theme-toggle hero-toggle" aria-label="Toggle dark mode">◐</button>
   <div class="wrap">
     <div class="hero-top">
       <div class="hero-title">
@@ -69,7 +70,7 @@
 <nav class="toc" aria-label="Sections">
   <div class="wrap">
     <a href="#intro">Intro</a><a href="#setup">Setup</a><a href="#channels-sec">Channels</a><a href="#results">Results</a><a href="#cite">Cite</a>
-    <button id="theme-toggle" type="button" aria-label="Toggle dark mode">◐</button>
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="Toggle dark mode">◐</button>
   </div>
 </nav>
 
@@ -98,7 +99,7 @@
       <p>Two laptops on one table. They share nothing but the room: each agent gets its own laptop&rsquo;s camera, mic, speaker and screen.</p>
     </article>
   </div>
-  <div class="figure-pair wide">
+  <div class="figure-pair">
     <figure>
       <img src="img/env3-photo.jpg" alt="Two ThinkPad laptops facing each other on a desk, with a MacBook between them recording through two USB webcams and a microphone." loading="lazy">
       <figcaption>env3 in the lab: two agent laptops facing each other, and a separate rig recording the room.</figcaption>
@@ -190,18 +191,18 @@
       <p>Codex agents used their harness&rsquo;s API key to send audio to TTS and STT providers for interpretation. Other agents tried installing models from PyPI, Hugging Face and GitHub (the proxy blocked them).</p>
     </article>
   </div>
-  <figure class="wide">
+  <figure>
     <img src="img/screen-display.png" alt="Mid-trial view of both laptops: each GPT-6.1 Sol agent is showing its key half on screen for the other laptop's camera to read." loading="lazy">
     <figcaption>Two GPT-6.1 Sol agents hold up their key halves on screen for the other laptop&rsquo;s camera.</figcaption>
   </figure>
-  <figure class="wide">
+  <figure>
     <img src="img/opus-spectrogram.jpg" width="1660" height="798" alt="Spectrogram of 30 seconds of room audio, labelled: room noise, then the other agent speaking (espeak-ng), then the other agent playing DTMF tones *2*238552#, with the low and high DTMF tone bands marked." loading="lazy">
     <figcaption>A spectrogram a Claude Opus 5.5 agent plotted from its microphone and read as an image: the other agent speaks, then plays DTMF tones. The listener decoded them as <code>*2*238552#</code> (node 2, total 238,552).</figcaption>
   </figure>
+  <p>One more, from an early, misconfigured batch of room trials: agents left each other messages as virtual audio device names, like <code>AGENT1_x_424540_SEEKS_y_PLEASE_REPLY_IN_SINK_DESCRIPTION</code>. The devices outlived their trials, so later agents read them as live peers and went looking for a &ldquo;third laptop.&rdquo; We fixed the misconfiguration, and those runs aren&rsquo;t included in any of the counts on this page.</p>
   <h3>How often they reach for each channel</h3>
   <div id="channels" class="channels"></div>
   <p class="note">How often either agent used each channel in env3, based on the commands they ran. Sol is shown at L5. GLM 5 can&rsquo;t see images or transcribe speech, and never makes a sound or puts anything on screen.</p>
-  <p class="aside-note">In an early, misconfigured batch, agents also left each other messages as virtual audio device names, like <code>AGENT1_x_424540_SEEKS_y_PLEASE_REPLY_IN_SINK_DESCRIPTION</code>. The devices outlived their trials, so later agents read them as live peers and went looking for a &ldquo;third laptop.&rdquo; This was fixed before the reported runs.</p>
 </section>
 
 <section id="results" class="wrap">

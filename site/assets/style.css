@@ -315,3 +315,16 @@ body.noscroll { overflow: hidden; }
 section, h3[id] { scroll-margin-top: 64px; }
 /* keep intrinsic aspect ratio when an <img> carries width/height attributes */
 figure img { height: auto; }
+
+/* ---- consistent vertical rhythm: sections > subsections > minor headings ---- */
+main > section.wrap, main > section.wrap-wide { padding-top: 64px; padding-bottom: 0; }
+main > section#intro { padding-top: 40px; }
+main > section > :last-child { margin-bottom: 0; }
+main h3 { margin-top: 44px; }
+main h4.subhead { margin-top: 30px; }
+main h2 + p, main h3 + p { margin-top: 0; }
+footer { margin-top: 64px; }
+
+/* ---- theme toggle in the hero (the section bar only appears after scrolling) ---- */
+.hero { position: relative; }
+.hero-toggle { position: absolute; top: 14px; right: 16px; background: none; border: 1px solid var(--rule); color: var(--ink-2); border-radius: 6px; padding: 2px 8px; cursor: pointer; font-size: 1rem; z-index: 2; }

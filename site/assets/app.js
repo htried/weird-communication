@@ -23,14 +23,14 @@
   const saved = store.get("theme");
   if (saved) document.documentElement.dataset.theme = saved;
   const redraws = [];
-  $("#theme-toggle").addEventListener("click", () => {
+  $$(".theme-toggle").forEach((btn) => btn.addEventListener("click", () => {
     const dark = matchMedia("(prefers-color-scheme: dark)").matches;
     const cur = document.documentElement.dataset.theme || (dark ? "dark" : "light");
     const next = cur === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
     store.set("theme", next);
     redraws.forEach((f) => f());
-  });
+  }));
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => redraws.forEach((f) => f()));
 
   /* ---------- nav highlight ---------- */
