@@ -128,7 +128,13 @@ figure img { width: 100%; display: block; border-radius: 10px; border: 1px solid
 
 
 
-@media (max-width: 680px) { .channels .row { grid-template-columns: 120px repeat(4, 80px); } }
+/* narrow screens: one block per channel, a full-width bar per model */
+.channels.stack { gap: 14px; overflow: visible; }
+.channels.stack .row { grid-template-columns: 76px minmax(0, 1fr); }
+.channels.stack .ch-name { font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.channels.stack .ch-group { display: grid; gap: 4px; }
+.channels.stack .row > span { color: var(--ink-2); font-size: .82rem; }
+.channels .ch-n { margin: 0; color: var(--ink-3); font-size: .8rem; }
 
 /* video player */
 .player { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; margin: 20px 16px 8px; }

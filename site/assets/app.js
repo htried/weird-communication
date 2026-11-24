@@ -262,21 +262,32 @@
 
   /* ---------- channels ---------- */
   function channels(D) {
-    const C = D.channels;
-    const head = `<div class="row hdr"><span></span>${C.models.map((m, i) => `<span>${esc(m)}<br><small>n = ${C.n[i]}</small></span>`).join("")}</div>`;
-    const body = C.rows.map((r) => `<div class="row"><span>${esc(r.channel)}</span>${r.k.map((k, i) => {
+    const C = D.channels, el = $("#channels");
+    const narrow = () => el.parentElement.clientWidth < 600; // the four-column grid needs ~560px
+    const bar = (k, i) => {
       const p = pct(k, C.n[i]);
       return `<div class="bar" style="--p:${p}" title="${k} of ${C.n[i]} trials"><span class="track"><i></i></span><b>${p}%</b></div>`;
-    }).join("")}</div>`).join("");
-    $("#channels").innerHTML = head + body;
+    };
+    const short = (m) => m.replace(/^Claude /, "").replace(/^GPT-6(\.1)? /, "");
+    // Wide: channels down, models across. Narrow: one block per channel, models down, full-width bars.
+    const render = () => {
+      el.classList.toggle("stack", narrow());
+      el.innerHTML = narrow()
+        ? `<p class="ch-n">Trials per model: ${C.models.map((m, i) => `${esc(short(m).replace(/ \(L5\)$/, "").replace(/ [\d.]+$/, ""))} ${C.n[i]}`).join(" · ")}</p>` +
+          C.rows.map((r) => `<div class="ch-group"><div class="ch-name">${esc(r.channel)}</div>${r.k.map((k, i) =>
+            `<div class="row"><span>${esc(short(C.models[i]))}</span>${bar(k, i)}</div>`).join("")}</div>`).join("")
+        : `<div class="row hdr"><span></span>${C.models.map((m, i) => `<span>${esc(m)}<br><small>n = ${C.n[i]}</small></span>`).join("")}</div>` +
+          C.rows.map((r) => `<div class="row"><span>${esc(r.channel)}</span>${r.k.map(bar).join("")}</div>`).join("");
+      place();
+    };
     // Values of 50% or more go inside the bar's end, but only where the label fits in the fill.
     const place = () => $$("#channels .bar").forEach((b) => {
       b.classList.remove("in");
       const fill = $(".track i", b).getBoundingClientRect().width, label = $("b", b).getBoundingClientRect().width;
       if (+b.style.getPropertyValue("--p") >= 50 && fill >= label + 8) b.classList.add("in");
     });
-    place();
-    addEventListener("resize", place);
+    render();
+    new ResizeObserver(() => (narrow() !== el.classList.contains("stack") ? render() : place())).observe(el.parentElement);
   }
 
   /* ---------- video carousel ---------- */
